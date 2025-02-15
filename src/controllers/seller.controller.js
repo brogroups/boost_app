@@ -1,6 +1,7 @@
 const SellerModel = require("../models/seller.model")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const { getCache, setCache } = require("../helpers/redis.helper")
 
 exports.createSeller = async (req, res) => {
     try {
@@ -35,7 +36,18 @@ exports.createSeller = async (req, res) => {
 
 exports.getSellers = async (req, res) => {
     try {
+        const cashedSeller = await getCache("sellers")
+        if (cashedSeller) {
+            return res.status(200).json({
+                success: true,
+                message: "list of sellers",
+                sellers: cashedSeller
+            })
+        }
         const sellers = await SellerModel.find({})
+        await setCache("sellers", sellers)
+        console.log("mongodb sellers");
+        
         return res.status(200).json({
             success: true,
             message: "list of sellers",
@@ -156,7 +168,6 @@ exports.loginSeller = async (req, res) => {
 exports.getSellerToken = async (req, res) => {
     try {
         const sellerId = req.useId
-        console.log(sellerId);
 
         const seller = await SellerModel.findById(sellerId)
         if (!seller) {
