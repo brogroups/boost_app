@@ -2,8 +2,7 @@ const Debt1Model = require("../models/debt1.model")
 
 exports.createDebt1 = async (req, res) => {
     try {
-        const { title, quantity, sellerBreadId, reason } = req.body
-        const newDebt1 = await Debt1Model.create({ title, quantity, sellerBreadId, reason })
+        const newDebt1 = await Debt1Model.create(req.body)
         return res.status(201).json({
             success: true,
             message: "debt created",
@@ -60,8 +59,7 @@ exports.getDebt1ById = async (req, res) => {
 
 exports.updateDebt1ById = async (req, res) => {
     try {
-        const { title, quantity, sellerBreadId, reason } = req.body
-        const debt1 = await Debt1Model.findByIdAndUpdate(req.params.id, { title, quantity, sellerBreadId, reason, updateAt: new Date() }, { new: true }).populate("sellerBreadId")
+        const debt1 = await Debt1Model.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true }).populate("sellerBreadId")
         if (!debt1) {
             return res.status(404).json({
                 success: false,

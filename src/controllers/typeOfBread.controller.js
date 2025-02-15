@@ -2,11 +2,8 @@ const TypeOfBreadModel = require("../models/typOfbread.model")
 
 exports.createTypeOfBread = async (req, res) => {
     try {
-        const { title, price } = req.body
-        const newTypeOfBread = await TypeOfBreadModel.create({
-            title,
-            price
-        })
+        
+        const newTypeOfBread = await TypeOfBreadModel.create(req.body)
         return res.status(201).json({
             success: true,
             message: "new type of bread created",
@@ -64,8 +61,8 @@ exports.getTypeOfBreadById = async (req, res) => {
 
 exports.updateTypeOfBread = async (req, res) => {
     try {
-        const { title, price } = req.body
-        const typeOfBread = await TypeOfBreadModel.findByIdAndUpdate(req.params.id, { title, price, updateAt: new Date() }, { new: true })
+        
+        const typeOfBread = await TypeOfBreadModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true })
         if (!typeOfBread) {
             return res.status(404).json({
                 success: false,

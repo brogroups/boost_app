@@ -11,7 +11,9 @@ require("dotenv").config()
 const app = express()
 
 app.use(express.json())
-// app.use(cors())
+app.use(cors({
+    origin: "*"
+}))
 
 const ManagerRoute = require("./routes/manager.route")
 app.use("/api", ManagerRoute)
@@ -35,19 +37,22 @@ const SellerBreadRoute = require("./routes/sellerBread.route")
 app.use("/api", SellerBreadRoute)
 
 const orderWithDeliveryRoute = require("./routes/orderWithDeliver.route")
-app.use("/api",orderWithDeliveryRoute)
+app.use("/api", orderWithDeliveryRoute)
 
 const debt1Route = require("./routes/debt1.route")
-app.use("/api",debt1Route)
+app.use("/api", debt1Route)
 
 const typeOfDebtRoute = require("./routes/typeofDebt.route")
-app.use("/api",typeOfDebtRoute)
+app.use("/api", typeOfDebtRoute)
 
 const debt2Route = require("./routes/debt2.route")
-app.use("/api",debt2Route)
+app.use("/api", debt2Route)
 
 const DeliveryDebtRoute = require("./routes/deliveryDebt.route")
-app.use("/api",DeliveryDebtRoute)
+app.use("/api", DeliveryDebtRoute)
+
+const CreateMagazineRoute = require('./routes/createMagazine.route')
+app.use('/api', CreateMagazineRoute)
 
 app.use("/api/refreshToken", async (req, res) => {
     const { refreshToken } = req.body;

@@ -2,14 +2,7 @@ const MagazineModel = require("../models/magazine.model")
 
 exports.createMagazine = async (req, res) => {
     try {
-        const { title, phone, address, pending, remainprice } = req.body
-        const newMagazine = await MagazineModel.create({
-            title,
-            phone,
-            address,
-            pending,
-            remainprice
-        })
+        const newMagazine = await MagazineModel.create(req.body)
         
         return res.status(201).json({
             success: true,
@@ -67,8 +60,7 @@ exports.getMagazineById = async (req, res) => {
 
 exports.updateMagazine = async (req, res) => {
     try {
-        const { title, phone, address, pending, remainprice } = req.body
-        const magazine = await MagazineModel.findByIdAndUpdate(req.params.id, { title, phone, address, pending, remainprice, updateAt: new Date() }, { new: true })
+        const magazine = await MagazineModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true })
         if (!magazine) {
             return res.status(404).json({
                 success: false,
