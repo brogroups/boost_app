@@ -1,0 +1,1795 @@
+{
+	"info": {
+		"_postman_id": "48d5ca84-c3c6-412e-a032-cff61c05b511",
+		"name": "Baker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33421532"
+	},
+	"item": [
+		{
+			"name": "Manager",
+			"item": [
+				{
+					"name": "createManager",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"username15\",\r\n    \"password\":\"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all managers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/managers",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"managers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getManager",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager",
+								"67ae521f2739d7b62719c035"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update Manager",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"sl\",\r\n    \"password\":\"sl\",\r\n    \"superAdminId\":\"salom\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager",
+								"67ae521f2739d7b62719c035"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete Manager",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager/67aee08f6d2f7789c0a6abcd",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager",
+								"67aee08f6d2f7789c0a6abcd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login Manager",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"username\",\r\n    \"password\": \"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get Manager by token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Super admin",
+			"item": [
+				{
+					"name": "login super admin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"admin\",\r\n    \"password\":\"admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/superAdmin/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"superAdmin",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getSuperAdminByToken",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/superAdmin/token",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"superAdmin",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update SuperAdmin",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"bekzod\",\r\n    \"password\":\"bekzod\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/superAdmin",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"superAdmin"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Seller",
+			"item": [
+				{
+					"name": "create Seller",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"usernam\",\r\n    \"password\":\"password15\",\r\n    \"phone\":\"+998995556622\",\r\n    \"price\":15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get seller",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellers",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get seller by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/67af276ae77cbe5b5b5d6b7f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"67af276ae77cbe5b5b5d6b7f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateSeller",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"username\",\r\n    \"password\": \"password\",\r\n    \"phone\": \"+998904565152\",\r\n    \"price\": 15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/67af0269c7a9a51c5934f4ae",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"67af0269c7a9a51c5934f4ae"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteSeller",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/67af145fa9b7e1ff931bcec4",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"67af145fa9b7e1ff931bcec4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "loginSeller",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"username\",\r\n    \"password\":\"password15\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get seller by token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/token",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delivery",
+			"item": [
+				{
+					"name": "create Delivery",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"username05\",\r\n    \"password\":\"1515\",\r\n    \"phone\":\"+998990072778\",\r\n    \"price\":15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get deliveries",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveries",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveries"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get delivery by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"67af31a44b57138335eb4fb2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update Delivery",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"username15\",\r\n    \"password\":\"password\",\r\n    \"phone\":\"+998990072778\",\r\n    \"price\":150\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"67af31a44b57138335eb4fb2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete Delivery",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"67af31a44b57138335eb4fb2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login delivery",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"username05\",\r\n    \"password\":\"1515\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get delivery by token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/token",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Magazine",
+			"item": [
+				{
+					"name": "createMagazine",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"title\",\r\n    \"phone\":\"+998990072778\",\r\n    \"address\":\"address\",\r\n    \"pending\":15,\r\n    \"remainprice\":30\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazine",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazine"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get Magazines",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazines",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazines"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get magazine by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazine",
+								"67af4ac568a063ce1ca4024f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateMagazine",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"title\",\r\n    \"phone\":\"+998990072778\",\r\n    \"address\":\"address\",\r\n    \"pending\":15,\r\n    \"remainprice\":0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazine",
+								"67af4ac568a063ce1ca4024f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete Magazine",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazine",
+								"67af4ac568a063ce1ca4024f"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "type of bread",
+			"item": [
+				{
+					"name": "create type of bread",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"title\",\r\n    \"price\":15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBread",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBread"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get type of breads",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBreads",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBreads"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get type of bread by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBread",
+								"67af58374955ab7ca3df8bb7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update type of bread by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"title\",\r\n    \"price\":150\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBread",
+								"67af58374955ab7ca3df8bb7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete type of bread by id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBread",
+								"67af58374955ab7ca3df8bb7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "sellerBread",
+			"item": [
+				{
+					"name": "create sellerBread",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"typeOfBreadId\": \"67af5f000968cbc9b2c682e8\",\r\n    \"quantity\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBread",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBread"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get seller bread",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBreads",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBreads"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get seller bread by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBread",
+								"67af60bddb302633810e043d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update seller bread",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"typeOfBreadId\": \"67af5f000968cbc9b2c682e8\",\r\n    \"quantity\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBread",
+								"67af60bddb302633810e043d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete seller bread",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBread",
+								"67af60bddb302633810e043d"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "orderWithDelivery",
+			"item": [
+				{
+					"name": "create orderWithDelivery",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"typeOfBreadId\":\"67afd315c5722f1c26a4ebac\",\r\n    \"quantity\":15,\r\n    \"description\":\"description\",\r\n    \"sellerBreadId\":\"67afd320c5722f1c26a4ebaf\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDelivery",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDelivery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get order with deliveries",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDeliveries",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDeliveries"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get order with delivery by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDelivery/67afd3827b69a937f0a84a42",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDelivery",
+								"67afd3827b69a937f0a84a42"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update order with delivery by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"typeOfBreadId\":\"67afd315c5722f1c26a4ebac\",\r\n    \"quantity\":150,\r\n    \"description\":\"descripti\",\r\n    \"sellerBreadId\":\"67afd320c5722f1c26a4ebaf\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDelivery/67afd3827b69a937f0a84a42",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDelivery",
+								"67afd3827b69a937f0a84a42"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete order with delivery",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDelivery/67afd3827b69a937f0a84a42",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDelivery",
+								"67afd3827b69a937f0a84a42"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "debt1",
+			"item": [
+				{
+					"name": "create Debt1",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"title\",\r\n    \"quantity\":1,\r\n    \"sellerBreadId\":\"67af5ffe61ca7c5b4109933d\",\r\n    \"reason\":\"reason\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get debt1",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1s",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1s"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get debt1 by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1",
+								"67afda846c370b155471d1d9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update debt1 by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"titl\",\r\n    \"quantity\":10,\r\n    \"sellerBreadId\":\"67af5ffe61ca7c5b4109933d\",\r\n    \"reason\":\"reaon\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1",
+								"67afda846c370b155471d1d9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete debt1 byid",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1",
+								"67afda846c370b155471d1d9"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "type of debt",
+			"item": [
+				{
+					"name": "create type of debt",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"title\",\r\n    \"price\":15,\r\n    \"quantity\":15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebt",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebt"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get type of debts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebts",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get type of debt",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebt",
+								"67afebc9f8d174e93fa3248a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update type of debt",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"title\",\r\n    \"price\":15,\r\n    \"quantity\":150\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebt",
+								"67afebc9f8d174e93fa3248a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete type of debt",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebt/67afede7c8244abe58c66dd8",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebt",
+								"67afede7c8244abe58c66dd8"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "debt2",
+			"item": [
+				{
+					"name": "createdebt2",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"debtId\":\"67aff24823f96e3855134052\",\r\n    \"quantity\":15,\r\n    \"description\":\"description\",\r\n    \"reason\":\"reason\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get debt2s",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2s",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2s"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get debt2 by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2",
+								"67aff26a23f96e3855134055"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update debt2",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"debtId\":\"67aff24823f96e3855134052\",\r\n    \"quantity\":1,\r\n    \"description\":\"description\",\r\n    \"reason\":\"reason\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2",
+								"67aff26a23f96e3855134055"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete debt2",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2",
+								"67aff26a23f96e3855134055"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "refreshToken",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaGFzaFBhc3N3b3JkIjoiJDJiJDEwJGlMeC8ydWh6YTMuSG5RSUIvQzhFdk9MdUwvQzNldS5Sa0FXTWN3WW16Sy5yL2lFejVTaFZTIiwibG9naW4iOiJhZG1pbiIsImlhdCI6MTczOTQ3NjgwNn0.HukxyaLw9RPc4f6Zu0uUxipetOjwF_-Dwz8IkpwaL9w\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}/api/refreshtoken",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"refreshtoken"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:3500",
+			"type": "string"
+		},
+		{
+			"key": "manager_token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWVmY2Y4NDliYjE0MGM4MmNjNDI4NiIsInVzZXJuYW1lIjoidXNlcm5hbWUxNSIsImlhdCI6MTczOTUyMTI3MywiZXhwIjoxNzQwMTI2MDczfQ.Z9dp0BrNkDBtSY8e72_kD8NZ4G9DmB1Kq3IC-9Gomls",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWYwMjRkYzdhOWE1MWM1OTM0ZjRhNyIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3Mzk1MjI2NTMsImV4cCI6MTc0MDEyNzQ1M30.IosPeU32O4hDHKK4bfzEFGZe_2rLca0AsCxE5MSzeV0",
+			"type": "string"
+		},
+		{
+			"key": "seller_token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWYyNzZhZTc3Y2JlNWI1YjVkNmI3ZiIsInVzZXJuYW1lIjoidXNlcm5hbSIsImlhdCI6MTczOTUzMjEzOCwiZXhwIjoxNzQwMTM2OTM4fQ.Dyu57TTXC0FYymZLq_S0VJwE1N2jYzlzN5zNTnoFzBE",
+			"type": "string"
+		},
+		{
+			"key": "delivery_token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWY0NzA4YWZlN2U0Yjc0ZDY4YzM0YyIsInVzZXJuYW1lIjoidXNlcm5hbWUwNSIsImlhdCI6MTczOTU0MDIzMiwiZXhwIjoxNzQwMTQ1MDMyfQ.-dUIZWpJ42URetu9ykhOf5wws_2lZDoTsuOM_HSAsbk",
+			"type": "string"
+		}
+	]
+}

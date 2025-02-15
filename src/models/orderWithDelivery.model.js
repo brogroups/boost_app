@@ -7,7 +7,9 @@ const OrderWithDeliverySchema = new Schema({
     quantity: { type: Number, required: true },
     description: { type: String, required: true },
     sellerBreadId: { type: Schema.Types.ObjectId, ref: SellerBreadModel },
-    time: { type: Date, required: true }
+    time: { type: Date, required: true },
+    createdAt: { type: Date, default: new Date() },
+    updateAt: { type: Date, default: new Date() }
 })
 
 const OrderWithDeliveryModel = model("OrderWithDelivery",OrderWithDeliverySchema)

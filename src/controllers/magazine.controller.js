@@ -3,15 +3,14 @@ const MagazineModel = require("../models/magazine.model")
 exports.createMagazine = async (req, res) => {
     try {
         const { title, phone, address, pending, remainprice } = req.body
-        const newMagazine = new MagazineModel({
+        const newMagazine = await MagazineModel.create({
             title,
             phone,
             address,
             pending,
             remainprice
         })
-
-        await newMagazine.save()
+        
         return res.status(201).json({
             success: true,
             message: "magazine created",
@@ -104,7 +103,7 @@ exports.deleteMagazine = async (req, res) => {
             message: "magazine deleted",
             magazine
         })
-     }
+    }
     catch (error) {
         return res.status(500).json({
             success: false,

@@ -10,7 +10,7 @@ exports.createDelivery = async (req, res) => {
         const hashPassword = await bcrypt.hash(password, 10)
         const refreshToken = await jwt.sign({ username, password }, process.env.JWT_TOKEN_REFRESH)
 
-        const newDelivery = new DeliveryModel({
+        const newDelivery = await DeliveryModel.create({
             username,
             password: hashPassword,
             phone,
@@ -19,7 +19,6 @@ exports.createDelivery = async (req, res) => {
             superAdminId
         })
 
-        await newDelivery.save()
         const accessToken = await jwt.sign({ id: newDelivery._id, username: newDelivery.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: false,

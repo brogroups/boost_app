@@ -5,12 +5,11 @@ const jwt = require("jsonwebtoken")
 exports.createSeller = async (req, res) => {
     try {
         const { username, password, phone, price } = req.body
-        const seller = await SellerModel.findOne({ username })
 
         const superAdminId = req.useId
         const hashPassword = await bcrypt.hash(password, 10)
         const refreshToken = await jwt.sign({ id: newSeller._id, username: newSeller.username }, process.env.JWT_TOKEN_REFRESH)
-        const newSeller = new SellerModel({
+        const newSeller = await SellerModel.create({
             username,
             password: hashPassword,
             phone,
@@ -18,7 +17,7 @@ exports.createSeller = async (req, res) => {
             superAdminId,
             refreshToken
         })
-        await newSeller.save()
+
         const accessToken = await jwt.sign({ id: newSeller._id, username: newSeller.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: true,
@@ -155,10 +154,10 @@ exports.loginSeller = async (req, res) => {
 }
 
 exports.getSellerToken = async (req, res) => {
-    try { 
+    try {
         const sellerId = req.useId
         console.log(sellerId);
-        
+
         const seller = await SellerModel.findById(sellerId)
         if (!seller) {
             return res.status(404).json({

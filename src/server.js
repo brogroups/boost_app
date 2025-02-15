@@ -36,6 +36,15 @@ app.use("/api", SellerBreadRoute)
 const orderWithDeliveryRoute = require("./routes/orderWithDeliver.route")
 app.use("/api",orderWithDeliveryRoute)
 
+const debt1Route = require("./routes/debt1.route")
+app.use("/api",debt1Route)
+
+const typeOfDebtRoute = require("./routes/typeofDebt.route")
+app.use("/api",typeOfDebtRoute)
+
+const debt2Route = require("./routes/debt2.route")
+app.use("/api",debt2Route)
+
 app.use("/api/refreshToken", async (req, res) => {
     try {
         const { refreshToken } = req.body;

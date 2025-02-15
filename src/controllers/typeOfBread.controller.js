@@ -3,11 +3,10 @@ const TypeOfBreadModel = require("../models/typOfbread.model")
 exports.createTypeOfBread = async (req, res) => {
     try {
         const { title, price } = req.body
-        const newTypeOfBread = new TypeOfBreadModel({
+        const newTypeOfBread = await TypeOfBreadModel.create({
             title,
             price
         })
-        await newTypeOfBread.save()
         return res.status(201).json({
             success: true,
             message: "new type of bread created",

@@ -3,12 +3,11 @@ const SellerBreadModel = require("../models/sellerBread.model")
 exports.createSellerBread = async (req, res) => {
     try {
         const { typeOfBreadId, quantity, time } = req.body
-        const sellerBread = new SellerBreadModel({
+        const sellerBread = await SellerBreadModel.create({
             typeOfBreadId,
             time: time ? time : new Date(),
             quantity
         })
-        await sellerBread.save()
 
         return res.status(201).json({
             success: true,
@@ -67,7 +66,7 @@ exports.getSellerById = async (req, res) => {
 exports.updateSellerById = async (req, res) => {
     try {
         const { typeOfBreadId, quantity, time } = req.body
-        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { typeOfBreadId, quantity, time,updateAt:new Date() }, { new: true }).populate("typeOfBreadId")
+        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { typeOfBreadId, quantity, time, updateAt: new Date() }, { new: true }).populate("typeOfBreadId")
         if (!sellerBread) {
             return res.status(404).json({
                 success: false,
@@ -102,7 +101,7 @@ exports.deleteSellerById = async (req, res) => {
             message: "seller bread deleted",
             sellerBread
         })
-     }
+    }
     catch (error) {
         return res.status(500).json({
             success: false,

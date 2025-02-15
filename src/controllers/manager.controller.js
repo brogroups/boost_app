@@ -10,13 +10,13 @@ exports.createManager = async (req, res) => {
         const refreshToken = await jwt.sign({ password, username }, process.env.JWT_TOKEN_REFRESH)
         const hashPassword = await bcrypt.hash(password, 10)
 
-        const newManager = await ManagerModel({
+        const newManager = await ManagerModel.create({
             username,
             password: hashPassword,
             superAdminId,
             refreshToken
         })
-        await newManager.save()
+        
         const accessToken = await jwt.sign({ id: newManager._id, username: newManager.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: true,
