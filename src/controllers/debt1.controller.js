@@ -1,8 +1,10 @@
 const Debt1Model = require("../models/debt1.model")
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createDebt1 = async (req, res) => {
     try {
         const newDebt1 = await Debt1Model.create(req.body)
+        await deleteCache(`debt1`)
         return res.status(201).json({
             success: true,
             message: "debt created",
@@ -19,7 +21,16 @@ exports.createDebt1 = async (req, res) => {
 
 exports.getDebt1s = async (req, res) => {
     try {
+        const cashe = await getCache(`debt1`)
+        if (cashe) {
+            return res.status(200).json({
+                success: true,
+                message: "list of debt1s",
+                debt1s: cashe
+            })
+        }
         const debt1s = await Debt1Model.find({}).populate("sellerBreadId")
+        await setCache(`debt1`)
         return res.status(200).json({
             success: true,
             message: "list of debt1s",
@@ -66,6 +77,7 @@ exports.updateDebt1ById = async (req, res) => {
                 message: "debts not found"
             })
         }
+        await deleteCache(`debt1`)
         return res.status(200).json({
             success: true,
             message: "debt1 updated",
@@ -90,6 +102,7 @@ exports.deleteDebt1ById = async (req, res) => {
                 message: "debts not found"
             })
         }
+        await deleteCache(`debt1`)
         return res.status(200).json({
             success: true,
             message: "debt1 deleted",
