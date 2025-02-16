@@ -57,6 +57,9 @@ app.use('/api', CreateMagazineRoute)
 const AuthRoute = require('./routes/auth.route')
 app.use("/api",AuthRoute)
 
+const sellingBreadRoute = require("./routes/sellingBread.route")
+app.use("/api",sellingBreadRoute)
+
 app.use("/api/refreshToken", async (req, res) => {
     const { refreshToken } = req.body;
     if (!refreshToken) return res.status(403).json({ message: "Token kerak" });
