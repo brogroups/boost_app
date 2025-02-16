@@ -1382,6 +1382,104 @@
 			]
 		},
 		{
+			"name": "selling bread",
+			"item": [
+				{
+					"name": "create selling bread",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n      \"67af5f000968cbc9b2c682e8\"        \r\n    ],\r\n    \"quantity\":3,\r\n    \"paymentMethod\":\"karta\",\r\n    \"deliveryId\":\"67af4501161e62acc2cd5777\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/sellingBread"
+					},
+					"response": []
+				},
+				{
+					"name": "get selling breads",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellingBreads"
+					},
+					"response": []
+				},
+				{
+					"name": "get selling bread by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718"
+					},
+					"response": []
+				},
+				{
+					"name": "update selling bread by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n      \"67af5f000968cbc9b2c682e8\" ,       \r\n      \"67af5f000968cbc9b2c682e8\"       \r\n    ],\r\n    \"quantity\":2,\r\n    \"paymentMethod\":\"karta\",\r\n    \"deliveryId\":\"67af4501161e62acc2cd5777\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718"
+					},
+					"response": []
+				},
+				{
+					"name": "delete sellingBread",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718"
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "refreshToken",
 			"request": {
 				"method": "POST",
