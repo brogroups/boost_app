@@ -1,3 +1,4 @@
+const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const TypeOfDebtModel = require("../models/typeOfDebt.model")
 
 exports.createTypeOfDebt = async (req, res) => {
@@ -9,6 +10,7 @@ exports.createTypeOfDebt = async (req, res) => {
             quantity,
             version: 1
         })
+        await deleteCache(`typeOfDebt`)
         
         return res.status(201).json({
             success: true,
@@ -26,7 +28,16 @@ exports.createTypeOfDebt = async (req, res) => {
 
 exports.getTypeOfDebt = async (req, res) => {
     try {
+        const cache = await getCache(`typeOfDebt`)
+        if(cache){
+            return res.status(200).json({
+                success: true,
+                message: "list of type of debts",
+                typeOfDebts:cache
+            })
+        }
         const typeOfDebts = await TypeOfDebtModel.find({})
+        await setCache(`typeOfDebt`,typeOfDebts)
         return res.status(200).json({
             success: true,
             message: "list of type of debts",
@@ -74,6 +85,7 @@ exports.updateTypeOfDebt = async (req, res) => {
                 message: "type of debt not found"
             })
         }
+        await deleteCache(`typeOfDebt`)
         return res.status(200).json({
             success: true,
             message: "type of debt updated",
@@ -97,6 +109,7 @@ exports.deleteTypeOfDebt = async (req, res) => {
                 message: "type of debt not found"
             })
         }
+        await deleteCache(`typeOfDebt`)
         return res.status(200).json({
             success: true,
             message: "type of debt deleted",

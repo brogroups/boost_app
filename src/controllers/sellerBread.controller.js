@@ -1,4 +1,6 @@
 const SellerBreadModel = require("../models/sellerBread.model")
+const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
+
 
 exports.createSellerBread = async (req, res) => {
     try {
@@ -8,7 +10,7 @@ exports.createSellerBread = async (req, res) => {
             time: time ? time : new Date(),
             quantity
         })
-
+        await deleteCache(`sellerBread`)
         return res.status(201).json({
             success: true,
             message: "seller bread yaratildi",
@@ -25,7 +27,16 @@ exports.createSellerBread = async (req, res) => {
 
 exports.getSellerBread = async (req, res) => {
     try {
+        const cache = await getCache(`sellerBread`)
+        if (cache) {
+            return res.status(200).json({
+                success: true,
+                message: "list of seller breads",
+                sellerBreads: cache
+            })
+        }
         const sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId")
+        await setCache(`sellerBread`,sellerBreads)
         return res.status(200).json({
             success: true,
             message: "list of seller breads",
@@ -73,6 +84,7 @@ exports.updateSellerById = async (req, res) => {
                 message: "seller bread not found"
             })
         }
+        await deleteCache(`sellerBread`)
         return res.status(200).json({
             success: true,
             message: "seller bread updated",
@@ -96,6 +108,7 @@ exports.deleteSellerById = async (req, res) => {
                 message: "seller bread not found"
             })
         }
+        await deleteCache(`sellerBread`)
         return res.status(200).json({
             success: true,
             message: "seller bread deleted",

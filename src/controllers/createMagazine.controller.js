@@ -4,12 +4,12 @@ const {getCache, setCache, deleteCache} = require('../helpers/redis.helper')
 exports.createCreateMagazine = async (req, res) => {
     try {
         const createMagazine = await CreateMagazineModel.create(req.body)
+        await deleteCache(`createmagazine`)
         return res.status(200).json({
             success: true,
             message: "create magazine created",
             createMagazine
         })
-        await deleteCache(`createMagazine`)
     }
     catch (error) {
         return res.status(500).json({
@@ -77,7 +77,7 @@ exports.updateCreateMagazine = async (req, res) => {
                 message: "create magazine not found"
             })
         }
-        await deleteCache(`createMagazine`)
+        await deleteCache(`createmagazine`)
         return res.status(200).json({
             success: true,
             message: "create magazine updated",
@@ -101,7 +101,7 @@ exports.deleteCreateMagazine = async (req, res) => {
                 message: "create magazine not found"
             })
         }
-        await deleteCache(`createMagazine`)
+        await deleteCache(`createmagazine`)
         return res.status(200).json({
             success: true,
             message: "create magazine deleted",

@@ -1,4 +1,6 @@
 const OrderWithDeliveryModel = require("../models/orderWithDelivery.model")
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
+
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
@@ -10,7 +12,7 @@ exports.createOrderWithDelivery = async (req, res) => {
             sellerBreadId,
             time: time ? time : new Date()
         })
-
+        await deleteCache(`orderWithDelivery`)
         return res.status(201).json({
             success: true,
             message: "order with delivery created",
@@ -27,10 +29,19 @@ exports.createOrderWithDelivery = async (req, res) => {
 
 exports.getOrderWithDeliveries = async (req, res) => {
     try {
+        const cache = await getCache(`orderWithDelivery`)
+        if (cache) {
+            return res.status(200).json({
+                success: true,
+                message: "list of order with delivereis",
+                orderWithDeliveries: cache
+            })
+        }
         let orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("typeOfBreadIds sellerBreadId")
         orderWithDeliveries = orderWithDeliveries.map((item) => {
             return { ...item._doc, price: item.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * item.quantity }
         })
+        await setCache(`orderWithDelivery`, orderWithDeliveries)
         return res.status(200).json({
             success: true,
             message: "list of order with delivereis",
@@ -78,6 +89,7 @@ exports.updateOrderWithDelivery = async (req, res) => {
                 message: "order with delivery not found"
             })
         }
+        await deleteCache(`orderWithDelivery`)
         return res.status(200).json({
             success: true,
             message: "order with delivery updated",
@@ -102,6 +114,7 @@ exports.deleteOrderWithDelivery = async (req, res) => {
                 message: "order with delivery not found"
             })
         }
+        await deleteCache(`orderWithDelivery`)
         return res.status(200).json({
             success: true,
             message: "order with delivery deleted",

@@ -1,9 +1,11 @@
 const TypeOfBreadModel = require("../models/typOfbread.model")
+const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
+
 
 exports.createTypeOfBread = async (req, res) => {
     try {
-        
         const newTypeOfBread = await TypeOfBreadModel.create(req.body)
+        await deleteCache(`typeOfbread`)
         return res.status(201).json({
             success: true,
             message: "new type of bread created",
@@ -21,7 +23,16 @@ exports.createTypeOfBread = async (req, res) => {
 
 exports.getTypeOfBread = async (req, res) => {
     try {
+        const cache = await getCache(`typeOfbread`)
+        if (cache) {
+            return res.status(200).json({
+                success: true,
+                message: "list of type of breads",
+                typeOfBreads: cache
+            })
+        }
         const typeOfBreads = await TypeOfBreadModel.find({})
+        await setCache(`typeOfbread`,typeOfBreads)
         return res.status(200).json({
             success: true,
             message: "list of type of breads",
@@ -61,7 +72,6 @@ exports.getTypeOfBreadById = async (req, res) => {
 
 exports.updateTypeOfBread = async (req, res) => {
     try {
-        
         const typeOfBread = await TypeOfBreadModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true })
         if (!typeOfBread) {
             return res.status(404).json({
@@ -69,6 +79,7 @@ exports.updateTypeOfBread = async (req, res) => {
                 message: "type of bread is not found"
             })
         }
+        await deleteCache(`typeOfbread`)
         return res.status(200).json({
             success: true,
             message: "type of bread updated",
@@ -92,6 +103,7 @@ exports.deleteTypeOfBread = async (req, res) => {
                 message: "type of bread is not found"
             })
         }
+        await deleteCache(`typeOfbread`)
         return res.status(200).json({
             success: true,
             message: "type of bread deleted",

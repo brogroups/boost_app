@@ -1,8 +1,10 @@
 const DeliveryDebtModel = require("../models/deliveryDebt.model")
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createDeliveryDebt = async (req, res) => {
     try {
         const newDeliveryDebt = await DeliveryDebtModel.create(req.body)
+        await deleteCache(`deliveryDebt`)
         return res.status(201).json({
             success: true,
             message: 'delivery debt created',
@@ -19,7 +21,16 @@ exports.createDeliveryDebt = async (req, res) => {
 
 exports.getDeliveryDebt = async (req, res) => {
     try {
+        const cashe = await getCache(`deliveryDebt`)
+        if (cashe) {
+            return res.status(200).json({
+                success: true,
+                message: "list of delivery debts",
+                deliveryDebts: cashe
+            })
+        }
         const deliveryDebts = await DeliveryDebtModel.find({})
+        await setCache(`deliveryDebt`,deliveryDebts)
         return res.status(200).json({
             success: true,
             message: "list of delivery debts",
@@ -66,6 +77,7 @@ exports.updateDeliveryDebt = async (req, res) => {
                 message: 'delivery debt not found'
             })
         }
+        await deleteCache(`deliveryDebt`)
         return res.status(200).json({
             success: true,
             message: 'delivery debt updated',
@@ -80,8 +92,8 @@ exports.updateDeliveryDebt = async (req, res) => {
     }
 }
 
-exports.deleteDeliveryDebt = async (req,res)=>{
-    try{
+exports.deleteDeliveryDebt = async (req, res) => {
+    try {
         const deliveryDebt = await DeliveryDebtModel.findByIdAndDelete(req.params.id)
         if (!deliveryDebt) {
             return res.status(404).json({
@@ -89,6 +101,7 @@ exports.deleteDeliveryDebt = async (req,res)=>{
                 message: 'delivery debt not found'
             })
         }
+        await deleteCache(`deliveryDebt`)
         return res.status(200).json({
             success: true,
             message: 'delivery debt deleted',
