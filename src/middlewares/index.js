@@ -21,7 +21,7 @@ exports.verifyToken = (jwt_secret) => (req, res, next) => {
         if (error) {
             return res.status(500).json({ success: false, message: error })
         }
-        req.useId = use.id        
+        req.use = use      
         next()
     })
 };

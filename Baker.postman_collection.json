@@ -1344,6 +1344,44 @@
 			]
 		},
 		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "auth Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"username\",\r\n    \"password\":\"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/login"
+					},
+					"response": []
+				},
+				{
+					"name": "get user by token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "refreshToken",
 			"request": {
 				"method": "POST",
@@ -1392,12 +1430,12 @@
 		},
 		{
 			"key": "manager_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWVmY2Y4NDliYjE0MGM4MmNjNDI4NiIsInVzZXJuYW1lIjoidXNlcm5hbWUxNSIsImlhdCI6MTczOTUyMTI3MywiZXhwIjoxNzQwMTI2MDczfQ.Z9dp0BrNkDBtSY8e72_kD8NZ4G9DmB1Kq3IC-9Gomls",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YjBiNjExOTU0ZmMzMDIzZTI4OWIyYiIsInVzZXJuYW1lIjoidXNlcm5hbWUiLCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTczOTY5NDI5MiwiZXhwIjoxNzQwMjk5MDkyfQ.c1hG1KACnv4K28o1g8nNFNVTazwspBnqr5RJWlch9XM",
 			"type": "string"
 		},
 		{
 			"key": "admin_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWYwMjRkYzdhOWE1MWM1OTM0ZjRhNyIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3Mzk1MjI2NTMsImV4cCI6MTc0MDEyNzQ1M30.IosPeU32O4hDHKK4bfzEFGZe_2rLca0AsCxE5MSzeV0",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWYwMjRkYzdhOWE1MWM1OTM0ZjRhNyIsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoic3VwZXJBZG1pbiIsImlhdCI6MTczOTY5MzY5OSwiZXhwIjoxNzQwMjk4NDk5fQ.VzlCrDWPMU8MtjafRfp2b86JtA2e_qBPCVYzqPTsFUk",
 			"type": "string"
 		},
 		{
