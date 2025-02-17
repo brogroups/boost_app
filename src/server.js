@@ -10,7 +10,14 @@ require("dotenv").config()
 const app = express()
 
 app.use(express.json())
-// app.use(cors())
+
+
+app.use(cors({
+    origin: "http://localhost:8080", 
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
+  }));
 
 const ManagerRoute = require("./routes/manager.route")
 app.use("/api", ManagerRoute)

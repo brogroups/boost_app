@@ -124,6 +124,8 @@ exports.loginManager = async (req, res) => {
     try {
         const { username, password } = req.body
         const manager = await ManagerModel.findOne({ username })
+        
+        
         if (!manager) {
             return res.status(400).json({
                 success: false,
@@ -138,9 +140,11 @@ exports.loginManager = async (req, res) => {
             })
         }
         const accessToken = await jwt.sign({ id: manager.id, username: manager.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
+
         return res.status(200).json({
             success: true,
             message: "login is successfully",
+            role:"manager",
             accessToken
         })
     }
