@@ -88,11 +88,11 @@ exports.getUserByToken = async (req, res) => {
                 message: "server could not found"
             })
         }
-        setCache(casheKey, user)
         return res.status(200).json({
             success: true,
             message: 'all of this ok',
-            user
+            user,
+            role:use.role
         })
     }
     catch (error) {

@@ -55,10 +55,13 @@ const CreateMagazineRoute = require('./routes/createMagazine.route')
 app.use('/api', CreateMagazineRoute)
 
 const AuthRoute = require('./routes/auth.route')
-app.use("/api",AuthRoute)
+app.use("/api", AuthRoute)
 
 const sellingBreadRoute = require("./routes/sellingBread.route")
-app.use("/api",sellingBreadRoute)
+app.use("/api", sellingBreadRoute)
+
+const historyRoute = require("./routes/history.route")
+app.use("/api", historyRoute)
 
 app.use("/api/refreshToken", async (req, res) => {
     const { refreshToken } = req.body;

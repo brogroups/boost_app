@@ -8,5 +8,5 @@ const { LoginAuthSchema } = require('../validations/auth.validation')
 
 router.post('/login',Middleware.verifyValidation(LoginAuthSchema),Controller.AuthLogin)
 router.get('/token',Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS),Controller.getUserByToken) 
-
+// api/login
 module.exports = router
