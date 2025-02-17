@@ -1,6 +1,7 @@
 const SellerModel = require("../models/seller.model")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const { getCache, setCache,deleteCache } = require("../helpers/redis.helper")
 
 exports.createSeller = async (req, res) => {
     try {
@@ -17,7 +18,7 @@ exports.createSeller = async (req, res) => {
             superAdminId,
             refreshToken
         })
-
+       await deleteCache(`seller`)
         const accessToken = await jwt.sign({ id: newSeller._id, username: newSeller.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: true,
@@ -35,7 +36,18 @@ exports.createSeller = async (req, res) => {
 
 exports.getSellers = async (req, res) => {
     try {
+        const cashedSeller = await getCache("seller")
+        if (cashedSeller) {
+            return res.status(200).json({
+                success: true,
+                message: "list of sellers",
+                sellers: cashedSeller
+            })
+        }
         const sellers = await SellerModel.find({})
+        await setCache("sellers", sellers)
+        console.log("mongodb sellers");
+        
         return res.status(200).json({
             success: true,
             message: "list of sellers",
@@ -84,6 +96,7 @@ exports.updateSeller = async (req, res) => {
                 message: "saller not found"
             })
         }
+       await deleteCache(`seller`)
         return res.status(200).json({
             success: true,
             message: "seller updated",
@@ -107,6 +120,7 @@ exports.deleteSeller = async (req, res) => {
                 message: "saller not found"
             })
         }
+       await deleteCache(`seller`)
         return res.status(200).json({
             success: true,
             message: "seller deleted",
@@ -156,7 +170,6 @@ exports.loginSeller = async (req, res) => {
 exports.getSellerToken = async (req, res) => {
     try {
         const sellerId = req.useId
-        console.log(sellerId);
 
         const seller = await SellerModel.findById(sellerId)
         if (!seller) {

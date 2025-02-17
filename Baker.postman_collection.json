@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "48d5ca84-c3c6-412e-a032-cff61c05b511",
 		"name": "Baker",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "33421532"
 	},
 	"item": [
@@ -22,23 +22,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\":\"username15\",\r\n    \"password\":\"password\"\r\n}",
+							"raw": "{\r\n    \"username\":\"username\",\r\n    \"password\":\"password\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/manager",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"manager"
-							]
-						}
+						"url": "{{BASE_URL}}/api/manager"
 					},
 					"response": []
 				},
@@ -53,16 +44,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/managers",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"managers"
-							]
-						}
+						"url": "{{BASE_URL}}/api/managers"
 					},
 					"response": []
 				},
@@ -77,17 +59,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"manager",
-								"67ae521f2739d7b62719c035"
-							]
-						}
+						"url": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035"
 					},
 					"response": []
 				},
@@ -111,17 +83,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"manager",
-								"67ae521f2739d7b62719c035"
-							]
-						}
+						"url": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035"
 					},
 					"response": []
 				},
@@ -136,17 +98,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/manager/67aee08f6d2f7789c0a6abcd",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"manager",
-								"67aee08f6d2f7789c0a6abcd"
-							]
-						}
+						"url": "{{BASE_URL}}/api/manager/67aee08f6d2f7789c0a6abcd"
 					},
 					"response": []
 				},
@@ -164,17 +116,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/manager/login",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"manager",
-								"login"
-							]
-						}
+						"url": "{{BASE_URL}}/api/manager/login"
 					},
 					"response": []
 				},
@@ -189,16 +131,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/manager",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"manager"
-							]
-						}
+						"url": "{{BASE_URL}}/api/manager"
 					},
 					"response": []
 				}
@@ -221,17 +154,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/superAdmin/login",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"superAdmin",
-								"login"
-							]
-						}
+						"url": "{{BASE_URL}}/api/superAdmin/login"
 					},
 					"response": []
 				},
@@ -246,17 +169,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/superAdmin/token",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"superAdmin",
-								"token"
-							]
-						}
+						"url": "{{BASE_URL}}/api/superAdmin/token"
 					},
 					"response": []
 				},
@@ -280,16 +193,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/superAdmin",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"superAdmin"
-							]
-						}
+						"url": "{{BASE_URL}}/api/superAdmin"
 					},
 					"response": []
 				}
@@ -318,16 +222,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/seller",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"seller"
-							]
-						}
+						"url": "{{BASE_URL}}/api/seller"
 					},
 					"response": []
 				},
@@ -342,16 +237,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/sellers",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"sellers"
-							]
-						}
+						"url": "{{BASE_URL}}/api/sellers"
 					},
 					"response": []
 				},
@@ -366,17 +252,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/seller/67af276ae77cbe5b5b5d6b7f",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"seller",
-								"67af276ae77cbe5b5b5d6b7f"
-							]
-						}
+						"url": "{{BASE_URL}}/api/seller/67af276ae77cbe5b5b5d6b7f"
 					},
 					"response": []
 				},
@@ -400,17 +276,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/seller/67af0269c7a9a51c5934f4ae",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"seller",
-								"67af0269c7a9a51c5934f4ae"
-							]
-						}
+						"url": "{{BASE_URL}}/api/seller/67af0269c7a9a51c5934f4ae"
 					},
 					"response": []
 				},
@@ -425,17 +291,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/seller/67af145fa9b7e1ff931bcec4",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"seller",
-								"67af145fa9b7e1ff931bcec4"
-							]
-						}
+						"url": "{{BASE_URL}}/api/seller/67af145fa9b7e1ff931bcec4"
 					},
 					"response": []
 				},
@@ -453,17 +309,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/seller/login",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"seller",
-								"login"
-							]
-						}
+						"url": "{{BASE_URL}}/api/seller/login"
 					},
 					"response": []
 				},
@@ -478,17 +324,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/seller/token",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"seller",
-								"token"
-							]
-						}
+						"url": "{{BASE_URL}}/api/seller/token"
 					},
 					"response": []
 				}
@@ -517,16 +353,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/delivery",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"delivery"
-							]
-						}
+						"url": "{{BASE_URL}}/api/delivery"
 					},
 					"response": []
 				},
@@ -541,16 +368,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/deliveries",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"deliveries"
-							]
-						}
+						"url": "{{BASE_URL}}/api/deliveries"
 					},
 					"response": []
 				},
@@ -565,17 +383,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"delivery",
-								"67af31a44b57138335eb4fb2"
-							]
-						}
+						"url": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2"
 					},
 					"response": []
 				},
@@ -599,17 +407,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"delivery",
-								"67af31a44b57138335eb4fb2"
-							]
-						}
+						"url": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2"
 					},
 					"response": []
 				},
@@ -624,17 +422,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"delivery",
-								"67af31a44b57138335eb4fb2"
-							]
-						}
+						"url": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2"
 					},
 					"response": []
 				},
@@ -652,17 +440,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/delivery/login",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"delivery",
-								"login"
-							]
-						}
+						"url": "{{BASE_URL}}/api/delivery/login"
 					},
 					"response": []
 				},
@@ -677,17 +455,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/delivery/token",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"delivery",
-								"token"
-							]
-						}
+						"url": "{{BASE_URL}}/api/delivery/token"
 					},
 					"response": []
 				}
@@ -716,16 +484,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/magazine",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"magazine"
-							]
-						}
+						"url": "{{BASE_URL}}/api/magazine"
 					},
 					"response": []
 				},
@@ -740,16 +499,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/magazines",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"magazines"
-							]
-						}
+						"url": "{{BASE_URL}}/api/magazines"
 					},
 					"response": []
 				},
@@ -764,17 +514,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"magazine",
-								"67af4ac568a063ce1ca4024f"
-							]
-						}
+						"url": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f"
 					},
 					"response": []
 				},
@@ -798,17 +538,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"magazine",
-								"67af4ac568a063ce1ca4024f"
-							]
-						}
+						"url": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f"
 					},
 					"response": []
 				},
@@ -823,17 +553,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"magazine",
-								"67af4ac568a063ce1ca4024f"
-							]
-						}
+						"url": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f"
 					},
 					"response": []
 				}
@@ -862,16 +582,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfBread",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfBread"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfBread"
 					},
 					"response": []
 				},
@@ -886,16 +597,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfBreads",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfBreads"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfBreads"
 					},
 					"response": []
 				},
@@ -910,17 +612,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfBread",
-								"67af58374955ab7ca3df8bb7"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7"
 					},
 					"response": []
 				},
@@ -944,17 +636,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfBread",
-								"67af58374955ab7ca3df8bb7"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7"
 					},
 					"response": []
 				},
@@ -969,17 +651,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfBread",
-								"67af58374955ab7ca3df8bb7"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7"
 					},
 					"response": []
 				}
@@ -1008,16 +680,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/sellerBread",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"sellerBread"
-							]
-						}
+						"url": "{{BASE_URL}}/api/sellerBread"
 					},
 					"response": []
 				},
@@ -1032,16 +695,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/sellerBreads",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"sellerBreads"
-							]
-						}
+						"url": "{{BASE_URL}}/api/sellerBreads"
 					},
 					"response": []
 				},
@@ -1056,17 +710,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"sellerBread",
-								"67af60bddb302633810e043d"
-							]
-						}
+						"url": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d"
 					},
 					"response": []
 				},
@@ -1090,17 +734,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"sellerBread",
-								"67af60bddb302633810e043d"
-							]
-						}
+						"url": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d"
 					},
 					"response": []
 				},
@@ -1115,17 +749,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"sellerBread",
-								"67af60bddb302633810e043d"
-							]
-						}
+						"url": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d"
 					},
 					"response": []
 				}
@@ -1147,23 +771,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"typeOfBreadId\":\"67afd315c5722f1c26a4ebac\",\r\n    \"quantity\":15,\r\n    \"description\":\"description\",\r\n    \"sellerBreadId\":\"67afd320c5722f1c26a4ebaf\"\r\n}",
+							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n        \"67afd315c5722f1c26a4ebac\",\r\n        \"67afd315c5722f1c26a4ebac\"\r\n    ],\r\n    \"quantity\":15,\r\n    \"description\":\"description\",\r\n    \"sellerBreadId\":\"67afd320c5722f1c26a4ebaf\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/orderWithDelivery",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"orderWithDelivery"
-							]
-						}
+						"url": "{{BASE_URL}}/api/orderWithDelivery"
 					},
 					"response": []
 				},
@@ -1178,16 +793,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/orderWithDeliveries",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"orderWithDeliveries"
-							]
-						}
+						"url": "{{BASE_URL}}/api/orderWithDeliveries"
 					},
 					"response": []
 				},
@@ -1202,17 +808,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/orderWithDelivery/67afd3827b69a937f0a84a42",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"orderWithDelivery",
-								"67afd3827b69a937f0a84a42"
-							]
-						}
+						"url": "{{BASE_URL}}/api/orderWithDelivery/67b0fe3d1def27ab757f37df"
 					},
 					"response": []
 				},
@@ -1229,24 +825,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"typeOfBreadId\":\"67afd315c5722f1c26a4ebac\",\r\n    \"quantity\":150,\r\n    \"description\":\"descripti\",\r\n    \"sellerBreadId\":\"67afd320c5722f1c26a4ebaf\"\r\n}",
+							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n        \"67afd315c5722f1c26a4ebac\",\r\n        \"67afd315c5722f1c26a4ebac\",\r\n        \"67afd315c5722f1c26a4ebac\"\r\n    ],\r\n    \"quantity\":150,\r\n    \"description\":\"description\",\r\n    \"sellerBreadId\":\"67afd320c5722f1c26a4ebaf\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/orderWithDelivery/67afd3827b69a937f0a84a42",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"orderWithDelivery",
-								"67afd3827b69a937f0a84a42"
-							]
-						}
+						"url": "{{BASE_URL}}/api/orderWithDelivery/67b0fe3d1def27ab757f37df"
 					},
 					"response": []
 				},
@@ -1261,17 +847,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/orderWithDelivery/67afd3827b69a937f0a84a42",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"orderWithDelivery",
-								"67afd3827b69a937f0a84a42"
-							]
-						}
+						"url": "{{BASE_URL}}/api/orderWithDelivery/67b0fda5b9e2ab4f42fe965e"
 					},
 					"response": []
 				}
@@ -1300,16 +876,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt1",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt1"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt1"
 					},
 					"response": []
 				},
@@ -1324,16 +891,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt1s",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt1s"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt1s"
 					},
 					"response": []
 				},
@@ -1348,17 +906,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt1",
-								"67afda846c370b155471d1d9"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9"
 					},
 					"response": []
 				},
@@ -1382,17 +930,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt1",
-								"67afda846c370b155471d1d9"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9"
 					},
 					"response": []
 				},
@@ -1407,17 +945,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt1",
-								"67afda846c370b155471d1d9"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9"
 					},
 					"response": []
 				}
@@ -1446,16 +974,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfDebt",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfDebt"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfDebt"
 					},
 					"response": []
 				},
@@ -1470,16 +989,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfDebts",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfDebts"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfDebts"
 					},
 					"response": []
 				},
@@ -1494,17 +1004,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfDebt",
-								"67afebc9f8d174e93fa3248a"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a"
 					},
 					"response": []
 				},
@@ -1528,17 +1028,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfDebt",
-								"67afebc9f8d174e93fa3248a"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a"
 					},
 					"response": []
 				},
@@ -1553,17 +1043,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/typeOfDebt/67afede7c8244abe58c66dd8",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"typeOfDebt",
-								"67afede7c8244abe58c66dd8"
-							]
-						}
+						"url": "{{BASE_URL}}/api/typeOfDebt/67afede7c8244abe58c66dd8"
 					},
 					"response": []
 				}
@@ -1592,16 +1072,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt2",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt2"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt2"
 					},
 					"response": []
 				},
@@ -1616,16 +1087,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt2s",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt2s"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt2s"
 					},
 					"response": []
 				},
@@ -1640,17 +1102,7 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt2",
-								"67aff26a23f96e3855134055"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055"
 					},
 					"response": []
 				},
@@ -1674,17 +1126,7 @@
 								}
 							}
 						},
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt2",
-								"67aff26a23f96e3855134055"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055"
 					},
 					"response": []
 				},
@@ -1699,17 +1141,339 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055",
-							"host": [
-								"{{BASE_URL}}"
-							],
-							"path": [
-								"api",
-								"debt2",
-								"67aff26a23f96e3855134055"
-							]
-						}
+						"url": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "delivery debt",
+			"item": [
+				{
+					"name": "create delivery debt",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reason\":\"reason\",\r\n    \"price\":10,\r\n    \"description\":\"description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/deliveryDebt"
+					},
+					"response": []
+				},
+				{
+					"name": "get delivery debts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/deliveryDebts"
+					},
+					"response": []
+				},
+				{
+					"name": "get delivery debt by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/deliveryDebt/67b0f91c5eeb9ac2ea541fcb"
+					},
+					"response": []
+				},
+				{
+					"name": "update delivery debt by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reason\":\"reason\",\r\n    \"price\":0,\r\n    \"description\":\"description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/deliveryDebt/67b0f91c5eeb9ac2ea541fcb"
+					},
+					"response": []
+				},
+				{
+					"name": "delete delivery debt by id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/deliveryDebt/67b0f91c5eeb9ac2ea541fcb"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "create magazine",
+			"item": [
+				{
+					"name": "createCreateMagazine",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"owner\":\"owner\",\r\n    \"phone\":\"+998990009080\",\r\n    \"address\":\"address\",\r\n    \"avarageBread\":3,\r\n    \"DeliveryId\":\"67af4501161e62acc2cd5777\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/createMagazine"
+					},
+					"response": []
+				},
+				{
+					"name": "get create magazine",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/createMagazines"
+					},
+					"response": []
+				},
+				{
+					"name": "get create magazine by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/createMagazine/67b10aa4c2a0cc4aeaa939a9"
+					},
+					"response": []
+				},
+				{
+					"name": "update create magazine",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"owner\":\"owner\",\r\n    \"phone\":\"+998990009000\",\r\n    \"address\":\"address\",\r\n    \"avarageBread\":5,\r\n    \"DeliveryId\":\"67af4501161e62acc2cd5777\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/createMagazine/67b10aa4c2a0cc4aeaa939a9"
+					},
+					"response": []
+				},
+				{
+					"name": "delete create magazine",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/createMagazine/67b10aa4c2a0cc4aeaa939a9"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "auth Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"username\",\r\n    \"password\":\"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/login"
+					},
+					"response": []
+				},
+				{
+					"name": "get user by token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "selling bread",
+			"item": [
+				{
+					"name": "create selling bread",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n      \"67af5f000968cbc9b2c682e8\"        \r\n    ],\r\n    \"quantity\":3,\r\n    \"paymentMethod\":\"karta\",\r\n    \"deliveryId\":\"67af4501161e62acc2cd5777\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/sellingBread"
+					},
+					"response": []
+				},
+				{
+					"name": "get selling breads",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellingBreads"
+					},
+					"response": []
+				},
+				{
+					"name": "get selling bread by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718"
+					},
+					"response": []
+				},
+				{
+					"name": "update selling bread by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n      \"67af5f000968cbc9b2c682e8\" ,       \r\n      \"67af5f000968cbc9b2c682e8\"       \r\n    ],\r\n    \"quantity\":2,\r\n    \"paymentMethod\":\"karta\",\r\n    \"deliveryId\":\"67af4501161e62acc2cd5777\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718"
+					},
+					"response": []
+				},
+				{
+					"name": "delete sellingBread",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{delivery_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718"
 					},
 					"response": []
 				}
@@ -1729,16 +1493,7 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "{{BASE_URL}}/api/refreshtoken",
-					"host": [
-						"{{BASE_URL}}"
-					],
-					"path": [
-						"api",
-						"refreshtoken"
-					]
-				}
+				"url": "{{BASE_URL}}/api/refreshtoken"
 			},
 			"response": []
 		}
@@ -1773,12 +1528,12 @@
 		},
 		{
 			"key": "manager_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWVmY2Y4NDliYjE0MGM4MmNjNDI4NiIsInVzZXJuYW1lIjoidXNlcm5hbWUxNSIsImlhdCI6MTczOTUyMTI3MywiZXhwIjoxNzQwMTI2MDczfQ.Z9dp0BrNkDBtSY8e72_kD8NZ4G9DmB1Kq3IC-9Gomls",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YjBiNjExOTU0ZmMzMDIzZTI4OWIyYiIsInVzZXJuYW1lIjoidXNlcm5hbWUiLCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTczOTY5NDI5MiwiZXhwIjoxNzQwMjk5MDkyfQ.c1hG1KACnv4K28o1g8nNFNVTazwspBnqr5RJWlch9XM",
 			"type": "string"
 		},
 		{
 			"key": "admin_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWYwMjRkYzdhOWE1MWM1OTM0ZjRhNyIsInVzZXJuYW1lIjoiYWRtaW4iLCJpYXQiOjE3Mzk1MjI2NTMsImV4cCI6MTc0MDEyNzQ1M30.IosPeU32O4hDHKK4bfzEFGZe_2rLca0AsCxE5MSzeV0",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWYwMjRkYzdhOWE1MWM1OTM0ZjRhNyIsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoic3VwZXJBZG1pbiIsImlhdCI6MTczOTY5MzY5OSwiZXhwIjoxNzQwMjk4NDk5fQ.VzlCrDWPMU8MtjafRfp2b86JtA2e_qBPCVYzqPTsFUk",
 			"type": "string"
 		},
 		{

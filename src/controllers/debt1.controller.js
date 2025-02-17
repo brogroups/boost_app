@@ -1,9 +1,10 @@
 const Debt1Model = require("../models/debt1.model")
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createDebt1 = async (req, res) => {
     try {
-        const { title, quantity, sellerBreadId, reason } = req.body
-        const newDebt1 = await Debt1Model.create({ title, quantity, sellerBreadId, reason })
+        const newDebt1 = await Debt1Model.create(req.body)
+        await deleteCache(`debt1`)
         return res.status(201).json({
             success: true,
             message: "debt created",
@@ -20,7 +21,16 @@ exports.createDebt1 = async (req, res) => {
 
 exports.getDebt1s = async (req, res) => {
     try {
+        const cashe = await getCache(`debt1`)
+        if (cashe) {
+            return res.status(200).json({
+                success: true,
+                message: "list of debt1s",
+                debt1s: cashe
+            })
+        }
         const debt1s = await Debt1Model.find({}).populate("sellerBreadId")
+        await setCache(`debt1`)
         return res.status(200).json({
             success: true,
             message: "list of debt1s",
@@ -60,14 +70,14 @@ exports.getDebt1ById = async (req, res) => {
 
 exports.updateDebt1ById = async (req, res) => {
     try {
-        const { title, quantity, sellerBreadId, reason } = req.body
-        const debt1 = await Debt1Model.findByIdAndUpdate(req.params.id, { title, quantity, sellerBreadId, reason, updateAt: new Date() }, { new: true }).populate("sellerBreadId")
+        const debt1 = await Debt1Model.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true }).populate("sellerBreadId")
         if (!debt1) {
             return res.status(404).json({
                 success: false,
                 message: "debts not found"
             })
         }
+        await deleteCache(`debt1`)
         return res.status(200).json({
             success: true,
             message: "debt1 updated",
@@ -92,6 +102,7 @@ exports.deleteDebt1ById = async (req, res) => {
                 message: "debts not found"
             })
         }
+        await deleteCache(`debt1`)
         return res.status(200).json({
             success: true,
             message: "debt1 deleted",

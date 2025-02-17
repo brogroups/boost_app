@@ -1,11 +1,12 @@
 const ManagerModel = require("../models/manager.model")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createManager = async (req, res) => {
     try {
         const { username, password } = req.body
-        const superAdminId = req.useId
+        const superAdminId = req.use.id
 
         const refreshToken = await jwt.sign({ password, username }, process.env.JWT_TOKEN_REFRESH)
         const hashPassword = await bcrypt.hash(password, 10)
@@ -16,7 +17,7 @@ exports.createManager = async (req, res) => {
             superAdminId,
             refreshToken
         })
-        
+        await deleteCache(`manager`)
         const accessToken = await jwt.sign({ id: newManager._id, username: newManager.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: true,
@@ -34,7 +35,16 @@ exports.createManager = async (req, res) => {
 
 exports.getAllManagers = async (req, res) => {
     try {
+        const cache = await getCache(`manager`)
+        if (cache) {
+            return res.status(200).json({
+                success: true,
+                message: "list of managers",
+                managers: cache
+            })
+        }
         const managers = await ManagerModel.find({})
+        await setCache(`manager`,managers)
         return res.status(200).json({
             success: true,
             message: "list of managers",
@@ -83,6 +93,7 @@ exports.updateManager = async (req, res) => {
                 message: "manager not found"
             })
         }
+        await deleteCache(`manager`)
         return res.status(200).json({
             success: true,
             message: "manager updated",
@@ -106,6 +117,7 @@ exports.deleteManager = async (req, res) => {
                 message: "manager not found"
             })
         }
+        await deleteCache(`manager`)
         return res.status(200).json({
             success: true,
             message: "manager deleted",

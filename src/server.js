@@ -1,9 +1,10 @@
 const express = require('express')
 const cors = require("cors")
-const { connect } = require("mongoose")
 const SuperAdminModel = require('./models/superAdmin.model')
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
+const ConnecToDb = require('./configs/connection')
+
 
 require("dotenv").config()
 
@@ -41,21 +42,34 @@ const SellerBreadRoute = require("./routes/sellerBread.route")
 app.use("/api", SellerBreadRoute)
 
 const orderWithDeliveryRoute = require("./routes/orderWithDeliver.route")
-app.use("/api",orderWithDeliveryRoute)
+app.use("/api", orderWithDeliveryRoute)
 
 const debt1Route = require("./routes/debt1.route")
-app.use("/api",debt1Route)
+app.use("/api", debt1Route)
 
 const typeOfDebtRoute = require("./routes/typeofDebt.route")
-app.use("/api",typeOfDebtRoute)
+app.use("/api", typeOfDebtRoute)
 
 const debt2Route = require("./routes/debt2.route")
-app.use("/api",debt2Route)
+app.use("/api", debt2Route)
+
+const DeliveryDebtRoute = require("./routes/deliveryDebt.route")
+app.use("/api", DeliveryDebtRoute)
+
+const CreateMagazineRoute = require('./routes/createMagazine.route')
+app.use('/api', CreateMagazineRoute)
+
+const AuthRoute = require('./routes/auth.route')
+app.use("/api",AuthRoute)
+
+const sellingBreadRoute = require("./routes/sellingBread.route")
+app.use("/api",sellingBreadRoute)
 
 app.use("/api/refreshToken", async (req, res) => {
+    const { refreshToken } = req.body;
+    if (!refreshToken) return res.status(403).json({ message: "Token kerak" });
+
     try {
-        const { refreshToken } = req.body;
-        if (!refreshToken) return res.status(403).json({ message: "Token kerak" });
 
         jwt.verify(refreshToken, process.env.JWT_TOKEN_REFRESH, (err, user) => {
             if (err) return res.status(403).json({ success: false, message: err.message });
@@ -81,8 +95,7 @@ const PORT = process.env.PORT || 3500
 const StartServer = async () => {
     try {
         app.listen(PORT, () => console.log(`app is listening http://localhost:${PORT}`))
-        await connect(process.env.MONGO_URL)
-        console.log("mongodb is connected");
+        await ConnecToDb()
         const superAdmin = await SuperAdminModel.findOne({ login: "admin" })
         if (!superAdmin) {
             const hashPassword = await bcrypt.hash("admin", 10)

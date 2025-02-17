@@ -1,16 +1,11 @@
 const MagazineModel = require("../models/magazine.model")
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
+
 
 exports.createMagazine = async (req, res) => {
     try {
-        const { title, phone, address, pending, remainprice } = req.body
-        const newMagazine = await MagazineModel.create({
-            title,
-            phone,
-            address,
-            pending,
-            remainprice
-        })
-        
+        const newMagazine = await MagazineModel.create(req.body)        
+        await deleteCache(`magazine`)
         return res.status(201).json({
             success: true,
             message: "magazine created",
@@ -27,7 +22,16 @@ exports.createMagazine = async (req, res) => {
 
 exports.getMagazines = async (req, res) => {
     try {
+        const cache = await getCache(`magazine`)
+        if(cache){
+            return res.status(200).json({
+                success: true,
+                message: "list of magazines",
+                magazines:cache
+            })    
+        }
         const magazines = await MagazineModel.find({})
+        await setCache(`magazine`,magazines)
         return res.status(200).json({
             success: true,
             message: "list of magazines",
@@ -67,14 +71,14 @@ exports.getMagazineById = async (req, res) => {
 
 exports.updateMagazine = async (req, res) => {
     try {
-        const { title, phone, address, pending, remainprice } = req.body
-        const magazine = await MagazineModel.findByIdAndUpdate(req.params.id, { title, phone, address, pending, remainprice, updateAt: new Date() }, { new: true })
+        const magazine = await MagazineModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true })
         if (!magazine) {
             return res.status(404).json({
                 success: false,
                 message: "magazine not found"
             })
         }
+        await deleteCache(`magazine`)
         return res.status(200).json({
             success: true,
             message: "magazine updated",
@@ -98,6 +102,7 @@ exports.deleteMagazine = async (req, res) => {
                 message: "magazine not found"
             })
         }
+        await deleteCache(`magazine`)
         return res.status(200).json({
             success: true,
             message: "magazine deleted",

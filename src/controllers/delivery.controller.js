@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt")
 const DeliveryModel = require("../models/delivery.model")
 const jwt = require("jsonwebtoken")
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
+
 
 exports.createDelivery = async (req, res) => {
     try {
@@ -18,7 +20,7 @@ exports.createDelivery = async (req, res) => {
             refreshToken,
             superAdminId
         })
-
+        await deleteCache(`delivery`)
         const accessToken = await jwt.sign({ id: newDelivery._id, username: newDelivery.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: false,
@@ -36,7 +38,16 @@ exports.createDelivery = async (req, res) => {
 
 exports.getDeliveries = async (req, res) => {
     try {
+        const cashe = await getCache(`delivery`)
+        if (cashe) {
+            return res.status(200).json({
+                success: true,
+                message: "list of deliveries",
+                deliveries: cashe
+            })
+        }
         const deliveries = await DeliveryModel.find({})
+        await setCache(`delivery`,deliveries)
         return res.status(200).json({
             success: true,
             message: "list of deliveries",
@@ -86,6 +97,7 @@ exports.updateDelivery = async (req, res) => {
                 message: "Delivery not found"
             })
         }
+        await deleteCache(`delivery`)
         return res.status(200).json({
             success: true,
             message: "delivery updated",
@@ -109,6 +121,7 @@ exports.deleteDelivery = async (req, res) => {
                 message: "Delivery not found"
             })
         }
+        await deleteCache(`delivery`)
         return res.status(200).json({
             success: true,
             message: "delivery deleted",
@@ -142,8 +155,8 @@ exports.loginDelivery = async (req, res) => {
         }
         const accessToken = await jwt.sign({ id: delivery._id, username: delivery.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(200).json({
-            success:true,
-            message:"login is successfully",
+            success: true,
+            message: "login is successfully",
             accessToken
         })
     }
@@ -155,9 +168,9 @@ exports.loginDelivery = async (req, res) => {
     }
 }
 
-exports.getDeliveryByToken = async (req,res)=>{
-    try{
-        const deliveryId = req.useId
+exports.getDeliveryByToken = async (req, res) => {
+    try {
+        const deliveryId = req.use.id
         const delivery = await DeliveryModel.findById(deliveryId)
         if (!delivery) {
             return res.status(404).json({
