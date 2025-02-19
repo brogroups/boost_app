@@ -57,20 +57,24 @@ exports.getSellers = async (req, res) => {
         let sellers = await SellerModel.aggregate([
             { $match: { superAdminId: new mongoose.Types.ObjectId(use.id) } }
         ])
+        const data = []
         for (const key of sellers) {
             const orderWithDelivery = await OrderWithDeliveryModel.find({
                 sellerId: key._id
             }).populate("typeOfBreadIds")
-            console.log(orderWithDelivery.map((item) => item.typeOfBreadIds));
-
+            let totalPrice = 0
+            for (const item of orderWithDelivery) {
+                totalPrice = item.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * item.quantity
+            }
+            data.push({ ...key, totalPrice })
         }
 
-        await setCache("sellers", sellers)
+        await setCache("sellers", data)
 
         return res.status(200).json({
             success: true,
             message: "list of sellers",
-            sellers
+            sellers: data
         })
     }
     catch (error) {

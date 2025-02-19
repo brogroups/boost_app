@@ -82,7 +82,7 @@ exports.getOrderWithDeliveryById = async (req, res) => {
 exports.updateOrderWithDelivery = async (req, res) => {
     try {
         const { typeOfBreadIds, quantity, description, sellerBreadId, time } = req.body
-        const orderWithDelivery = await OrderWithDeliveryModel.findByIdAndUpdate(req.params.id, { typeOfBreadIds, quantity, description, sellerBreadId, time: time ? time : new Date(), updateAt: new Date() }).populate("typeOfBreadIds sellerBreadId")
+        const orderWithDelivery = await OrderWithDeliveryModel.findByIdAndUpdate(req.params.id, { typeOfBreadIds, quantity, description, sellerBreadId, time: time ? time : new Date(), updateAt: new Date() }).populate("typeOfBreadIds sellerId")
         if (!orderWithDelivery) {
             return res.status(404).json({
                 success: false,
