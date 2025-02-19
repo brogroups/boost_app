@@ -22,7 +22,7 @@ exports.createDelivery = async (req, res) => {
             superAdminId
         })
         await deleteCache(`delivery`)
-        const accessToken = await jwt.sign({ id: newDelivery._id, username: newDelivery.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
+        const accessToken = await jwt.sign({ id: newDelivery._id, username: newDelivery.username,role }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: false,
             message: "delivery created",

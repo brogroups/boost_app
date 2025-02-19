@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const MagazineSchema = new Schema({
     title: { type: String, required: true },
-    phone: { type: String, required: true },
+    phone: { type: String},
     address: { type: String, required: true },
     pending: { type: Number, required: true },
     remainprice: { type: Number, required: true },

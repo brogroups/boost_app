@@ -18,7 +18,7 @@ exports.createManager = async (req, res) => {
             refreshToken
         })
         await deleteCache(`manager`)
-        const accessToken = await jwt.sign({ id: newManager._id, username: newManager.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
+        const accessToken = await jwt.sign({ id: newManager._id, username: newManager.username,role:"manager" }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: true,
             message: "manager created",

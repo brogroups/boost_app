@@ -4,7 +4,7 @@ const SuperAdminModel = require("./superAdmin.model");
 const DeliverySchema = new Schema({
     username: { type: String, required: true, },
     password: { type: String, required: true, },
-    phone: { type: String, required: true },
+    phone: { type: String},
     price: { type: Number, required: true },
     superAdminId: { type: Schema.Types.ObjectId, ref: SuperAdminModel, required: true },
     createdAt: { type: Date, default: new Date() },

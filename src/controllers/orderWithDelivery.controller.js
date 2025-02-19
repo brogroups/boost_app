@@ -4,12 +4,12 @@ const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
-        const { typeOfBreadIds, quantity, description, sellerBreadId, time } = req.body
+        const { typeOfBreadIds, quantity, description, sellerId, time } = req.body
         const newOrderWithDelivery = await OrderWithDeliveryModel.create({
             typeOfBreadIds,
             quantity,
             description,
-            sellerBreadId,
+            sellerId,
             time: time ? time : new Date()
         })
         await deleteCache(`orderWithDelivery`)
@@ -37,7 +37,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                 orderWithDeliveries: cache
             })
         }
-        let orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("typeOfBreadIds sellerBreadId")
+        let orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("typeOfBreadIds sellerId")
         orderWithDeliveries = orderWithDeliveries.map((item) => {
             return { ...item._doc, price: item.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * item.quantity }
         })
@@ -58,7 +58,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
 exports.getOrderWithDeliveryById = async (req, res) => {
     try {
-        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id).populate("typeOfBreadIds sellerBreadId")
+        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id).populate("typeOfBreadIds sellerId")
         if (!orderWithDelivery) {
             return res.status(404).json({
                 success: false,

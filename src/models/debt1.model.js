@@ -1,10 +1,10 @@
 const { Schema, model } = require("mongoose");
-const SellerBreadModel = require("./sellerBread.model")
+const SellerModel = require("./seller.model");
 
 const Debt1Schema = new Schema({
     title: { type: String, required: true },
     quantity: { type: Number, required: true },
-    sellerBreadId: { type: Schema.Types.ObjectId, ref: SellerBreadModel, required: true },
+    sellerId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
     reason: { type: String, required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }

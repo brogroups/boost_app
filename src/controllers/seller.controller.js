@@ -3,27 +3,30 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
+const OrderWithDeliveryModel = require("../models/orderWithDelivery.model")
+
 
 exports.createSeller = async (req, res) => {
     try {
-        const { username, password, phone, price } = req.body
+        const { username, phone, price, ovenId } = req.body
 
+        const password = phone.slice(-4)
         const hashPassword = await bcrypt.hash(password, 10)
         const superAdminId = req.use.id
-        console.log(superAdminId);
-        
+
         const newSeller = new SellerModel({
             username,
             password: hashPassword,
             phone,
             price,
             superAdminId,
+            ovenId
         })
         const refreshToken = await jwt.sign({ id: newSeller._id, username: newSeller.username }, process.env.JWT_TOKEN_REFRESH)
         newSeller.refreshToken = refreshToken
         await newSeller.save()
         await deleteCache(`seller`)
-        const accessToken = await jwt.sign({ id: newSeller._id, username: newSeller.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
+        const accessToken = await jwt.sign({ id: newSeller._id, username: newSeller.username, role: "seller" }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: true,
             message: "seller created",
@@ -49,11 +52,18 @@ exports.getSellers = async (req, res) => {
             })
         }
         const use = req.use
-        const sellers = await SellerModel.aggregate([
+        let sellers = await SellerModel.aggregate([
             { $match: { superAdminId: new mongoose.Types.ObjectId(use.id) } }
         ])
+        for (const key of sellers) {
+            const orderWithDelivery = await OrderWithDeliveryModel.find({
+                sellerId: key._id
+            }).populate("typeOfBreadIds")
+            console.log(orderWithDelivery.map((item)=>item));
+
+        }
+
         await setCache("sellers", sellers)
-        console.log("mongodb sellers");
 
         return res.status(200).json({
             success: true,
