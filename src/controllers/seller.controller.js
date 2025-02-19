@@ -26,7 +26,6 @@ exports.createSeller = async (req, res) => {
         newSeller.refreshToken = refreshToken
         await newSeller.save()
         await deleteCache(`seller`)
-        const accessToken = await jwt.sign({ id: newSeller._id, username: newSeller.username, role: "seller" }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: true,
             message: "seller created",
