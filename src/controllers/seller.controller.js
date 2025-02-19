@@ -30,7 +30,10 @@ exports.createSeller = async (req, res) => {
         return res.status(201).json({
             success: true,
             message: "seller created",
-            accessToken
+            seller: {
+                username: newSeller.username,
+                password: newSeller.password
+            }
         })
     }
     catch (error) {
@@ -59,7 +62,7 @@ exports.getSellers = async (req, res) => {
             const orderWithDelivery = await OrderWithDeliveryModel.find({
                 sellerId: key._id
             }).populate("typeOfBreadIds")
-            console.log(orderWithDelivery.map((item)=>item));
+            console.log(orderWithDelivery.map((item) => item.typeOfBreadIds));
 
         }
 
