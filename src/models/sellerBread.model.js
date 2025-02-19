@@ -6,6 +6,8 @@ const SellerBreadSchema = new Schema({
     quantity: { type: Number, required: true },
     time: { type: Date, required: true },
     price: { type: Number },
+    ovenId: { type: String, required: true },
+    name: { type: String, required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })
