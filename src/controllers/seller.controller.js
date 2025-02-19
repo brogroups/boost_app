@@ -1,24 +1,28 @@
 const SellerModel = require("../models/seller.model")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const { getCache, setCache,deleteCache } = require("../helpers/redis.helper")
+const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
+const { default: mongoose } = require("mongoose")
 
 exports.createSeller = async (req, res) => {
     try {
         const { username, password, phone, price } = req.body
 
-        const superAdminId = req.useId
         const hashPassword = await bcrypt.hash(password, 10)
-        const refreshToken = await jwt.sign({ id: newSeller._id, username: newSeller.username }, process.env.JWT_TOKEN_REFRESH)
-        const newSeller = await SellerModel.create({
+        const superAdminId = req.use.id
+        console.log(superAdminId);
+        
+        const newSeller = new SellerModel({
             username,
             password: hashPassword,
             phone,
             price,
             superAdminId,
-            refreshToken
         })
-       await deleteCache(`seller`)
+        const refreshToken = await jwt.sign({ id: newSeller._id, username: newSeller.username }, process.env.JWT_TOKEN_REFRESH)
+        newSeller.refreshToken = refreshToken
+        await newSeller.save()
+        await deleteCache(`seller`)
         const accessToken = await jwt.sign({ id: newSeller._id, username: newSeller.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: true,
@@ -44,10 +48,13 @@ exports.getSellers = async (req, res) => {
                 sellers: cashedSeller
             })
         }
-        const sellers = await SellerModel.find({})
+        const use = req.use
+        const sellers = await SellerModel.aggregate([
+            { $match: { superAdminId: new mongoose.Types.ObjectId(use.id) } }
+        ])
         await setCache("sellers", sellers)
         console.log("mongodb sellers");
-        
+
         return res.status(200).json({
             success: true,
             message: "list of sellers",
@@ -96,7 +103,7 @@ exports.updateSeller = async (req, res) => {
                 message: "saller not found"
             })
         }
-       await deleteCache(`seller`)
+        await deleteCache(`seller`)
         return res.status(200).json({
             success: true,
             message: "seller updated",
@@ -120,7 +127,7 @@ exports.deleteSeller = async (req, res) => {
                 message: "saller not found"
             })
         }
-       await deleteCache(`seller`)
+        await deleteCache(`seller`)
         return res.status(200).json({
             success: true,
             message: "seller deleted",

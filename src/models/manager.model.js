@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 const SuperAdminModel = require("./superAdmin.model");
 
 const ManagerSchema = new Schema({
-    username: { type: String, required: true,unique:true },
+    username: { type: String, required: true, },
     password: { type: String, required: true, unique: true },
     superAdminId: { type: Schema.Types.ObjectId,ref:SuperAdminModel},
     refreshToken: { type: String, required: true },

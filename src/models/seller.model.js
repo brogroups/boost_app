@@ -2,8 +2,8 @@ const { Schema, model } = require("mongoose");
 const SuperAdminModel = require("./superAdmin.model");
 
 const SellerScheme = new Schema({
-    username: { type: String, required: true,unique:true },
-    password: { type: String, required: true,unique:true },
+    username: { type: String, required: true, },
+    password: { type: String, required: true, },
     phone: { type: String, required: true },
     price: { type: Number, required: true },
     superAdminId: { type: Schema.Types.ObjectId,ref:SuperAdminModel, required: true },

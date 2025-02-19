@@ -29,13 +29,8 @@ exports.deleteCache = async (key) => {
 
 exports.getAllCache = async () => {
     try{
-        const keys = await redis.keys("*")
-        let obj = {}
-        
-        for (const key of keys) {
-            obj[key] = await this.getCache(key)
-        }        
-        return obj ? obj : null
+        const keys = await redis.keys("*")     
+        return keys ? keys : null
     }
     catch (error) {
         console.error('Error get all cache:', error)

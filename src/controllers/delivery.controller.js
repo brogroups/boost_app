@@ -2,13 +2,14 @@ const bcrypt = require("bcrypt")
 const DeliveryModel = require("../models/delivery.model")
 const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
+const { default: mongoose } = require("mongoose")
 
 
 exports.createDelivery = async (req, res) => {
     try {
         const { username, password, phone, price } = req.body
 
-        const superAdminId = req.useId
+        const superAdminId = req.use.id
         const hashPassword = await bcrypt.hash(password, 10)
         const refreshToken = await jwt.sign({ username, password }, process.env.JWT_TOKEN_REFRESH)
 
@@ -46,8 +47,10 @@ exports.getDeliveries = async (req, res) => {
                 deliveries: cashe
             })
         }
-        const deliveries = await DeliveryModel.find({})
-        await setCache(`delivery`,deliveries)
+        const deliveries = await DeliveryModel.aggregate([
+            { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }
+        ])
+        await setCache(`delivery`, deliveries)
         return res.status(200).json({
             success: true,
             message: "list of deliveries",
