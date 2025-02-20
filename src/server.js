@@ -71,6 +71,9 @@ app.use("/api", historyRoute)
 const StaticRoute = require("./routes/static.route")
 app.use("/api",StaticRoute)
 
+const SellerPayedRoute = require("./routes/sellerPayed.route") 
+app.use("/api",SellerPayedRoute)
+
 app.use("/api/refreshToken", async (req, res) => {
     const { refreshToken } = req.body;
     if (!refreshToken) return res.status(403).json({ message: "Token kerak" });
