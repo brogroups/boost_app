@@ -1,13 +1,13 @@
 const Joi = require("joi");
 
 const createSelleyPayedSchema = Joi.object({
-    sellerId: {type:String,required:true},
-    price: {type:Number,required:true},
+    sellerId: Joi.string().required(),
+    price: Joi.number().required(),
 })
 
 const updateSelleyPayedSchema = Joi.object({
-    sellerId: {type:String,required:true},
-    price: {type:Number,required:true},
+    sellerId: Joi.string().required(),
+    price: Joi.number().required(),
 })
 
 module.exports  = {createSelleyPayedSchema,updateSelleyPayedSchema}

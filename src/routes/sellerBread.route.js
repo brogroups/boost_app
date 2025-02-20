@@ -8,10 +8,10 @@ const { CreateSellerBread, UpdateSellerBread } = require("../validations/sellerB
 const SuperAdminModel = require("../models/superAdmin.model")
 const ManagerModel = require("../models/manager.model")
 
-router.post("/sellerBread", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel,ManagerModel]), Middleware.verifyValidation(CreateSellerBread), Controller.createSellerBread)
-router.get("/sellerBreads", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel,ManagerModel]), Controller.getSellerBread)
-router.get("/sellerBread/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel,ManagerModel]), Controller.getSellerById)
-router.put("/sellerBread/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel,ManagerModel]),Middleware.verifyValidation(UpdateSellerBread), Controller.updateSellerById)
-router.delete("/sellerBread/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel,ManagerModel]), Controller.deleteSellerById)
+router.post("/sellerBread", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel]), Middleware.verifyValidation(CreateSellerBread), Controller.createSellerBread)
+router.get("/sellerBreads", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel]), Controller.getSellerBread)
+router.get("/sellerBread/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel]), Controller.getSellerById)
+router.put("/sellerBread/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel]),Middleware.verifyValidation(UpdateSellerBread), Controller.updateSellerById)
+router.delete("/sellerBread/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel]), Controller.deleteSellerById)
 
 module.exports = router

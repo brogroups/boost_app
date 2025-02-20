@@ -1,12 +1,12 @@
-const sellerPayedModel = require("../models/sellerPayed.model")
+const deliveryPayedModel = require("../models/deliveryPayed.model")
 
-exports.createSelleryPayed = async (req,res)=>{
+exports.createdeliveryPayed = async (req,res)=>{
     try{
-        const sellerPayed = await sellerPayedModel.create(req.body)
+        const deliveryPayed = await deliveryPayedModel.create(req.body)
         return res.status(201).json({
             success:true,
-            message:"seller payed created",
-            sellerPayed
+            message:"delivery payed created",
+            deliveryPayed
         })
     }
     catch(error){
@@ -17,13 +17,13 @@ exports.createSelleryPayed = async (req,res)=>{
     }
 }
 
-exports.getSellerPayed = async (req,res)=>{
+exports.getDeliveryPayed = async (req,res)=>{
     try{
-        const sellerPayeds = await sellerPayedModel.find({}).populate("sellerId")
+        const deliveryPayeds = await deliveryPayedModel.find({}).populate("deliveryId")
         return res.status(200).json({
             success:true,
             message:'list of seller payeds',
-            sellerPayeds
+            deliveryPayeds
         })
     }
     catch(error){
@@ -34,19 +34,19 @@ exports.getSellerPayed = async (req,res)=>{
      }
 }
 
-exports.getSellerPayedById = async (req,res)=>{
+exports.getdeliveryPayedById = async (req,res)=>{
     try{
-        const sellerPayed = await sellerPayedModel.findById(req.params.id).populate("sellerId")
-        if(!sellerPayed){
+        const deliveryPayed = await deliveryPayedModel.findById(req.params.id).populate("deliveryId")
+        if(!deliveryPayed){
             return res.status(404).json({
                 success:false,
-                message:"seller payed not found"
+                message:"delivery payed not found"
             })
         }
         return res.status(200).json({
             success:true,
             message:"details of seller payed",
-            sellerPayed
+            deliveryPayed
         })
     }
     catch(error){
@@ -57,19 +57,19 @@ exports.getSellerPayedById = async (req,res)=>{
      }
 }
 
-exports.updateSellerById = async (req,res)=>{
+exports.updatedeliveryPayedById = async (req,res)=>{
     try{
-        const sellerPayed = await sellerPayedModel.findByIdAndUpdate(req.params.id,{...req.body,updateAt:new Date()},{new:true}).populate("sellerId")
-        if(!sellerPayed){
+        const deliveryPayed = await deliveryPayedModel.findByIdAndUpdate(req.params.id,{...req.body,updateAt:new Date()},{new:true}).populate("deliveryId")
+        if(!deliveryPayed){
             return res.status(404).json({
                 success:false,
-                message:"seller payed not found"
+                message:"delivery payed not found"
             })
         }
         return res.status(200).json({
             success:true,
             message:"seller payed updated",
-            sellerPayed
+            deliveryPayed
         })
     }
     catch(error){
@@ -80,19 +80,19 @@ exports.updateSellerById = async (req,res)=>{
      }
 }
 
-exports.deleteSellerPayed = async (req,res)=>{
+exports.deletedelivertPayed = async (req,res)=>{
     try{
-        const sellerPayed = await sellerPayedModel.findByIdAndDelete(req.params.id)
-        if(!sellerPayed){
+        const deliveryPayed = await deliveryPayedModel.findByIdAndDelete(req.params.id)
+        if(!deliveryPayed){
             return res.status(404).json({
                 success:false,
-                message:"seller payed not found"
+                message:"delivery payed not found"
             })
         }
         return res.status(200).json({
             success:true,
             message:"seller payed updated",
-            sellerPayed
+            deliveryPayed
         })
     }
     catch(error){

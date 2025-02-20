@@ -10,10 +10,10 @@ const DeliveryModel = require('../models/delivery.model')
 const { CreatecreateMagazineSchema, UpdatecreateMagazineSchema } = require('../validations/createMagazine.validation')
 
 
-router.post('/createMagazine', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel, ManagerModel, DeliveryModel]), Middleware.verifyValidation(CreatecreateMagazineSchema), Controller.createCreateMagazine)
-router.get('/createMagazines', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel, ManagerModel, DeliveryModel]), Controller.getCreateMagazine)
-router.get('/createMagazine/:id', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel, ManagerModel, DeliveryModel]), Controller.getCreateMagazineById)
-router.put('/createMagazine/:id', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel, ManagerModel, DeliveryModel]), Middleware.verifyValidation(UpdatecreateMagazineSchema), Controller.updateCreateMagazine)
-router.delete('/createMagazine/:id', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorretRole([SuperAdminModel, ManagerModel, DeliveryModel]),  Controller.deleteCreateMagazine)
+router.post('/createMagazine', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Middleware.verifyValidation(CreatecreateMagazineSchema), Controller.createCreateMagazine)
+router.get('/createMagazines', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Controller.getCreateMagazine)
+router.get('/createMagazine/:id', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Controller.getCreateMagazineById)
+router.put('/createMagazine/:id', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Middleware.verifyValidation(UpdatecreateMagazineSchema), Controller.updateCreateMagazine)
+router.delete('/createMagazine/:id', Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]),  Controller.deleteCreateMagazine)
 
 module.exports = router
