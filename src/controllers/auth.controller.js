@@ -82,19 +82,21 @@ exports.getUserByToken = async (req, res) => {
         } else if (use.role === 'delivery') {
             user = await DeliveryModel.findById(use.id)
         }
+
         if (!user) {
             return res.status(404).json({
                 success: false,
                 message: "server could not found"
             })
-        }
+        } 
+
         return res.status(200).json({
             success: true,
             message: 'all of this ok',
             user,
             role:use.role
         })
-    }
+    } 
     catch (error) {
         return res.status(500).json({
             success: false,

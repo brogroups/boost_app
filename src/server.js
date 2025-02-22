@@ -83,8 +83,10 @@ app.use("/api/refreshToken", async (req, res) => {
 
   try {
     jwt.verify(refreshToken, process.env.JWT_TOKEN_REFRESH, (err, user) => {
-      if (err)
-        return res.status(403).json({ success: false, message: err.message });
+      console.log(err);
+      console.log(user);
+      
+      if (err) return res.status(403).json({ success: false, message: err.message });
 
       const newAccessToken = jwt.sign(
         { id: user.id, username: user.username },
@@ -132,3 +134,6 @@ const StartServer = async () => {
 };
 
 StartServer();
+
+
+

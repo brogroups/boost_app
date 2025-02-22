@@ -7,8 +7,9 @@ const { default: mongoose } = require("mongoose")
 
 exports.createDelivery = async (req, res) => {
     try {
-        const { username, password, phone, price } = req.body
+        const { username, phone, price } = req.body
 
+        const password = phone.slice(-4)
         const superAdminId = req.use.id
         const hashPassword = await bcrypt.hash(password, 10)
         const refreshToken = await jwt.sign({ username, password }, process.env.JWT_TOKEN_REFRESH)
@@ -22,7 +23,7 @@ exports.createDelivery = async (req, res) => {
             superAdminId
         })
         await deleteCache(`delivery`)
-        const accessToken = await jwt.sign({ id: newDelivery._id, username: newDelivery.username,role }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
+        const accessToken = await jwt.sign({ id: newDelivery._id, username: newDelivery.username, role: "delivery" }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: false,
             message: "delivery created",
