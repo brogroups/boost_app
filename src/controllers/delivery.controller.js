@@ -93,7 +93,10 @@ exports.getDeliveryById = async (req, res) => {
 exports.updateDelivery = async (req, res) => {
     try {
         const { username, password, phone, price } = req.body
-        const hashPassword = await bcrypt.hash(password, 10)
+        let hashPassword;
+        if (password) {
+            hashPassword = await bcrypt.hash(password, 10)
+        }
         const delivery = await DeliveryModel.findByIdAndUpdate(req.params.id, { username, hashPassword, phone, price, updateAt: new Date() }, { new: true })
         if (!delivery) {
             return res.status(404).json({
