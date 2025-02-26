@@ -65,7 +65,7 @@ exports.getUserByToken = async (req, res) => {
         const casheKey = `user:${use.id}`
         const casheUser = await getCache(casheKey)
 
-        if (casheUser) {            
+        if (casheUser) {
             return res.status(200).json({
                 success: true,
                 message: 'all of this ok',
@@ -82,17 +82,68 @@ exports.getUserByToken = async (req, res) => {
         } else if (use.role === 'delivery') {
             user = await DeliveryModel.findById(use.id)
         }
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "backer api could not found this user"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'all of this ok',
+            user,
+            role: use.role
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+exports.updateUserAuth = async (req, res) => {
+    try {
+        const use = req.use
+        let user = null
+        const { password } = req.body
+
+        const casheKey = `user:${use.id}`
+        const casheUser = await getCache(casheKey)
+
+        if (casheUser) {
+            return res.status(200).json({
+                success: true,
+                message: 'all of this ok',
+                user: casheUser
+            })
+        }
+        const hashPassword = await bcrypt.hash(password, 10)
+        if (use.role === 'manager') {
+            user = await ManagerModel.findByIdAndUpdate(use.id, { password: hashPassword }, { new: true })
+        } else if (use.role === "superAdmin") {
+            user = await SuperAdminModel.findByIdAndUpdate(use.id, { password: hashPassword }, { new: true })
+        } else if (use.role === 'seller') {
+            user = await SellerModel.findByIdAndUpdate(use.id, { password: hashPassword }, { new: true })
+        } else if (use.role === 'delivery') {
+            user = await DeliveryModel.findByIdAndUpdate(use.id, { password: hashPassword }, { new: true })
+        }
+
         if (!user) {
             return res.status(404).json({
                 success: false,
                 message: "server could not found"
             })
         }
+
         return res.status(200).json({
             success: true,
             message: 'all of this ok',
             user,
-            role:use.role
+            role: use.role
         })
     }
     catch (error) {

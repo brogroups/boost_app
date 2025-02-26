@@ -78,14 +78,22 @@ app.use("/api", SellerPayedRoute);
 const deliveryPayedRoute = require("./routes/deliveryPayed.route");
 app.use("/api", deliveryPayedRoute);
 
+const typeOfWareHouseRoute = require("./routes/typeOfWareHouse.route")
+app.use("/api",typeOfWareHouseRoute)
+
+const WareHouseRoute = require("./routes/warehouse.route")
+app.use("/api",WareHouseRoute)
+
 app.use("/api/refreshToken", async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) return res.status(403).json({ message: "Token kerak" });
 
   try {
     jwt.verify(refreshToken, process.env.JWT_TOKEN_REFRESH, (err, user) => {
-      if (err)
-        return res.status(403).json({ success: false, message: err.message });
+      console.log(err);
+      console.log(user);
+      
+      if (err) return res.status(403).json({ success: false, message: err.message });
 
       const newAccessToken = jwt.sign(
         { id: user.id, username: user.username },
@@ -133,3 +141,6 @@ const StartServer = async () => {
 };
 
 StartServer();
+
+
+

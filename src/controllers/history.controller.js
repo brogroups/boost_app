@@ -5,6 +5,8 @@ exports.getAllHistory = async (req, res) => {
         const histories = await getAllCache()
         let obj = {}
         const date = new Date()
+        const id = req.use
+        
 
         for (const key of histories) {
             const data = await getCache(key)

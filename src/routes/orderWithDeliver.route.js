@@ -4,13 +4,16 @@ const router = Router()
 const Controller = require("../controllers/orderWithDelivery.controller")
 const Middleware = require("../middlewares")
 const SellerModel = require("../models/seller.model")
+const ManagerModel = require("../models/manager.model")
+const SuperAdminModel = require("../models/superAdmin.model")
 
 const { CreateOrderWithDeliverySchema, UpdateOrderWithDeliverySchema } = require("../validations/orderWithDelivery.validation")
 
-router.post("/orderWithDelivery", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SellerModel]), Middleware.verifyValidation(CreateOrderWithDeliverySchema), Controller.createOrderWithDelivery)
-router.get("/orderWithDeliveries", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SellerModel]),  Controller.getOrderWithDeliveries)
-router.get("/orderWithDelivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SellerModel]),  Controller.getOrderWithDeliveryById)
-router.put("/orderWithDelivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SellerModel]),Middleware.verifyValidation(UpdateOrderWithDeliverySchema),  Controller.updateOrderWithDelivery)
-router.delete("/orderWithDelivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SellerModel]),  Controller.deleteOrderWithDelivery)
+
+router.post("/orderWithDelivery", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]), Middleware.verifyValidation(CreateOrderWithDeliverySchema), Controller.createOrderWithDelivery)
+router.get("/orderWithDeliveries", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]),  Controller.getOrderWithDeliveries)
+router.get("/orderWithDelivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]),  Controller.getOrderWithDeliveryById)
+router.put("/orderWithDelivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]),Middleware.verifyValidation(UpdateOrderWithDeliverySchema),  Controller.updateOrderWithDelivery)
+router.delete("/orderWithDelivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]),  Controller.deleteOrderWithDelivery)
 
 module.exports = router
