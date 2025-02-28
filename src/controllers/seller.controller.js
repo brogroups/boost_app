@@ -111,8 +111,11 @@ exports.getSellerById = async (req, res) => {
 exports.updateSeller = async (req, res) => {
     try {
         const { username, password, phone, price } = req.body
-        const hashPassword = await bcrypt.hash(password, 10)
-        const seller = await SellerModel.findByIdAndUpdate(req.params.id, { username, password: hashPassword, phone, price, updateAt: new Date() }, { new: true })
+        let hashPassword;
+        if (password) {
+            hashPassword = await bcrypt.hash(password, 10)
+        }
+        const seller = await SellerModel.findByIdAndUpdate(req.params.id, password ? { username, password: hashPassword, phone, price, updateAt: new Date() }:{ username, phone, price, updateAt: new Date() }, { new: true })
         if (!seller) {
             return res.status(404).json({
                 success: false,

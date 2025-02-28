@@ -1,8 +1,10 @@
 const WareHouseModel = require("../models/warehouse.model")
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createWareHouse = async (req, res) => {
     try {
         const warehouse = await WareHouseModel.create(req.body)
+        await deleteCache("warehouse")
         return res.status(201).json({
             success: true,
             message: "ware house created",
@@ -19,7 +21,16 @@ exports.createWareHouse = async (req, res) => {
 
 exports.getWareHouses = async (req, res) => {
     try {
+        const warehousesCache = await getCache("warehouse")
+        if (warehousesCache) {
+            return res.status(200).json({
+                success: true,
+                message: "list of ware houses",
+                warehouses: warehousesCache
+            })
+        }
         const warehouses = await WareHouseModel.find({}).populate("typeId")
+        await setCache("warehouse",warehouses)
         return res.status(200).json({
             success: true,
             message: "list of ware houses",
@@ -66,6 +77,7 @@ exports.updateWareHouse = async (req, res) => {
                 message: "warehouse not found"
             })
         }
+        await deleteCache("warehouse")
         return res.status(200).json({
             success: true,
             message: "warehouse updated",
@@ -89,6 +101,7 @@ exports.deleteWareHouse = async (req, res) => {
                 message: "warehouse not found"
             })
         }
+        await deleteCache("warehouse")
         return res.status(200).json({
             success: true,
             message: "warehouse deleted",
