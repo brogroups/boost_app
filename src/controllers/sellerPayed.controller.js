@@ -4,7 +4,7 @@ const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 exports.createSelleryPayed = async (req, res) => {
     try {
         const sellerPayed = await sellerPayedModel.create(req.body)
-        await setCache(`sellerPayed`,sellerPayed)
+        await deleteCache(`sellerPayed`)
         return res.status(201).json({
             success: true,
             message: "seller payed created",
