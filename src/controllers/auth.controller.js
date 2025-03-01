@@ -37,7 +37,7 @@ exports.AuthLogin = async (req, res) => {
             })
         }
         const accessToken = jwt.sign(
-            { id: user.id, username: user.username, role },
+            { id: user._id, username: user.username, role },
             process.env.JWT_TOKEN_ACCESS,
             { expiresIn: "7d" }
         )

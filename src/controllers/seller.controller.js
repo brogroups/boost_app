@@ -66,9 +66,11 @@ exports.getSellers = async (req, res) => {
             for (const item of orderWithDelivery) {
                 totalPrice = item.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * item.quantity
             }
-            const sellerPayed = await SellerPayedModel.find({ sellerId: key._id }).populate("statusId typeId")
-            
-            data.push({ ...key, totalPrice,history:sellerPayed })
+            const sellerPayed = await SellerPayedModel.aggregate([
+                { $match: { sellerId: key._id } }
+            ])
+
+            data.push({ ...key, totalPrice, history: sellerPayed })
         }
 
         await setCache("sellers", data)
