@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
 const OrderWithDeliveryModel = require("../models/orderWithDelivery.model")
-
+const SellerPayedModel = require("../models/sellerPayed.model")
 
 exports.createSeller = async (req, res) => {
     try {
@@ -66,7 +66,9 @@ exports.getSellers = async (req, res) => {
             for (const item of orderWithDelivery) {
                 totalPrice = item.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * item.quantity
             }
-            data.push({ ...key, totalPrice })
+            const sellerPayed = await SellerPayedModel.find({ sellerId: key._id }).populate("statusId typeId")
+            
+            data.push({ ...key, totalPrice,history:sellerPayed })
         }
 
         await setCache("sellers", data)
@@ -111,8 +113,11 @@ exports.getSellerById = async (req, res) => {
 exports.updateSeller = async (req, res) => {
     try {
         const { username, password, phone, price } = req.body
-        const hashPassword = await bcrypt.hash(password, 10)
-        const seller = await SellerModel.findByIdAndUpdate(req.params.id, { username, password: hashPassword, phone, price, updateAt: new Date() }, { new: true })
+        let hashPassword;
+        if (password) {
+            hashPassword = await bcrypt.hash(password, 10)
+        }
+        const seller = await SellerModel.findByIdAndUpdate(req.params.id, password ? { username, password: hashPassword, phone, price, updateAt: new Date() } : { username, phone, price, updateAt: new Date() }, { new: true })
         if (!seller) {
             return res.status(404).json({
                 success: false,

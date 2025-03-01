@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt")
 const DeliveryModel = require("../models/delivery.model")
+const DeliveryPayedModel = require("../models/deliveryPayed.model")
 const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { default: mongoose } = require("mongoose")
@@ -51,11 +52,16 @@ exports.getDeliveries = async (req, res) => {
         const deliveries = await DeliveryModel.aggregate([
             { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }
         ])
-        await setCache(`delivery`, deliveries)
+        const data = []
+        for (const key of deliveries) {
+            const deliveryPayed = await DeliveryPayedModel.find({deliveryId:key._id}).populate("statusId typeId")
+            data.push({ ...key, deliveryPayed })
+        }
+        await setCache(`delivery`, data)
         return res.status(200).json({
             success: true,
             message: "list of deliveries",
-            deliveries
+            deliveries: data
         })
     }
     catch (error) {

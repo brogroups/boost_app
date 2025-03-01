@@ -79,10 +79,16 @@ const deliveryPayedRoute = require("./routes/deliveryPayed.route");
 app.use("/api", deliveryPayedRoute);
 
 const typeOfWareHouseRoute = require("./routes/typeOfWareHouse.route")
-app.use("/api",typeOfWareHouseRoute)
+app.use("/api", typeOfWareHouseRoute)
 
 const WareHouseRoute = require("./routes/warehouse.route")
-app.use("/api",WareHouseRoute)
+app.use("/api", WareHouseRoute)
+
+const payedStatusRoute = require("./routes/payedStatus.route")
+app.use("/api", payedStatusRoute)
+
+const TypeOfPayed = require("./routes/typeOfPayed.route")
+app.use("/api",TypeOfPayed)
 
 app.use("/api/refreshToken", async (req, res) => {
   const { refreshToken } = req.body;
@@ -92,7 +98,7 @@ app.use("/api/refreshToken", async (req, res) => {
     jwt.verify(refreshToken, process.env.JWT_TOKEN_REFRESH, (err, user) => {
       console.log(err);
       console.log(user);
-      
+
       if (err) return res.status(403).json({ success: false, message: err.message });
 
       const newAccessToken = jwt.sign(
@@ -141,6 +147,3 @@ const StartServer = async () => {
 };
 
 StartServer();
-
-
-

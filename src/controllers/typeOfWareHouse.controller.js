@@ -1,8 +1,10 @@
 const TypeOfWareHouse = require("../models/typeofwarehouse.model")
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createTypeOfWareHouse = async (req, res) => {
     try {
         const typeOfWareHouse = await TypeOfWareHouse.create(req.body)
+        await deleteCache(`typeOfWareHouse`)
         return res.status(201).json({
             success: true,
             message: "type of warehouse created",
@@ -19,7 +21,16 @@ exports.createTypeOfWareHouse = async (req, res) => {
 
 exports.getTypeOfWareHouse = async (req, res) => {
     try {
+        const typeOfWareHousesCache = await getCache("typeOfWareHouse")
+        if (typeOfWareHousesCache) {
+            return res.status(200).json({
+                success: true,
+                message: "list of type of ware houses",
+                typeOfWareHouses:typeOfWareHouse
+            })
+        }
         const typeOfWareHouses = await TypeOfWareHouse.find({})
+        await setCache("typeOfWareHouse",typeOfWareHouses)
         return res.status(200).json({
             success: true,
             message: "list of type of ware houses",
@@ -66,6 +77,7 @@ exports.updateTypeOfWareHouse = async (req, res) => {
                 message: "type of ware house not found"
             })
         }
+        await deleteCache(`typeOfWareHouse`)
         return res.status(200).json({
             success: true,
             message: "type ware house updated",
@@ -89,6 +101,7 @@ exports.deleteTypeOfWareHouse = async (req, res) => {
                 message: "type of ware house not found"
             })
         }
+        await deleteCache(`typeOfWareHouse`)
         return res.status(200).json({
             success: true,
             message: "type ware house deleted",
