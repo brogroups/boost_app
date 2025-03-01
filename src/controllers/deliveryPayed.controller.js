@@ -79,6 +79,7 @@ exports.updatedeliveryPayedById = async (req, res) => {
             })
         }
         await deleteCache("deliveryPayed")
+        await deleteCache("delivery")
         return res.status(200).json({
             success: true,
             message: "seller payed updated",
@@ -103,9 +104,10 @@ exports.deletedelivertPayed = async (req, res) => {
             })
         }
         await deleteCache("deliveryPayed")
+        await deleteCache("delivery")
         return res.status(200).json({
             success: true,
-            message: "seller payed updated",
+            message: "seller payed deleted",
             deliveryPayed
         })
     }

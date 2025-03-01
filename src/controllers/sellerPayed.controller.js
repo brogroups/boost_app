@@ -5,6 +5,7 @@ exports.createSelleryPayed = async (req, res) => {
     try {
         const sellerPayed = await sellerPayedModel.create(req.body)
         await deleteCache(`sellerPayed`)
+        await deleteCache(`seller`)
         return res.status(201).json({
             success: true,
             message: "seller payed created",
@@ -78,6 +79,7 @@ exports.updateSellerById = async (req, res) => {
             })
         }
         await deleteCache("sellerPayed")
+        await deleteCache(`seller`)
         return res.status(200).json({
             success: true,
             message: "seller payed updated",
@@ -102,6 +104,7 @@ exports.deleteSellerPayed = async (req, res) => {
             })
         }
         await deleteCache("sellerPayed")
+        await deleteCache(`seller`)
         return res.status(200).json({
             success: true,
             message: "seller payed updated",
