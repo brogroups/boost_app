@@ -46,7 +46,8 @@ exports.AuthLogin = async (req, res) => {
             success: true,
             message: "Login successfully",
             accessToken,
-            role
+            role,
+            username: user.username
         })
     }
     catch (error) {
