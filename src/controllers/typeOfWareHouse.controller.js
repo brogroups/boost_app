@@ -1,11 +1,13 @@
 const TypeOfWareHouse = require("../models/typeofwarehouse.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const WareHouseModel = require("../models/warehouse.model")
+const { createWareHouse } = require("./warehouse.controller")
 
 exports.createTypeOfWareHouse = async (req, res) => {
     try {
         const typeOfWareHouse = await TypeOfWareHouse.create(req.body)
         await deleteCache(`typeOfWareHouse`)
+        await createWareHouse({ body: { typeId: typeOfWareHouse._id, price: typeOfWareHouse.price, quantity: typeOfWareHouse.quantity } })
         return res.status(201).json({
             success: true,
             message: "type of warehouse created",
@@ -23,7 +25,7 @@ exports.createTypeOfWareHouse = async (req, res) => {
 exports.getTypeOfWareHouse = async (req, res) => {
     try {
         const typeOfWareHousesCache = null
-        await getCache("typeOfWareHouse")
+        // await getCache("typeOfWareHouse")
         if (typeOfWareHousesCache) {
             return res.status(200).json({
                 success: true,
@@ -34,16 +36,17 @@ exports.getTypeOfWareHouse = async (req, res) => {
         const typeOfWareHouses = await TypeOfWareHouse.find({})
         const data = []
         for (const key of typeOfWareHouses) {
-            const warehouse = await WareHouseModel.aggregate([
+            const warehouses = await WareHouseModel.aggregate([
                 { $match: { typeId: key._id } }
             ])
-            let allPrice = warehouse.reduce((a, b) => {
+            const warehouse = warehouses[warehouses.length - 1]
+            let allPrice = warehouses.reduce((a, b) => {
                 return b.price + a
             }, 0) + key.price
-            let allQuantity = warehouse.reduce((a, b) => {
+            let allQuantity = warehouses.reduce((a, b) => {
                 return b.quantity + a
             }, 0) + key.quantity
-            data.push({ ...key._doc, history: warehouse, totalPrice: allPrice * allQuantity })
+            data.push({ ...key._doc, price: warehouse.price, quantity: warehouse.quantity, history: warehouses, totalPrice: allPrice * allQuantity })
         }
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({

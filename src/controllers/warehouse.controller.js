@@ -3,10 +3,10 @@ const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createWareHouse = async (req, res) => {
     try {
-        const warehouse = await WareHouseModel.create(req.body)
+        const warehouse = await WareHouseModel.create(req?.body)
         await deleteCache("warehouse")
         await deleteCache("typeOfWareHouse")
-        return res.status(201).json({
+        return res?.status(201)?.json({
             success: true,
             message: "ware house created",
             warehouse

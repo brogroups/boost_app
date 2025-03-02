@@ -96,7 +96,6 @@ exports.getUserByToken = async (req, res) => {
             message: 'all of this ok',
             user,
             role: use.role,
-            username: user.username
         })
     }
 
