@@ -40,13 +40,19 @@ exports.getTypeOfWareHouse = async (req, res) => {
                 { $match: { typeId: key._id } }
             ])
             const warehouse = warehouses[warehouses.length - 1]
-            let allPrice = warehouses.reduce((a, b) => {
-                return b.price + a
-            }, 0)
+            // let allPrice = warehouses.reduce((a, b) => {
+            //     return b.price + a
+            // }, 0)
             let allQuantity = warehouses.reduce((a, b) => {
                 return b.quantity + a
             }, 0)
-            data.push({ ...key._doc, price: warehouse.price, quantity: allQuantity, history: warehouses, totalPrice: allPrice * allQuantity })
+
+            let totalPrice = warehouses.reduce((a, b) => {
+                return (b.price * b.quantity) + a
+            }, 0)
+
+
+            data.push({ ...key._doc, price: warehouse.price, quantity: allQuantity, history: warehouses, totalPrice: totalPrice })
         }
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({
