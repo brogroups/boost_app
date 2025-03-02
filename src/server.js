@@ -84,7 +84,11 @@ app.use("/api", typeOfWareHouseRoute)
 const WareHouseRoute = require("./routes/warehouse.route")
 app.use("/api", WareHouseRoute)
 
+const TypeOfPayedRoute = require("./routes/typeOfPayed.route")
+app.use("/api",TypeOfPayedRoute)
 
+const PayedStatusRoute = require("./routes/payedStatus.route")
+app.use("/api",PayedStatusRoute)
 
 app.use("/api/refreshToken", async (req, res) => {
   const { refreshToken } = req.body;

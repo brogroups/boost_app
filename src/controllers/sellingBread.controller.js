@@ -32,8 +32,6 @@ exports.getSellingBread = async (req, res) => {
         let sellingBreads = await SellingBreadModel.find({}).populate("typeOfBreadIds deliveryId")
         sellingBreads = sellingBreads.map((item) => {
             const price = item.typeOfBreadIds.reduce((a, b) => a + b.price, 0)
-            console.log(price);
-
             return { ...item._doc, price: price * item.quantity }
         })
         return res.status(200).json({

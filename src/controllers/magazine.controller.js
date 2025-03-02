@@ -22,7 +22,8 @@ exports.createMagazine = async (req, res) => {
 
 exports.getMagazines = async (req, res) => {
     try {
-        const cache = await getCache(`magazine`)
+        const cache = null
+        // await getCache(`magazine`)
         if(cache){
             return res.status(200).json({
                 success: true,

@@ -54,7 +54,9 @@ exports.getDeliveries = async (req, res) => {
         ])
         const data = []
         for (const key of deliveries) {
-            const deliveryPayed = await DeliveryPayedModel.find({deliveryId:key._id}).populate("statusId typeId")
+            const deliveryPayed = await DeliveryPayedModel.aggregate([
+                { $match: { deliveryId: key._id } }
+            ])
             data.push({ ...key, deliveryPayed })
         }
         await setCache(`delivery`, data)
