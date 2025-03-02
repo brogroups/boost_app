@@ -71,7 +71,7 @@ exports.getdeliveryPayedById = async (req, res) => {
 
 exports.updatedeliveryPayedById = async (req, res) => {
     try {
-        const deliveryPayed = await deliveryPayedModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true }).populate("deliveryId")
+        const deliveryPayed = await deliveryPayedModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true })
         if (!deliveryPayed) {
             return res.status(404).json({
                 success: false,
