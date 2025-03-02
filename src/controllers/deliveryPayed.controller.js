@@ -3,10 +3,10 @@ const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createdeliveryPayed = async (req, res) => {
     try {
-        const deliveryPayed = await deliveryPayedModel.create(req.body)
+        const deliveryPayed = await deliveryPayedModel.create(req?.body)
         await deleteCache("deliveryPayed")
         await deleteCache("delivery")
-        return res.status(201).json({
+        return res?.status(201)?.json({
             success: true,
             message: "delivery payed created",
             deliveryPayed

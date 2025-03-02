@@ -156,9 +156,9 @@ exports.deleteSeller = async (req, res) => {
     try {
         const seller = await SellerModel.findByIdAndDelete(req.params.id)
         const sellerPayeds = await SellerPayedModel.find({})
-        for (const _ of sellerPayeds) {
+        sellerPayeds.forEach(async () => {
             await SellerPayedModel.deleteOne({ sellerId: seller._id })
-        }
+        })
         if (!seller) {
             return res.status(404).json({
                 success: false,

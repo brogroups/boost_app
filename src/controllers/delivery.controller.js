@@ -4,6 +4,7 @@ const DeliveryPayedModel = require("../models/deliveryPayed.model")
 const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { default: mongoose } = require("mongoose")
+const { createdeliveryPayed } = require("./deliveryPayed.controller")
 
 
 exports.createDelivery = async (req, res) => {
@@ -24,6 +25,8 @@ exports.createDelivery = async (req, res) => {
             superAdminId
         })
         await deleteCache(`delivery`)
+        await deleteCache("deliveryPayed")
+        await createdeliveryPayed({ body: { deliveryId: newDelivery._id, price: newDelivery.price, status: "To`landi", type: "Kunlik" } })
         const accessToken = await jwt.sign({ id: newDelivery._id, username: newDelivery.username, role: "delivery" }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: false,
@@ -41,7 +44,8 @@ exports.createDelivery = async (req, res) => {
 
 exports.getDeliveries = async (req, res) => {
     try {
-        const cashe = await getCache(`delivery`)
+        const cashe = null
+        // await getCache(`delivery`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
@@ -54,10 +58,25 @@ exports.getDeliveries = async (req, res) => {
         ])
         const data = []
         for (const key of deliveries) {
-            const deliveryPayed = await DeliveryPayedModel.aggregate([
+            const deliveryPayedes = await DeliveryPayedModel.aggregate([
                 { $match: { deliveryId: key._id } }
             ])
-            data.push({ ...key, deliveryPayed })
+            let totalPrice = deliveryPayedes.reduce((a, b) => {
+                switch (b.type) {
+                    case "Bonus":
+                        return a + b?.price
+                        break;
+                    case "Shtraf":
+                        return a - b?.price
+                        break;
+                    case "Kunlik":
+                        return a + b?.price
+                        break;
+                    default:
+                        break;
+                }
+            }, 0)
+            data.push({ ...key, price: deliveryPayedes[deliveryPayedes.length - 1].price, deliveryPayed: deliveryPayedes, totalPrice })
         }
         await setCache(`delivery`, data)
         return res.status(200).json({
@@ -130,6 +149,10 @@ exports.updateDelivery = async (req, res) => {
 exports.deleteDelivery = async (req, res) => {
     try {
         const delivery = await DeliveryModel.findByIdAndDelete(req.params.id)
+        const deliveryPayeds = await DeliveryPayedModel.find({})
+        deliveryPayeds.forEach(async () => {
+            await DeliveryPayedModel.deleteOne({ deliveryId: delivery._id })
+        })
         if (!delivery) {
             return res.status(404).json({
                 success: false,
