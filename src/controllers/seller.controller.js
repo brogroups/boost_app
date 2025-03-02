@@ -3,8 +3,8 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
-const OrderWithDeliveryModel = require("../models/orderWithDelivery.model")
 const SellerPayedModel = require("../models/sellerPayed.model")
+const { createSelleryPayed } = require("./sellerPayed.controller")
 
 exports.createSeller = async (req, res) => {
     try {
@@ -26,6 +26,8 @@ exports.createSeller = async (req, res) => {
         newSeller.refreshToken = refreshToken
         await newSeller.save()
         await deleteCache(`seller`)
+        await deleteCache(`sellerPayed`)
+        await createSelleryPayed({ body: { sellerId: newSeller._id, price: newSeller.price, status: "To`landi", type: "Kunlik" } })
         return res.status(201).json({
             success: true,
             message: "seller created",
@@ -36,6 +38,8 @@ exports.createSeller = async (req, res) => {
         })
     }
     catch (error) {
+        console.log(error);
+
         return res.status(500).json({
             success: false,
             message: error.message
@@ -59,18 +63,25 @@ exports.getSellers = async (req, res) => {
         ])
         const data = []
         for (const key of sellers) {
-            const orderWithDelivery = await OrderWithDeliveryModel.find({
-                sellerId: key._id
-            }).populate("typeOfBreadIds")
-            let totalPrice = 0
-            for (const item of orderWithDelivery) {
-                totalPrice = item.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * item.quantity
-            }
-            const sellerPayed = await SellerPayedModel.aggregate([
-                { $match: { sellerId: key._id } }
-            ])
+            const sellerPayedes = await SellerPayedModel.find({ sellerId: key._id })
+            let totalPrice = sellerPayedes.reduce((a, b) => {
+                switch (b.type) {
+                    case "Bonus":
+                        return a + b?.price
+                        break;
+                    case "Shtraf":
+                        return a - b?.price
+                        break;
+                    case "Kunlik":
+                        return a + b?.price
+                        break;
+                    default:
+                        break;
+                }
+            }, 0)
+            const sellerPayed = sellerPayedes[sellerPayedes.length - 1]
 
-            data.push({ ...key, totalPrice, history: sellerPayed })
+            data.push({ ...key, price: sellerPayed?.price ? sellerPayed?.price : key.price, totalPrice, history: sellerPayedes })
         }
 
         await setCache("sellers", data)
@@ -144,6 +155,10 @@ exports.updateSeller = async (req, res) => {
 exports.deleteSeller = async (req, res) => {
     try {
         const seller = await SellerModel.findByIdAndDelete(req.params.id)
+        const sellerPayeds = await SellerPayedModel.find({})
+        for (const _ of sellerPayeds) {
+            await SellerPayedModel.deleteOne({ sellerId: seller._id })
+        }
         if (!seller) {
             return res.status(404).json({
                 success: false,
@@ -151,6 +166,7 @@ exports.deleteSeller = async (req, res) => {
             })
         }
         await deleteCache(`seller`)
+        await deleteCache(`sellerPayed`)
         return res.status(200).json({
             success: true,
             message: "seller deleted",
