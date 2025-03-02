@@ -13,7 +13,8 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin:"https://alphae.uz",
+    // origin:"https://alphae.uz",
+    origin:"http://localhost:8080",
     // origin: ["http://localhost:8080","http://localhost:5173","https://safo-non.netlify.app","https://alphae.uz"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -84,11 +85,7 @@ app.use("/api", typeOfWareHouseRoute)
 const WareHouseRoute = require("./routes/warehouse.route")
 app.use("/api", WareHouseRoute)
 
-const payedStatusRoute = require("./routes/payedStatus.route")
-app.use("/api", payedStatusRoute)
 
-const TypeOfPayed = require("./routes/typeOfPayed.route")
-app.use("/api",TypeOfPayed)
 
 app.use("/api/refreshToken", async (req, res) => {
   const { refreshToken } = req.body;

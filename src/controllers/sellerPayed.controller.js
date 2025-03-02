@@ -30,7 +30,7 @@ exports.getSellerPayed = async (req, res) => {
                 sellerPayeds: sellerPayedSCache
             })
         }
-        const sellerPayeds = await sellerPayedModel.find({}).populate("sellerId statusId typeId")
+        const sellerPayeds = await sellerPayedModel.find({}).populate("sellerId")
         await setCache("sellerPayed",sellerPayeds)
         return res.status(200).json({
             success: true,
@@ -48,7 +48,7 @@ exports.getSellerPayed = async (req, res) => {
 
 exports.getSellerPayedById = async (req, res) => {
     try {
-        const sellerPayed = await sellerPayedModel.findById(req.params.id).populate("sellerId statusId typeId")
+        const sellerPayed = await sellerPayedModel.findById(req.params.id).populate("sellerId")
         if (!sellerPayed) {
             return res.status(404).json({
                 success: false,

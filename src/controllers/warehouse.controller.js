@@ -29,7 +29,7 @@ exports.getWareHouses = async (req, res) => {
                 warehouses: warehousesCache
             })
         }
-        const warehouses = await WareHouseModel.find({}).populate("typeId")
+        const warehouses = await WareHouseModel.find({})
         await setCache("warehouse",warehouses)
         return res.status(200).json({
             success: true,
@@ -47,7 +47,7 @@ exports.getWareHouses = async (req, res) => {
 
 exports.getWareHouseById = async (req, res) => {
     try {
-        const warehouse = await WareHouseModel.findById(req.params.id).populate("typeId")
+        const warehouse = await WareHouseModel.findById(req.params.id)
         if (!warehouse) {
             return res.status(404).json({
                 success: false,
