@@ -96,8 +96,10 @@ exports.getUserByToken = async (req, res) => {
             user,
             role: use.role,
             username: user?.username
+
         })
     }
+    
     catch (error) {
         return res.status(500).json({
             success: false,
