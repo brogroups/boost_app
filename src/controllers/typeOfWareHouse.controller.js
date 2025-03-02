@@ -22,7 +22,7 @@ exports.createTypeOfWareHouse = async (req, res) => {
 
 exports.getTypeOfWareHouse = async (req, res) => {
     try {
-        const typeOfWareHousesCache = await getCache("typeOfWareHouse")
+        const typeOfWareHousesCache = null
         await getCache("typeOfWareHouse")
         if (typeOfWareHousesCache) {
             return res.status(200).json({
@@ -37,10 +37,13 @@ exports.getTypeOfWareHouse = async (req, res) => {
             const warehouse = await WareHouseModel.aggregate([
                 { $match: { typeId: key._id } }
             ])
-            let totalPrice = warehouse.reduce((a, b) => {
-                return (b.price * b.quantity) + a
-            }, 0)
-            data.push({ ...key._doc, history: warehouse, totalPrice: key.price * key.quantity + totalPrice })
+            let allPrice = warehouse.reduce((a, b) => {
+                return b.price + a
+            }, 0) + key.price
+            let allQuantity = warehouse.reduce((a, b) => {
+                return b.quantity + a
+            }, 0) + key.quantity
+            data.push({ ...key._doc, history: warehouse, totalPrice: allPrice * allQuantity })
         }
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({
