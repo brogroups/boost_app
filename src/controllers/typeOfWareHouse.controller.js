@@ -42,11 +42,11 @@ exports.getTypeOfWareHouse = async (req, res) => {
             const warehouse = warehouses[warehouses.length - 1]
             let allPrice = warehouses.reduce((a, b) => {
                 return b.price + a
-            }, 0) + key.price
+            }, 0)
             let allQuantity = warehouses.reduce((a, b) => {
                 return b.quantity + a
-            }, 0) + key.quantity
-            data.push({ ...key._doc, price: warehouse.price, quantity: warehouse.quantity, history: warehouses, totalPrice: allPrice * allQuantity })
+            }, 0)
+            data.push({ ...key._doc, price: warehouse.price, quantity: allQuantity, history: warehouses, totalPrice: allPrice * allQuantity })
         }
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({
