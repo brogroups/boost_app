@@ -5,6 +5,7 @@ exports.createWareHouse = async (req, res) => {
     try {
         const warehouse = await WareHouseModel.create(req.body)
         await deleteCache("warehouse")
+        await deleteCache("typeOfWareHouse")
         return res.status(201).json({
             success: true,
             message: "ware house created",
@@ -78,6 +79,7 @@ exports.updateWareHouse = async (req, res) => {
             })
         }
         await deleteCache("warehouse")
+        await deleteCache("typeOfWareHouse")
         return res.status(200).json({
             success: true,
             message: "warehouse updated",
@@ -102,6 +104,7 @@ exports.deleteWareHouse = async (req, res) => {
             })
         }
         await deleteCache("warehouse")
+        await deleteCache("typeOfWareHouse")
         return res.status(200).json({
             success: true,
             message: "warehouse deleted",

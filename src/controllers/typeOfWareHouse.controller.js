@@ -1,5 +1,6 @@
 const TypeOfWareHouse = require("../models/typeofwarehouse.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
+const WareHouseModel = require("../models/warehouse.model")
 
 exports.createTypeOfWareHouse = async (req, res) => {
     try {
@@ -22,19 +23,30 @@ exports.createTypeOfWareHouse = async (req, res) => {
 exports.getTypeOfWareHouse = async (req, res) => {
     try {
         const typeOfWareHousesCache = await getCache("typeOfWareHouse")
+        await getCache("typeOfWareHouse")
         if (typeOfWareHousesCache) {
             return res.status(200).json({
                 success: true,
                 message: "list of type of ware houses",
-                typeOfWareHouses:typeOfWareHouse
+                typeOfWareHouses: typeOfWareHousesCache
             })
         }
         const typeOfWareHouses = await TypeOfWareHouse.find({})
-        await setCache("typeOfWareHouse",typeOfWareHouses)
+        const data = []
+        for (const key of typeOfWareHouses) {
+            const warehouse = await WareHouseModel.aggregate([
+                { $match: { typeId: key._id } }
+            ])
+            let totalPrice = warehouse.reduce((a, b) => {
+                return (b.price * b.quantity) + a
+            }, 0)
+            data.push({ ...key._doc, history: warehouse, totalPrice: key.price * key.quantity + totalPrice })
+        }
+        await setCache("typeOfWareHouse", data)
         return res.status(200).json({
             success: true,
             message: "list of type of ware houses",
-            typeOfWareHouses
+            typeOfWareHouses: data
         })
     }
     catch (error) {
