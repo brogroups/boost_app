@@ -94,7 +94,8 @@ exports.getUserByToken = async (req, res) => {
             success: true,
             message: 'all of this ok',
             user,
-            role: use.role
+            role: use.role,
+            username: user?.username
         })
     }
     catch (error) {
