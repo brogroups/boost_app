@@ -86,6 +86,8 @@ exports.getDeliveries = async (req, res) => {
         deliveryPayed: deliveryPayedes,
         totalPrice,
       });
+
+      
     }
     await setCache(`delivery`, data);
     return res.status(200).json({
