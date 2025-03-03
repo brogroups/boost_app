@@ -4,7 +4,6 @@ const DeliveryPayedModel = require("../models/deliveryPayed.model")
 const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { default: mongoose } = require("mongoose")
-const { createdeliveryPayed } = require("./deliveryPayed.controller")
 
 
 exports.createDelivery = async (req, res) => {
@@ -26,7 +25,6 @@ exports.createDelivery = async (req, res) => {
         })
         await deleteCache(`delivery`)
         await deleteCache("deliveryPayed")
-        await createdeliveryPayed({ body: { deliveryId: newDelivery._id, price: newDelivery.price, status: "To`landi", type: "Kunlik" } })
         const accessToken = await jwt.sign({ id: newDelivery._id, username: newDelivery.username, role: "delivery" }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
         return res.status(201).json({
             success: false,

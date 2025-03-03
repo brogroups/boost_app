@@ -27,7 +27,7 @@ exports.createSeller = async (req, res) => {
         await newSeller.save()
         await deleteCache(`seller`)
         await deleteCache(`sellerPayed`)
-        await createSelleryPayed({ body: { sellerId: newSeller._id, price: newSeller.price, status: "To`landi", type: "Kunlik" } })
+        // await createSelleryPayed({ body: { sellerId: newSeller._id, price: newSeller.price, status: "To`landi", type: "Kunlik" } })
         return res.status(201).json({
             success: true,
             message: "seller created",
