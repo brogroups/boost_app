@@ -1,9 +1,9 @@
-const bcrypt = require("bcrypt")
 const DeliveryModel = require("../models/delivery.model")
 const DeliveryPayedModel = require("../models/deliveryPayed.model")
 const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { default: mongoose } = require("mongoose")
+const { encrypt, decrypt } = require("../helpers/crypto.helper")
 
 
 exports.createDelivery = async (req, res) => {
@@ -12,7 +12,7 @@ exports.createDelivery = async (req, res) => {
 
         const password = phone.slice(-4)
         const superAdminId = req.use.id
-        const hashPassword = await bcrypt.hash(password, 10)
+        const hashPassword = encrypt(password)
         const refreshToken = await jwt.sign({ username, password }, process.env.JWT_TOKEN_REFRESH)
 
         const newDelivery = await DeliveryModel.create({
@@ -42,8 +42,7 @@ exports.createDelivery = async (req, res) => {
 
 exports.getDeliveries = async (req, res) => {
     try {
-        const cashe = null
-        // await getCache(`delivery`)
+        const cashe = await getCache(`delivery`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
@@ -56,9 +55,8 @@ exports.getDeliveries = async (req, res) => {
         ])
         const data = []
         for (const key of deliveries) {
-            const deliveryPayedes = await DeliveryPayedModel.aggregate([
-                { $match: { deliveryId: key._id } }
-            ])
+            const deliveryPayedes = await DeliveryPayedModel.find({ deliveryId: key._id })
+
             let totalPrice = deliveryPayedes.reduce((a, b) => {
                 switch (b.type) {
                     case "Bonus":
@@ -74,9 +72,10 @@ exports.getDeliveries = async (req, res) => {
                         break;
                 }
             }, 0)
-            data.push({ ...key, price: deliveryPayedes[deliveryPayedes.length - 1].price, deliveryPayed: deliveryPayedes, totalPrice })
+            data.push({ ...key, price: deliveryPayedes[deliveryPayedes.length - 1] ? deliveryPayedes[deliveryPayedes.length - 1].price : key.price, deliveryPayed: deliveryPayedes, totalPrice })
         }
         await setCache(`delivery`, data)
+
         return res.status(200).json({
             success: true,
             message: "list of deliveries",
@@ -120,7 +119,7 @@ exports.updateDelivery = async (req, res) => {
         const { username, password, phone, price } = req.body
         let hashPassword;
         if (password) {
-            hashPassword = await bcrypt.hash(password, 10)
+            hashPassword = encrypt(password)
         }
         const delivery = await DeliveryModel.findByIdAndUpdate(req.params.id, { username, hashPassword, phone, price, updateAt: new Date() }, { new: true })
         if (!delivery) {
@@ -172,52 +171,19 @@ exports.deleteDelivery = async (req, res) => {
     }
 }
 
-exports.loginDelivery = async (req, res) => {
-    try {
-        const { username, password } = req.body
-        const delivery = await DeliveryModel.findOne({ username })
-        if (!delivery) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid Username or Password"
-            })
-        }
-        const matchPassword = await bcrypt.compare(password, delivery.password)
-        if (!matchPassword) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid Password or Username"
-            })
-        }
-        const accessToken = await jwt.sign({ id: delivery._id, username: delivery.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
-        return res.status(200).json({
-            success: true,
-            message: "login is successfully",
-            accessToken
-        })
-    }
-    catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
 
-exports.getDeliveryByToken = async (req, res) => {
+
+exports.getDeliveryPasswordById = async (req, res) => {
     try {
-        const deliveryId = req.use.id
-        const delivery = await DeliveryModel.findById(deliveryId)
+        const delivery = await DeliveryModel.findById(req.params.id)
         if (!delivery) {
-            return res.status(404).json({
-                success: false,
-                message: "Delivery not found"
-            })
+            return res.status(404).send('Delivery not found');
         }
+        const decryptPassword = decrypt(delivery.password)
         return res.status(200).json({
             success: true,
-            message: "details of delivery",
-            delivery
+            username: delivery?.username,
+            password: decryptPassword
         })
     }
     catch (error) {

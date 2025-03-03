@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const SuperAdminModel = require("./models/superAdmin.model");
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const ConnecToDb = require("./configs/connection");
 
@@ -87,7 +86,8 @@ app.use("/api", WareHouseRoute)
 const TypeOfPayedRoute = require("./routes/typeOfPayed.route")
 app.use("/api",TypeOfPayedRoute)
 
-const PayedStatusRoute = require("./routes/payedStatus.route")
+const PayedStatusRoute = require("./routes/payedStatus.route");
+const { encrypt } = require("./helpers/crypto.helper");
 app.use("/api",PayedStatusRoute)
 
 app.use("/api/refreshToken", async (req, res) => {
@@ -126,7 +126,7 @@ const StartServer = async () => {
     await ConnecToDb();
     const superAdmin = await SuperAdminModel.findOne({ login: "admin" });
     if (!superAdmin) {
-      const hashPassword = await bcrypt.hash("admin", 10);
+      const hashPassword = encrypt("admin")
       const refreshToken = await jwt.sign(
         { username: "admin", hashPassword, login: "admin" },
         process.env.JWT_TOKEN_REFRESH

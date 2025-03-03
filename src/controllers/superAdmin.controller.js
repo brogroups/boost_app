@@ -1,5 +1,5 @@
+const { decrypt, encrypt } = require("../helpers/crypto.helper")
 const SuperAdminModel = require("../models/superAdmin.model")
-const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 
 exports.loginSuperAdmin = async (req, res) => {
@@ -12,8 +12,8 @@ exports.loginSuperAdmin = async (req, res) => {
                 message: "Invalid Username or Password"
             })
         }
-        const matchPassword = await bcrypt.compare(password, superAdmin.password)
-        if (!matchPassword) {
+        const decryptPassword = decrypt(superAdmin.password)
+        if (decryptPassword !== password) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid Password or Username"
@@ -63,7 +63,7 @@ exports.updateSuperAdmin = async (req, res) => {
     try {
         const { username, password } = req.body
         const superAdminId = req.useId
-        const hashPassword = await bcrypt.hash(password, 10)
+        const hashPassword = encrypt(password)
         const superAdmin = await SuperAdminModel.findByIdAndUpdate(superAdminId, { username, password: hashPassword, updateAt: new Date() }, { new: true })
         if (!superAdmin) {
             return res.status(404).json({

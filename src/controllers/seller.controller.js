@@ -1,17 +1,16 @@
 const SellerModel = require("../models/seller.model")
-const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
 const SellerPayedModel = require("../models/sellerPayed.model")
-const { createSelleryPayed } = require("./sellerPayed.controller")
+const { encrypt, decrypt } = require("../helpers/crypto.helper")
 
 exports.createSeller = async (req, res) => {
     try {
         const { username, phone, price, ovenId } = req.body
 
         const password = phone.slice(-4)
-        const hashPassword = await bcrypt.hash(password, 10)
+        const hashPassword = encrypt(password)
         const superAdminId = req.use.id
 
         const newSeller = new SellerModel({
@@ -128,7 +127,7 @@ exports.updateSeller = async (req, res) => {
         const { username, password, phone, price } = req.body
         let hashPassword;
         if (password) {
-            hashPassword = await bcrypt.hash(password, 10)
+            hashPassword = encrypt(password)
         }
         const seller = await SellerModel.findByIdAndUpdate(req.params.id, password ? { username, password: hashPassword, phone, price, updateAt: new Date() } : { username, phone, price, updateAt: new Date() }, { new: true })
         if (!seller) {
@@ -181,53 +180,17 @@ exports.deleteSeller = async (req, res) => {
     }
 }
 
-exports.loginSeller = async (req, res) => {
+exports.getSellerPasswordById = async (req, res) => {
     try {
-        const { username, password } = req.body
-        const seller = await SellerModel.findOne({ username })
+        const seller = await SellerModel.findById(req.params.id)
         if (!seller) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid Username or Password"
-            })
+            return res.status(404).send('Seller not found');
         }
-        const matchPassword = await bcrypt.compare(password, seller.password)
-        if (!matchPassword) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid Username or Password"
-            })
-        }
-        const accessToken = await jwt.sign({ id: seller._id, username: seller.username }, process.env.JWT_TOKEN_ACCESS, { expiresIn: "7d" })
-        return res.status(201).json({
-            success: true,
-            message: "login is successfully",
-            accessToken
-        })
-    }
-    catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
-
-exports.getSellerToken = async (req, res) => {
-    try {
-        const sellerId = req.useId
-
-        const seller = await SellerModel.findById(sellerId)
-        if (!seller) {
-            return res.status(404).json({
-                success: false,
-                message: "saller not found"
-            })
-        }
+        const decryptPassword = decrypt(seller.password)
         return res.status(200).json({
             success: true,
-            message: "details of seller",
-            seller
+            username:seller?.username,
+            password:decryptPassword
         })
     }
     catch (error) {

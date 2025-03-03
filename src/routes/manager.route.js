@@ -14,7 +14,5 @@ router.get("/managers", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Mi
 router.get("/manager/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel]), Controller.getManagerById)
 router.put("/manager/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel]), Middleware.verifyValidation(UpdateManagerSchema), Controller.updateManager)
 router.delete("/manager/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel]), Controller.deleteManager)
-router.post("/manager/login", Middleware.verifyValidation(LoginManagerSchema), Controller.loginManager)
-router.get("/manager", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel]), Controller.getManagerByToken)
 
 module.exports = router

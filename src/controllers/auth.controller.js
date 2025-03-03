@@ -2,9 +2,9 @@ const ManagerModel = require("../models/manager.model")
 const SuperAdminModel = require("../models/superAdmin.model")
 const SellerModel = require('../models/seller.model')
 const DeliveryModel = require('../models/delivery.model')
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { setCache, getCache } = require("../helpers/redis.helper")
+const { decrypt, encrypt } = require("../helpers/crypto.helper")
 
 exports.AuthLogin = async (req, res) => {
     try {
@@ -29,8 +29,8 @@ exports.AuthLogin = async (req, res) => {
                 message: "Invalid Username or Password"
             })
         }
-        const matchPassword = await bcrypt.compare(password, user.password)
-        if (!matchPassword) {
+        const decryptPassword = decrypt(user.password)
+        if (decryptPassword !== password) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid Password or Username"
@@ -51,6 +51,7 @@ exports.AuthLogin = async (req, res) => {
         })
     }
     catch (error) {
+        console.error(error)
         return res.status(500).json({
             success: false,
             message: error.message
@@ -123,7 +124,7 @@ exports.updateUserAuth = async (req, res) => {
                 user: casheUser
             })
         }
-        const hashPassword = await bcrypt.hash(password, 10)
+        const hashPassword = encrypt(password)
         if (use.role === 'manager') {
             user = await ManagerModel.findByIdAndUpdate(use.id, { password: hashPassword }, { new: true })
         } else if (use.role === "superAdmin") {
