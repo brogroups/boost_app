@@ -13,6 +13,6 @@ router.post("/sellingBreadToMagazine", Middleware.verifyToken(process.env.JWT_TO
 router.get("/sellingBreadToMagazines", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Controller.findAll)
 router.get("/sellingBreadToMagazine/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Controller.findOne)
 router.put("/sellingBreadToMagazine/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Middleware.verifyValidation(UpdateSellingToBreadMagazineSchema), Controller.update)
-router.delete("/sellingBreadToMagazine/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Controller.delete)
+router.delete("/sellingBreadToMagazine/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel]), Controller.delete)
 
 module.exports = router
