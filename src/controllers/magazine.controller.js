@@ -1,10 +1,11 @@
 const MagazineModel = require("../models/magazine.model")
+const SellingBreadToMagazineModel = require("../models/SellingBreadToMagazine.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 
 exports.createMagazine = async (req, res) => {
     try {
-        const newMagazine = await MagazineModel.create(req.body)        
+        const newMagazine = await MagazineModel.create(req.body)
         await deleteCache(`magazine`)
         return res.status(201).json({
             success: true,
@@ -22,20 +23,33 @@ exports.createMagazine = async (req, res) => {
 
 exports.getMagazines = async (req, res) => {
     try {
-        const cache = await getCache(`magazine`) 
-        if(cache){
+        const cache = null
+        await getCache(`magazine`)
+        if (cache) {
             return res.status(200).json({
                 success: true,
                 message: "list of magazines",
-                magazines:cache
-            })    
+                magazines: cache
+            })
         }
         const magazines = await MagazineModel.find({})
-        await setCache(`magazine`,magazines)
+        const data = []
+
+        for (const key of magazines) {
+            let sellingBreadToMagazines = await SellingBreadToMagazineModel.find({ magazineId: key._id }).populate("deliveryId magazineId typeOfBreads")
+            sellingBreadToMagazines = sellingBreadToMagazines.map((item) => {
+                let totalPrice = item.typeOfBreads.reduce((a, b) => a + b.price, 0) * item.quantity
+                return { ...item._doc, totalPrice }
+            })
+            data.push({ ...key._doc, history: sellingBreadToMagazines, totalPrice: 0 })
+        }
+
+
+        await setCache(`magazine`, data)
         return res.status(200).json({
             success: true,
             message: "list of magazines",
-            magazines
+            magazines: data
         })
     }
     catch (error) {

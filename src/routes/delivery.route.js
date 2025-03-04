@@ -6,11 +6,9 @@ const Middleware = require("../middlewares")
 const SuperAdminModel = require("../models/superAdmin.model")
 const DeliveryModel = require("../models/delivery.model")
 const SellerModel = require("../models/seller.model")
-
-const { CreateDeliverySchema, UpdateDeliverySchema, LoginDeliverySchema } = require("../validations/delivery.validation")
 const ManagerModel = require("../models/manager.model")
 
-
+const { CreateDeliverySchema, UpdateDeliverySchema, LoginDeliverySchema } = require("../validations/delivery.validation")
 
 router.post("/delivery", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]), Middleware.verifyValidation(CreateDeliverySchema), Controller.createDelivery)
 router.get("/deliveries",Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS),Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]),Controller.getDeliveries)

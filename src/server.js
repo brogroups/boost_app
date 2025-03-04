@@ -86,6 +86,9 @@ app.use("/api", WareHouseRoute)
 const TypeOfPayedRoute = require("./routes/typeOfPayed.route")
 app.use("/api",TypeOfPayedRoute)
 
+const SellingBreadToMagazineRoute = require("./routes/SellingBreadToMagazine.route")
+app.use("/api",SellingBreadToMagazineRoute)
+
 const PayedStatusRoute = require("./routes/payedStatus.route");
 const { encrypt } = require("./helpers/crypto.helper");
 app.use("/api",PayedStatusRoute)

@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> c270c92fd16f18b32e0c7ee252fc20f2c4cacaee
 const DeliveryModel = require("../models/delivery.model");
 const DeliveryPayedModel = require("../models/deliveryPayed.model");
 const jwt = require("jsonwebtoken");
