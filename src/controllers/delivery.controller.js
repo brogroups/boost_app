@@ -3,7 +3,7 @@ const DeliveryPayedModel = require("../models/deliveryPayed.model");
 const jwt = require("jsonwebtoken");
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper");
 const { default: mongoose } = require("mongoose");
-const { decrypt } = require("../helpers/crypto.helper");
+const { decrypt, encrypt } = require("../helpers/crypto.helper");
 
 exports.createDelivery = async (req, res) => {
     try {
@@ -11,7 +11,7 @@ exports.createDelivery = async (req, res) => {
 
         const password = phone.slice(-4);
         const superAdminId = req.use.id;
-        const hashPassword = await bcrypt.hash(password, 10);
+        const hashPassword = encrypt(password)
         const refreshToken = await jwt.sign(
             { username, password },
             process.env.JWT_TOKEN_REFRESH
@@ -55,39 +55,56 @@ exports.getDeliveries = async (req, res) => {
                 deliveries: cashe,
             });
         }
-        const deliveries = await DeliveryModel.aggregate([
-            { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } },
-        ]);
-        const data = [];
-        for (const key of deliveries) {
-            const deliveryPayedes = await DeliveryPayedModel.aggregate([
-                { $match: { deliveryId: key._id } },
+        let deliveries;
+        if (req.use.role === "superAdmin") {
+            deliveries = await DeliveryModel.find({});
+        } else {
+            deliveries = await DeliveryModel.aggregate([
+                { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }
             ]);
-            let totalPrice = deliveryPayedes.reduce((a, b) => {
-                switch (b.type) {
-                    case "Bonus":
-                        return a + b?.price;
-                        break;
-                    case "Shtraf":
-                        return a - b?.price;
-                        break;
-                    case "Kunlik":
-                        return a + b?.price;
-                        break;
-                    default:
-                        break;
+        }
+        const data = [];
+        if (deliveries.length > 0) {
+            for (const key of deliveries) {
+                const deliveryPayedes = await DeliveryPayedModel.aggregate([
+                    { $match: { deliveryId: key._id } },
+                ]);
+                let totalPrice = deliveryPayedes.reduce((a, b) => {
+                    switch (b.type) {
+                        case "Bonus":
+                            return a + b?.price;
+                            break;
+                        case "Shtraf":
+                            return a - b?.price;
+                            break;
+                        case "Kunlik":
+                            return a + b?.price;
+                            break;
+                        default:
+                            break;
+                    }
+                }, 0);
+
+                if (req.use.role === "superAdmin") {
+                    data.push({
+                        ...key._doc,
+                        price: deliveryPayedes[deliveryPayedes.length - 1]
+                            ? deliveryPayedes[deliveryPayedes.length - 1]?.price
+                            : key.price,
+                        deliveryPayed: deliveryPayedes,
+                        totalPrice,
+                    });
+                } else {
+                    data.push({
+                        ...key,
+                        price: deliveryPayedes[deliveryPayedes.length - 1]
+                            ? deliveryPayedes[deliveryPayedes.length - 1]?.price
+                            : key.price,
+                        deliveryPayed: deliveryPayedes,
+                        totalPrice,
+                    });
                 }
-            }, 0);
-            data.push({
-                ...key,
-                price: deliveryPayedes[deliveryPayedes.length - 1]
-                    ? deliveryPayedes[deliveryPayedes.length - 1]?.price
-                    : key.price,
-                deliveryPayed: deliveryPayedes,
-                totalPrice,
-            });
-
-
+            }
         }
         await setCache(`delivery`, data);
         return res.status(200).json({

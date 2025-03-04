@@ -31,7 +31,9 @@ exports.getMagazines = async (req, res) => {
                 magazines: cache
             })
         }
-        const magazines = await MagazineModel.find({})
+        const magazines = await MagazineModel.aggregate([
+            {$match:{}}
+        ])
         const data = []
 
         for (const key of magazines) {

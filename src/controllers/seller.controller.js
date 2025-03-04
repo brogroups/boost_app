@@ -7,10 +7,8 @@ const { encrypt, decrypt } = require("../helpers/crypto.helper")
 
 exports.createSeller = async (req, res) => {
     try {
-        const { username, phone, price, ovenId } = req.body
-
-        const password = phone.slice(-4)
-        const hashPassword = encrypt(password)
+        const { username, phone, price, ovenId, password } = req.body
+        let hashPassword = encrypt(password)
         const superAdminId = req.use.id
 
         const newSeller = new SellerModel({
@@ -56,31 +54,40 @@ exports.getSellers = async (req, res) => {
                 sellers: cashedSeller
             })
         }
-        const use = req.use
-        let sellers = await SellerModel.aggregate([
-            { $match: { superAdminId: new mongoose.Types.ObjectId(use.id) } }
-        ])
+        let sellers = null;
+        if (req.use.role === "superAdmin") {
+            sellers = await SellerModel.find({})
+        } else {
+            sellers = await SellerModel.aggregate([
+                { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }
+            ])
+        }
         const data = []
-        for (const key of sellers) {
-            const sellerPayedes = await SellerPayedModel.find({ sellerId: key._id })
-            let totalPrice = sellerPayedes.reduce((a, b) => {
-                switch (b.type) {
-                    case "Bonus":
-                        return a + b?.price
-                        break;
-                    case "Shtraf":
-                        return a - b?.price
-                        break;
-                    case "Kunlik":
-                        return a + b?.price
-                        break;
-                    default:
-                        break;
+        if (sellers.length > 0) {
+            for (const key of sellers) {
+                const sellerPayedes = await SellerPayedModel.find({ sellerId: key._id })
+                let totalPrice = sellerPayedes.reduce((a, b) => {
+                    switch (b.type) {
+                        case "Bonus":
+                            return a + b?.price
+                            break;
+                        case "Shtraf":
+                            return a - b?.price
+                            break;
+                        case "Kunlik":
+                            return a + b?.price
+                            break;
+                        default:
+                            break;
+                    }
+                }, 0)
+                const sellerPayed = sellerPayedes[sellerPayedes.length - 1]
+                if (req.use.role === "superAdmin") {
+                    data.push({ ...key._doc, price: sellerPayed?.price ? sellerPayed?.price : key.price, totalPrice, history: sellerPayedes })
+                }else{
+                data.push({ ...key, price: sellerPayed?.price ? sellerPayed?.price : key.price, totalPrice, history: sellerPayedes })
                 }
-            }, 0)
-            const sellerPayed = sellerPayedes[sellerPayedes.length - 1]
-
-            data.push({ ...key, price: sellerPayed?.price ? sellerPayed?.price : key.price, totalPrice, history: sellerPayedes })
+            }
         }
 
         await setCache("sellers", data)
@@ -189,8 +196,8 @@ exports.getSellerPasswordById = async (req, res) => {
         const decryptPassword = decrypt(seller.password)
         return res.status(200).json({
             success: true,
-            username:seller?.username,
-            password:decryptPassword
+            username: seller?.username,
+            password: decryptPassword
         })
     }
     catch (error) {

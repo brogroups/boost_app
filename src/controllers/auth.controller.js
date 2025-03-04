@@ -16,12 +16,12 @@ exports.AuthLogin = async (req, res) => {
             role = "superAdmin"
         }
         if (!user) {
-            user = await SellerModel.findOne({ username })
-            role = 'seller'
-        }
-        if (!user) {
             user = await DeliveryModel.findOne({ username })
             role = "delivery"
+        }
+        if (!user) {
+            user = await SellerModel.findOne({ username })
+            role = 'seller'
         }
         if (!user) {
             return res.status(400).json({
@@ -30,6 +30,9 @@ exports.AuthLogin = async (req, res) => {
             })
         }
         const decryptPassword = decrypt(user.password)
+        console.log(decryptPassword);
+        console.log(password);
+        
         if (decryptPassword !== password) {
             return res.status(400).json({
                 success: false,

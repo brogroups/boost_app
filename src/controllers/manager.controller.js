@@ -2,6 +2,8 @@ const ManagerModel = require("../models/manager.model")
 const jwt = require("jsonwebtoken")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { encrypt } = require("../helpers/crypto.helper")
+const SellerModel = require("../models/seller.model")
+const DeliveryModel = require("../models/delivery.model")
 
 exports.createManager = async (req, res) => {
     try {
@@ -94,6 +96,8 @@ exports.updateManager = async (req, res) => {
             })
         }
         await deleteCache(`manager`)
+        await deleteCache("delivery")
+        await deleteCache(`seller`)
         return res.status(200).json({
             success: true,
             message: "manager updated",
@@ -111,13 +115,28 @@ exports.updateManager = async (req, res) => {
 exports.deleteManager = async (req, res) => {
     try {
         const manager = await ManagerModel.findByIdAndDelete(req.params.id)
+        const sellers = await SellerModel.aggregate([
+            { $match: { superAdminId: manager._id } }
+        ])
+        const deliveries = await DeliveryModel.aggregate([
+            { $match: { superAdminId: manager._id } }
+        ])
         if (!manager) {
             return res.status(404).json({
                 success: false,
                 message: "manager not found"
             })
         }
+        
+        sellers.forEach(async () => {
+           await SellerModel.deleteOne({ superAdminId: manager._id })
+        })
+        deliveries.forEach(async () => {
+           await DeliveryModel.deleteOne({ superAdminId: manager._id })
+        })
         await deleteCache(`manager`)
+        await deleteCache("delivery")
+        await deleteCache(`seller`)
         return res.status(200).json({
             success: true,
             message: "manager deleted",
