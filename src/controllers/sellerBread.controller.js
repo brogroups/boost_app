@@ -4,13 +4,15 @@ const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 
 exports.createSellerBread = async (req, res) => {
     try {
-        const { typeOfBreadId, quantity, time,name,ovenId } = req.body
+        const { typeOfBreadId, quantity, time, name, ovenId } = req.body
+        let sellerId = req.use.id
         const sellerBread = await SellerBreadModel.create({
             typeOfBreadId,
             time: time ? time : new Date(),
             quantity,
             name,
-            ovenId
+            ovenId,
+            sellerId
         })
         await deleteCache(`sellerBread`)
         return res.status(201).json({
@@ -37,8 +39,8 @@ exports.getSellerBread = async (req, res) => {
                 sellerBreads: cache
             })
         }
-        const sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId")
-        await setCache(`sellerBread`,sellerBreads)
+        const sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId.breadId")
+        await setCache(`sellerBread`, sellerBreads)
         return res.status(200).json({
             success: true,
             message: "list of seller breads",

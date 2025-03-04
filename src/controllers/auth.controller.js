@@ -30,8 +30,6 @@ exports.AuthLogin = async (req, res) => {
             })
         }
         const decryptPassword = decrypt(user.password)
-        console.log(decryptPassword);
-        console.log(password);
         
         if (decryptPassword !== password) {
             return res.status(400).json({

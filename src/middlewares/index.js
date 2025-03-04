@@ -29,7 +29,7 @@ exports.verifyToken = (jwt_secret) => (req, res, next) => {
 exports.isCorrectRole = (models) => async (req, res, next) => {
     try {
         for (const model of models) {
-            const item = await model.findById(req.use.id)    
+            const item = await model.findById(req.use.id)                
             if (item) {
               return next()
             } 
