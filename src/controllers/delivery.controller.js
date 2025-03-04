@@ -1,4 +1,3 @@
-const bcrypt = require("bcrypt");
 const DeliveryModel = require("../models/delivery.model");
 const DeliveryPayedModel = require("../models/deliveryPayed.model");
 const jwt = require("jsonwebtoken");
