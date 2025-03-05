@@ -29,7 +29,7 @@ exports.getDeliveryDebt = async (req, res) => {
                 deliveryDebts: cashe
             })
         }
-        const deliveryDebts = await DeliveryDebtModel.find({})
+        const deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
         await setCache(`deliveryDebt`,deliveryDebts)
         return res.status(200).json({
             success: true,
@@ -47,7 +47,7 @@ exports.getDeliveryDebt = async (req, res) => {
 
 exports.getDeliveryDebtById = async (req, res) => {
     try {
-        const deliveryDebt = await DeliveryDebtModel.findById(req.params.id)
+        const deliveryDebt = await DeliveryDebtModel.findById(req.params.id).populate("deliveryId")
         if (!deliveryDebt) {
             return res.status(404).json({
                 success: false,

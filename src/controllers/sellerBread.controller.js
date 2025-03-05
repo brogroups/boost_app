@@ -32,7 +32,8 @@ exports.createSellerBread = async (req, res) => {
 
 exports.getSellerBread = async (req, res) => {
     try {
-        const cache = await getCache(`sellerBread`)
+        const cache = null
+        // await getCache(`sellerBread`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -41,13 +42,22 @@ exports.getSellerBread = async (req, res) => {
             })
         }
         const sellerBreads = await SellerBreadModel.aggregate([
-            { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } }
-        ]).populate("typeOfBreadId.breadId")
-        await setCache(`sellerBread`, sellerBreads)
+            { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
+        ])
+        const populatedSellerBreads = await SellerBreadModel.populate(sellerBreads, {
+            path: 'typeOfBreadId.breadId',
+            model: 'TypeOfBread'
+        });
+        const data = []
+        for (const key of populatedSellerBreads) {
+            const price = key.typeOfBreadId.reduce((a, b) => a + (b.breadId.price * b.quantity), 0)
+            data.push({ ...key, price:price * key.quantity })
+        }
+        await setCache(`sellerBread`, data)
         return res.status(200).json({
             success: true,
             message: "list of seller breads",
-            sellerBreads
+            sellerBreads: data
         })
     }
     catch (error) {

@@ -1,5 +1,5 @@
 const MagazineModel = require("../models/magazine.model")
-const SellingBreadToMagazineModel = require("../models/SellingBreadToMagazine.model")
+const SellingBreadToMagazineModel = require("../models/sellingBread.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 
