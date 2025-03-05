@@ -29,7 +29,7 @@ exports.getSellingBread = async (req, res) => {
                 sellingBreads: cache
             })
         }
-        let sellingBreads = await SellingBreadModel.find({}).populate("typeOfBreadIds deliveryId")
+        let sellingBreads = await SellingBreadModel.find({}).populate("typeOfBreadIds deliveryId magazineId")
         sellingBreads = sellingBreads.map((item) => {
             const price = item.typeOfBreadIds.reduce((a, b) => a + b.price, 0)
             return { ...item._doc, price: price * item.quantity }
@@ -50,7 +50,7 @@ exports.getSellingBread = async (req, res) => {
 
 exports.getSellingBreadById = async (req, res) => {
     try {
-        const sellingBread = await SellingBreadModel.findById(req.params.id).populate("typeOfBreadIds deliveryId")
+        const sellingBread = await SellingBreadModel.findById(req.params.id).populate("typeOfBreadIds deliveryId magazineId")
         if (!sellingBread) {
             return res.status(404).json({
                 success: false,

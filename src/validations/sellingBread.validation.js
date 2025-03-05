@@ -5,6 +5,8 @@ const CreateSellingBreadSchema = Joi.object({
     quantity: Joi.number().required(),
     paymentMethod: Joi.string().required(),
     deliveryId: Joi.string().required(),
+    magazineId: Joi.string().required(),
+    money: Joi.number().required(),
 })
 
 const UpdateSellingBreadSchema = Joi.object({
@@ -12,6 +14,8 @@ const UpdateSellingBreadSchema = Joi.object({
     quantity: Joi.number().required(),
     paymentMethod: Joi.string().required(),
     deliveryId: Joi.string().required(),
+    magazineId: Joi.string().required(),
+    money: Joi.number().required(),
 })
 
 module.exports = {CreateSellingBreadSchema,UpdateSellingBreadSchema}
