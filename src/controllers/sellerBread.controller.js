@@ -1,5 +1,6 @@
 const SellerBreadModel = require("../models/sellerBread.model")
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
+const { default: mongoose } = require("mongoose")
 
 
 exports.createSellerBread = async (req, res) => {
@@ -39,7 +40,9 @@ exports.getSellerBread = async (req, res) => {
                 sellerBreads: cache
             })
         }
-        const sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId.breadId")
+        const sellerBreads = await SellerBreadModel.aggregate([
+            { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } }
+        ]).populate("typeOfBreadId.breadId")
         await setCache(`sellerBread`, sellerBreads)
         return res.status(200).json({
             success: true,

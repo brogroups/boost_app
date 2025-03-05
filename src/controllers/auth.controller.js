@@ -3,7 +3,6 @@ const SuperAdminModel = require("../models/superAdmin.model")
 const SellerModel = require('../models/seller.model')
 const DeliveryModel = require('../models/delivery.model')
 const jwt = require('jsonwebtoken')
-const { setCache, getCache } = require("../helpers/redis.helper")
 const { decrypt, encrypt } = require("../helpers/crypto.helper")
 
 exports.AuthLogin = async (req, res) => {
@@ -30,7 +29,7 @@ exports.AuthLogin = async (req, res) => {
             })
         }
         const decryptPassword = decrypt(user.password)
-        
+
         if (decryptPassword !== password) {
             return res.status(400).json({
                 success: false,
@@ -65,16 +64,6 @@ exports.getUserByToken = async (req, res) => {
         const use = req.use
         let user = null
 
-        const casheKey = `user:${use.id}`
-        const casheUser = await getCache(casheKey)
-
-        if (casheUser) {
-            return res.status(200).json({
-                success: true,
-                message: 'all of this ok',
-                user: casheUser
-            })
-        }
 
         if (use.role === 'manager') {
             user = await ManagerModel.findById(use.id)
@@ -92,6 +81,7 @@ exports.getUserByToken = async (req, res) => {
                 message: "backer api could not found this user"
             })
         }
+
 
         return res.status(200).json({
             success: true,
@@ -115,16 +105,6 @@ exports.updateUserAuth = async (req, res) => {
         let user = null
         const { password } = req.body
 
-        const casheKey = `user:${use.id}`
-        const casheUser = await getCache(casheKey)
-
-        if (casheUser) {
-            return res.status(200).json({
-                success: true,
-                message: 'all of this ok',
-                user: casheUser
-            })
-        }
         const hashPassword = encrypt(password)
         if (use.role === 'manager') {
             user = await ManagerModel.findByIdAndUpdate(use.id, { password: hashPassword }, { new: true })
@@ -142,12 +122,48 @@ exports.updateUserAuth = async (req, res) => {
                 message: "server could not found"
             })
         }
-
         return res.status(200).json({
             success: true,
             message: 'all of this ok',
             user,
             role: use.role
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+exports.getUserNameAndPasswordById = async (req, res) => {
+    try {
+        let user = await ManagerModel.findById(req.params.id)
+        let role = 'manager'
+        if (!user) {
+            user = await SuperAdminModel.findById(req.params.id)
+            role = "superAdmin"
+        }
+        if (!user) {
+            user = await DeliveryModel.findById(req.params.id)
+            role = "delivery"
+        }
+        if (!user) {
+            user = await SellerModel.findById(req.params.id)
+            role = 'seller'
+        }
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Username or Password"
+            })
+        }
+        const decryptPassword = decrypt(user.password)
+        return res.status(200).json({
+            success: true,
+            username: user?.username,
+            password: decryptPassword
         })
     }
     catch (error) {

@@ -13,7 +13,6 @@ const { CreateDeliverySchema, UpdateDeliverySchema, LoginDeliverySchema } = requ
 router.post("/delivery", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]), Middleware.verifyValidation(CreateDeliverySchema), Controller.createDelivery)
 router.get("/deliveries",Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS),Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]),Controller.getDeliveries)
 router.get("/delivery/:id",Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS),Middleware.isCorrectRole([SuperAdminModel,ManagerModel,DeliveryModel,SellerModel]),Controller.getDeliveryById)
-router.get("/delivery/:id/password", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, SellerModel,ManagerModel]), Controller.getDeliveryPasswordById)
 router.put("/delivery/:id",Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS),Middleware.isCorrectRole([SuperAdminModel,ManagerModel,DeliveryModel,SellerModel]),Middleware.verifyValidation(UpdateDeliverySchema),Controller.updateDelivery)
 router.delete("/delivery/:id",Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS),Middleware.isCorrectRole([SuperAdminModel,ManagerModel,SellerModel]),Controller.deleteDelivery)
 module.exports = router

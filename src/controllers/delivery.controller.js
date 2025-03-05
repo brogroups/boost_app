@@ -202,23 +202,3 @@ exports.deleteDelivery = async (req, res) => {
 };
 
 
-exports.getDeliveryPasswordById = async (req, res) => {
-    try {
-        const delivery = await DeliveryModel.findById(req.params.id)
-        if (!delivery) {
-            return res.status(404).send('Delivery not found');
-        }
-        const decryptPassword = decrypt(delivery.password)
-        return res.status(200).json({
-            success: true,
-            username: delivery?.username,
-            password: decryptPassword
-        })
-    }
-    catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}

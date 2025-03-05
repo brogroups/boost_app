@@ -186,24 +186,3 @@ exports.deleteSeller = async (req, res) => {
         })
     }
 }
-
-exports.getSellerPasswordById = async (req, res) => {
-    try {
-        const seller = await SellerModel.findById(req.params.id)
-        if (!seller) {
-            return res.status(404).send('Seller not found');
-        }
-        const decryptPassword = decrypt(seller.password)
-        return res.status(200).json({
-            success: true,
-            username: seller?.username,
-            password: decryptPassword
-        })
-    }
-    catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
