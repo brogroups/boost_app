@@ -5,6 +5,7 @@ const SellingBreadModel = require("../models/sellingBread.model")
 
 exports.getStatics = async (req, res) => {
     try {
+        // super admin statics
         let debt1s = await Debt1Model.find({}).populate("sellerId", 'username')
         let debt2s = await Debt2Model.find({}).populate("sellerId", 'username')
         let deliveryDebt = await DeliveryDebtModel.find({}).populate("deliveryId", 'username')
@@ -29,6 +30,9 @@ exports.getStatics = async (req, res) => {
                 pending.push({ ...key._doc })
             }
         }
+
+        // manager statics
+
         return res.status(200).json({
             statics: {
                 debt: {
@@ -40,11 +44,16 @@ exports.getStatics = async (req, res) => {
                     history: deliveryPrixod
                 },
                 pending: {
-                    totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * b.quantity), 0) - pending.reduce((a, b) => a + b.money, 0),
+                    totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * b.quantity) + b.money, 0),
                     history: pending
                 }
             },
-            managerStatics: {}
+            managerStatics: {
+                debt: {
+                    totalPrice: debt1s.reduce((a, b) => a + b.price, 0) + debt2s.reduce((a, b) => a + b.price, 0) + deliveryDebt.reduce((a, b) => a + b.price, 0),
+                    history: [...debt1s, ...debt2s, ...deliveryDebt]
+                },
+            }
         })
     }
     catch (error) {

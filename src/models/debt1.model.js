@@ -6,6 +6,7 @@ const Debt1Schema = new Schema({
     quantity: { type: Number, required: true },
     sellerId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
     reason: { type: String, required: true },
+    price: {type:Number,required:true},
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })
