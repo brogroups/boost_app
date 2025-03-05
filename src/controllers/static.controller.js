@@ -21,8 +21,14 @@ exports.getStatics = async (req, res) => {
             return { ...item._doc, role: "delivery" }
         })
 
-        let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username')
-
+        let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate("typeOfBreadIds")
+        const pending = []
+        for (const key of deliveryPrixod) {
+            let allPrice = key.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * key.quantity
+            if (allPrice - key.money < 0) {
+                pending.push({ ...key._doc })
+            }
+        }
         return res.status(200).json({
             statics: {
                 debt: {
@@ -32,6 +38,10 @@ exports.getStatics = async (req, res) => {
                 prixod: {
                     totalPrice: deliveryPrixod.reduce((a, b) => a + b.money, 0),
                     history: deliveryPrixod
+                },
+                pending: {
+                    totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * b.quantity), 0) - pending.reduce((a, b) => a + b.money, 0),
+                    history: pending
                 }
             },
             managerStatics: {}
