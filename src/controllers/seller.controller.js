@@ -8,7 +8,7 @@ const { encrypt, decrypt } = require("../helpers/crypto.helper")
 exports.createSeller = async (req, res) => {
     try {
         const { username, phone, price, ovenId, password } = req.body
-        let hashPassword = encrypt(password)
+        let hashPassword = encrypt(password ? password : phone.slice(-4))
         const superAdminId = req.use.id
 
         const newSeller = new SellerModel({
