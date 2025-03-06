@@ -1,9 +1,10 @@
 const { Schema, model } = require("mongoose");
 // const TypeOfDebtModel = require('./typeOfDebt.model')
-const SellerModel = require("./seller.model")
+const SellerModel = require("./seller.model");
+const TypeOfWareHouseModel = require("./typeofwarehouse.model");
 
 const Debt2Schema = new Schema({
-    title: {type:String,required:true},
+    omborxonaProId: {type:Schema.Types.ObjectId,ref:TypeOfWareHouseModel,required:true},
     quantity: {type:Number,required:true},
     price: {type:Number,required:true},
     description: {type:String,required:true},

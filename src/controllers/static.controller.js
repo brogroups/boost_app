@@ -101,10 +101,10 @@ exports.getStatics = async (req, res) => {
                     { $match: { deliveryId: key?._id } },
                     {
                         $lookup: {
-                            from: "deliveries",   // 'Delivery' kolleksiyasi
-                            localField: "deliveryId",  // 'SellingBread' modelidagi 'deliveryId' fieldi
-                            foreignField: "_id",   // 'Delivery' modelidagi '_id' fieldi
-                            as: "delivery"         // 'delivery' nomi bilan natija
+                            from: "deliveries",   
+                            localField: "deliveryId",  
+                            foreignField: "_id",  
+                            as: "delivery"       
                         }
                     },
                     {
