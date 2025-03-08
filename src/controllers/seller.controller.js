@@ -81,7 +81,6 @@ exports.getSellers = async (req, res) => {
                             break;
                     }
                 }, 0)
-                const sellerPayed = sellerPayedes[sellerPayedes.length - 1]
                 if (req.use.role === "superAdmin") {
                     data.push({ ...key._doc, totalPrice, history: sellerPayedes })
                 }else{

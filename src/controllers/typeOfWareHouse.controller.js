@@ -2,6 +2,7 @@ const TypeOfWareHouse = require("../models/typeofwarehouse.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const WareHouseModel = require("../models/warehouse.model")
 const { createWareHouse } = require("./warehouse.controller")
+const Debt2Model = require("../models/debt2.model")
 
 exports.createTypeOfWareHouse = async (req, res) => {
     try {
@@ -24,7 +25,8 @@ exports.createTypeOfWareHouse = async (req, res) => {
 
 exports.getTypeOfWareHouse = async (req, res) => {
     try {
-        const typeOfWareHousesCache = await getCache("typeOfWareHouse")
+        const typeOfWareHousesCache = null
+        await getCache("typeOfWareHouse")
         if (typeOfWareHousesCache) {
             return res.status(200).json({
                 success: true,
@@ -35,6 +37,10 @@ exports.getTypeOfWareHouse = async (req, res) => {
         const typeOfWareHouses = await TypeOfWareHouse.find({})
         const data = []
         for (const key of typeOfWareHouses) {
+            const debt = await Debt2Model.aggregate([
+                { $match: { omborxonaProId: key._id } }
+            ])
+
             const warehouses = await WareHouseModel.aggregate([
                 { $match: { typeId: key._id } }
             ])
@@ -51,7 +57,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
             }, 0)
 
 
-            data.push({ ...key._doc, price: warehouse.price, quantity: allQuantity, history: warehouses, totalPrice: totalPrice })
+            data.push({ ...key._doc, price: warehouse.price, quantity: allQuantity - debt.reduce((a, b) => a + b.quantity, 0), history: warehouses, totalPrice: totalPrice })
         }
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({

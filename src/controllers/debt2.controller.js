@@ -15,7 +15,7 @@ exports.createDebt2 = async (req, res) => {
         return res.status(201).json({
             success: true,
             message: "debt2 created",
-            debt2: null
+            debt2: newDebt2
         })
     }
     catch (error) {
@@ -28,8 +28,7 @@ exports.createDebt2 = async (req, res) => {
 
 exports.getDebt2s = async (req, res) => {
     try {
-        const cashe = null
-        // await getCache(`debt2`)
+        const cashe = await getCache(`debt2`)
         if (cashe) {
             return res.status(200).json({
                 success: true,

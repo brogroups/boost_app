@@ -31,6 +31,7 @@ exports.getWareHouses = async (req, res) => {
             })
         }
         const warehouses = await WareHouseModel.find({})
+        
         await setCache("warehouse",warehouses)
         return res.status(200).json({
             success: true,
