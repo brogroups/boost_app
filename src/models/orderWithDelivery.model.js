@@ -5,10 +5,10 @@ const DeliveryModel = require("./delivery.model");
 
 const OrderWithDeliverySchema = new Schema({
     typeOfBreadIds: [
-        { type: Schema.Types.ObjectId, ref: TypeOfBreadModel }
-        /// 
-        /// {
-        // }
+        {
+            bread: { type: Schema.Types.ObjectId, ref: TypeOfBreadModel },
+            quantity: { type: Number, required: true }
+        }
     ],
     quantity: { type: Number, required: true },
     description: { type: String, required: true },

@@ -6,7 +6,7 @@ const DeliverySchema = new Schema({
     password: { type: String, required: true, unique: true },
     phone: { type: String },
     price: { type: Number, required: true },
-    superAdminId: { type: Schema.Types.ObjectId, ref: SuperAdminModel, required: true },
+    // superAdminId: { type: Schema.Types.ObjectId, ref: SuperAdminModel, required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })

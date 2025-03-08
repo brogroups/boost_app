@@ -131,7 +131,6 @@ exports.getStatics = async (req, res) => {
                         }
                     }
                 ])
-                console.log(prixod);
 
                 prixod.forEach((item) => {
                     deliveryPrixod.push({ ...item })

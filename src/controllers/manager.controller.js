@@ -118,9 +118,6 @@ exports.deleteManager = async (req, res) => {
         const sellers = await SellerModel.aggregate([
             { $match: { superAdminId: manager._id } }
         ])
-        const deliveries = await DeliveryModel.aggregate([
-            { $match: { superAdminId: manager._id } }
-        ])
         if (!manager) {
             return res.status(404).json({
                 success: false,
@@ -130,9 +127,6 @@ exports.deleteManager = async (req, res) => {
         
         sellers.forEach(async () => {
            await SellerModel.deleteOne({ superAdminId: manager._id })
-        })
-        deliveries.forEach(async () => {
-           await DeliveryModel.deleteOne({ superAdminId: manager._id })
         })
         await deleteCache(`manager`)
         await deleteCache("delivery")

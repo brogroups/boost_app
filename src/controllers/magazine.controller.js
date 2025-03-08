@@ -23,7 +23,8 @@ exports.createMagazine = async (req, res) => {
 
 exports.getMagazines = async (req, res) => {
     try {
-        const cache = await getCache(`magazine`)
+        const cache = null
+        // await getCache(`magazine`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -35,11 +36,62 @@ exports.getMagazines = async (req, res) => {
         const data = []
 
         for (const key of magazines) {
-            let sellingBreadToMagazines = await SellingBreadToMagazineModel.find({ magazineId: key._id }).populate("deliveryId magazineId typeOfBreads")
+            let sellingBreadToMagazines = await SellingBreadToMagazineModel.aggregate([
+                { $match: { magazineId: key._id } },
+                {
+                    $lookup: {
+                        from: "deliveries",
+                        localField: "deliveryId",
+                        foreignField: "_id",
+                        as: "delivery"
+                    }
+                },
+                {
+                    $unwind: "$delivery"
+                },
+                {
+                    $lookup: {
+                        from: "typeofbreads",
+                        localField: "typeOfBreadIds",
+                        foreignField: "_id",
+                        as: "typeOfBreads"
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "magazines",
+                        localField: "magazineId",
+                        foreignField: "_id",
+                        as: "magazine"
+                    }
+                },
+                {
+                    $unwind: "$magazine"
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        quantity: 1,
+                        typeOfBreads: 1,
+                        quantity: 1,
+                        paymentMethod: 1,
+                        money: 1,
+                        createdAt: 1,
+                        delivery: {
+                            _id: 1,
+                            username: "$delivery.username"
+                        },
+                        magazine: {
+                            _id: 1,
+                            title: "$magazine.title"
+                        }
+                    }
+                }
+            ])
             sellingBreadToMagazines = sellingBreadToMagazines.map((item) => {
                 let totalPrice = item.typeOfBreads.reduce((a, b) => a + b.price, 0) * item.quantity
                 let pending = item.typeOfBreads.reduce((a, b) => a + b.price, 0)
-                return { ...item._doc, totalPrice, pending }
+                return { ...item, totalPrice, pending }
             })
             data.push({ ...key._doc, history: sellingBreadToMagazines, totalPrice: 0 })
         }
