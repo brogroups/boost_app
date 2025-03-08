@@ -56,9 +56,11 @@ exports.getDeliveries = async (req, res) => {
             });
         }
         let deliveries;
-        if (req.use.role === "superAdmin") {
+        console.log(req.use.role);
+        
+        if (req.use.role === "superAdmin" || req.use.role === "manager") {
             deliveries = await DeliveryModel.find({});
-        } else {
+        } else if(req.use.role === "seller") {
             deliveries = await DeliveryModel.aggregate([
                 { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }
             ]);
@@ -85,7 +87,7 @@ exports.getDeliveries = async (req, res) => {
                     }
                 }, 0);
 
-                if (req.use.role === "superAdmin") {
+                if (req.use.role === "superAdmin" || req.use.role === "manager") {
                     data.push({
                         ...key._doc,
                         price: deliveryPayedes[deliveryPayedes.length - 1]

@@ -3,6 +3,7 @@ const cors = require("cors");
 const SuperAdminModel = require("./models/superAdmin.model");
 const jwt = require("jsonwebtoken");
 const ConnecToDb = require("./configs/connection");
+const { encrypt } = require("./helpers/crypto.helper");
 
 require("dotenv").config();
 
@@ -13,7 +14,7 @@ app.use(express.json());
 app.use(
   cors({
     // origin:"https://alphae.uz",
-    origin: ["http://localhost:8080","http://localhost:5173","https://safo-non.netlify.app"],
+    origin: ["http://localhost:8080", "http://localhost:5173", "https://safo-non.netlify.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -84,13 +85,15 @@ const WareHouseRoute = require("./routes/warehouse.route")
 app.use("/api", WareHouseRoute)
 
 const TypeOfPayedRoute = require("./routes/typeOfPayed.route")
-app.use("/api",TypeOfPayedRoute)
+app.use("/api", TypeOfPayedRoute)
 
 
 
 const PayedStatusRoute = require("./routes/payedStatus.route");
-const { encrypt } = require("./helpers/crypto.helper");
-app.use("/api",PayedStatusRoute)
+app.use("/api", PayedStatusRoute)
+
+const SellerMagazineRoute = require("./routes/sellerMagazine.route")
+app.use("/api", SellerMagazineRoute)
 
 app.use("/api/refreshToken", async (req, res) => {
   const { refreshToken } = req.body;

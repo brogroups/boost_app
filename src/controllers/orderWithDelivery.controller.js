@@ -1,22 +1,39 @@
 const OrderWithDeliveryModel = require("../models/orderWithDelivery.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
+const { default: mongoose } = require("mongoose")
 
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
-        const { typeOfBreadIds, quantity, description, sellerId, time } = req.body
-        const newOrderWithDelivery = await OrderWithDeliveryModel.create({
-            typeOfBreadIds,
-            quantity,
-            description,
-            sellerId,
-            time: time ? time : new Date()
-        })
+        const { typeOfBreadIds, quantity, description, sellerId, deliveryId } = req.body
+        switch (req.use.role) {
+            case "superAdmin":
+                await OrderWithDeliveryModel.create({
+                    typeOfBreadIds,
+                    quantity,
+                    description,
+                    sellerId,
+                    deliveryId
+                })
+                break;
+            case "seller":
+                await OrderWithDeliveryModel.create({
+                    typeOfBreadIds,
+                    quantity,
+                    description,
+                    sellerId: req.use.id,
+                    deliveryId
+                })
+                break;
+
+            default:
+                break;
+        }
+
         await deleteCache(`orderWithDelivery`)
         return res.status(201).json({
             success: true,
             message: "order with delivery created",
-            orderWithDelivery: newOrderWithDelivery
         })
     }
     catch (error) {
@@ -29,7 +46,8 @@ exports.createOrderWithDelivery = async (req, res) => {
 
 exports.getOrderWithDeliveries = async (req, res) => {
     try {
-        const cache = await getCache(`orderWithDelivery`)
+        const cache = null
+        // await getCache(`orderWithDelivery`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -37,10 +55,60 @@ exports.getOrderWithDeliveries = async (req, res) => {
                 orderWithDeliveries: cache
             })
         }
-        let orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("typeOfBreadIds sellerId")
-        orderWithDeliveries = orderWithDeliveries.map((item) => {
-            return { ...item._doc, price: item.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * item.quantity }
-        })
+        let orderWithDeliveries = []
+        switch (req.use.role) {
+            case "superAdmin":
+                orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("typeOfBreadIds").populate("deliveryId", 'username')
+                orderWithDeliveries = orderWithDeliveries.map((item) => {
+                    return { ...item._doc, totalPrice: item.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * item.quantity }
+                })
+                break;
+            case "seller":
+                orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
+                    {
+                        $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) }
+                    },
+                    {
+                        $lookup: {
+                            from: "deliveries",
+                            localField: "deliveryId",
+                            foreignField: "_id",
+                            as: "delivery"
+                        }
+                    },
+                    {
+                        $unwind: "$delivery"
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "typeOfBreadIds",
+                            foreignField: "_id",
+                            as: "breads"
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            quantity: 1,
+                            description: 1,
+                            delivery: {
+                                _id: 1,
+                                username: "$delivery.username"
+                            },
+                            breads: 1,
+                            createdAt: 1,
+                            updateAt: 1,
+                        }
+                    }
+                ])
+                orderWithDeliveries = orderWithDeliveries.map((item) => {
+                    return { ...item, totalPrice: item.breads.reduce((a, b) => a + b.price, 0) * item.quantity }
+                })
+                break;
+            default:
+                break;
+        }
         await setCache(`orderWithDelivery`, orderWithDeliveries)
         return res.status(200).json({
             success: true,
@@ -58,7 +126,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
 exports.getOrderWithDeliveryById = async (req, res) => {
     try {
-        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id).populate("typeOfBreadIds sellerId")
+        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id).populate("typeOfBreadIds sellerId deliveryId")
         if (!orderWithDelivery) {
             return res.status(404).json({
                 success: false,

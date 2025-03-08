@@ -9,3 +9,4 @@ const TypeOfBreadSchema = new Schema({
 
 const TypeOfBreadModel = model("TypeOfBread", TypeOfBreadSchema)
 module.exports = TypeOfBreadModel
+

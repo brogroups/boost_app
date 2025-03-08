@@ -1,6 +1,7 @@
 const { Schema, model } = require("mongoose");
 const TypeOfBreadModel = require("./typOfbread.model");
 const SellerModel = require("./seller.model");
+const DeliveryModel = require("./delivery.model");
 
 const OrderWithDeliverySchema = new Schema({
     typeOfBreadIds: [
@@ -11,8 +12,8 @@ const OrderWithDeliverySchema = new Schema({
     ],
     quantity: { type: Number, required: true },
     description: { type: String, required: true },
-    sellerId: { type: Schema.Types.ObjectId, ref: SellerModel,required:true },
-    time: { type: Date, required: true },
+    sellerId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
+    deliveryId: { type: Schema.Types.ObjectId, ref: DeliveryModel, required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })
