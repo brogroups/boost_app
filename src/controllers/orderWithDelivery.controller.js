@@ -6,9 +6,10 @@ const { default: mongoose } = require("mongoose")
 exports.createOrderWithDelivery = async (req, res) => {
     try {
         const { typeOfBreadIds, quantity, description, sellerId, deliveryId } = req.body
+        let order = null
         switch (req.use.role) {
             case "superAdmin":
-                await OrderWithDeliveryModel.create({
+                order = await OrderWithDeliveryModel.create({
                     typeOfBreadIds,
                     quantity,
                     description,
@@ -17,11 +18,11 @@ exports.createOrderWithDelivery = async (req, res) => {
                 })
                 break;
             case "seller":
-                await OrderWithDeliveryModel.create({
+                order = await OrderWithDeliveryModel.create({
                     typeOfBreadIds,
                     quantity,
                     description,
-                    sellerId: req.use.id,
+                    sellerId: new mongoose.Types.ObjectId(req.use.id),
                     deliveryId
                 })
                 break;
@@ -34,6 +35,7 @@ exports.createOrderWithDelivery = async (req, res) => {
         return res.status(201).json({
             success: true,
             message: "order with delivery created",
+            order
         })
     }
     catch (error) {
@@ -55,53 +57,59 @@ exports.getOrderWithDeliveries = async (req, res) => {
                 orderWithDeliveries: cache
             })
         }
-        let orderWithDeliveries = []
-        orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
+        let orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
             {
                 $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) }
             },
             {
                 $lookup: {
-                    from: 'deliveries',
-                    localField: 'deliveryId',
-                    foreignField: '_id',
-                    as: 'delivery'
+                    from: "sellers",
+                    localField: "sellerId",
+                    foreignField: "_id",
+                    as: "seller"
                 }
             },
             {
-                $unwind: '$delivery'
+                $unwind: "$seller"
             },
             {
                 $lookup: {
-                    from: 'typeofbreads',
-                    localField: 'typeOfBreadIds.bread',
-                    foreignField: '_id',
-                    as: 'breads'
+                    from: "typeofbreads",
+                    localField: "typeOfBreadIds.bread",
+                    foreignField: "_id",
+                    as: "breadDetails"
                 }
             },
             {
+                $unwind: "$breadDetails"
+            },
+            {
                 $project: {
-                    _id: 1,
+                    typeOfBreadIds: 1,
                     quantity: 1,
                     description: 1,
-                    delivery: {
+                    sellerId: {
                         _id: 1,
-                        username: '$delivery.username'
+                        username: "$seller.username"
                     },
-                    typeOfBreadIds: 1,
-                    breads: {
-                        bread:1,
-                        quantity:1,
-                    },
+                    deliveryId: 1,
                     createdAt: 1,
-                    updatedAt: 1,
+                    typeOfBreadIds: {
+                        $map: {
+                            input: "$typeOfBreadIds",
+                            as: "breadItem",
+                            in: {
+                                bread: "$breadDetails",
+                                quantity: "$$breadItem.quantity"
+                            }
+                        }
+                    }
                 }
             }
         ])
-        orderWithDeliveries = orderWithDeliveries.map((item) => {
-            return { ...item, totalPrice: item.breads.reduce((a, b) => a + b.price, 0) * item.quantity }
-        })
-        console.log(orderWithDeliveries);
+        // orderWithDeliveries = orderWithDeliveries.map((item) => {
+        //     return { ...item._id, totalPrice: item.breads?.reduce((a, b) => a + b.price, 0) * item.quantity }
+        // })
 
         await setCache(`orderWithDelivery`, orderWithDeliveries)
         return res.status(200).json({
