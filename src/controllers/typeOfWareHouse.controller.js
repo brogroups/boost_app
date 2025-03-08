@@ -3,6 +3,7 @@ const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const WareHouseModel = require("../models/warehouse.model")
 const { createWareHouse } = require("./warehouse.controller")
 const Debt2Model = require("../models/debt2.model")
+const { default: mongoose } = require("mongoose")
 
 exports.createTypeOfWareHouse = async (req, res) => {
     try {
@@ -53,19 +54,22 @@ exports.getTypeOfWareHouse = async (req, res) => {
 
             const warehouse = history[history.length - 1]
             // let allPrice = warehouses.reduce((a, b) => {
-            //     return b.price + a
+            //     return b.price + a'
             // }, 0)
-            let debtQuantity = history.reduce((a, b) => {
+            let debtQuantity = null;
+            let payedQuantity = null;
+            let quantity = null;
+            debtQuantity = history.reduce((a, b) => {
                 return b.type === "debt" ? b.quantity - a : a
             }, 0)
 
-            let payedQuantity = history.reduce((a, b) => {
+            payedQuantity = history.reduce((a, b) => {
                 return b.type === "payed" ? a + b.quantity : a
             }, 0)
 
-            let quantity = key.quantity - debtQuantity + payedQuantity
+            quantity = (key.quantity - debtQuantity) + payedQuantity
 
-            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, quantity, history, totalPrice: warehouse?.price ? warehouse?.price : key.price * quantity })
+            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, quantity: (quantity ? quantity - key.quantity : key.quantity), history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * quantity })
         }
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({
