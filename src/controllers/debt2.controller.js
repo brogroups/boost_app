@@ -28,7 +28,8 @@ exports.createDebt2 = async (req, res) => {
 
 exports.getDebt2s = async (req, res) => {
     try {
-        const cashe = await getCache(`debt2`)
+        const cashe = null
+        // await getCache(`debt2`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
@@ -74,7 +75,8 @@ exports.getDebt2s = async (req, res) => {
                         updateAt: 1,
                         omborxonaProId: {
                             _id: "$omborxona._id",
-                            name: "$omborxona.name"
+                            name: "$omborxona.name",
+                            price: "$omborxona.price",
                         },
                         seller: {
                             _id: "$seller._id",

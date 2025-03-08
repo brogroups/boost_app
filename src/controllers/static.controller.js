@@ -71,20 +71,7 @@ exports.getStatics = async (req, res) => {
                         history: pending
                     }
                 },
-                managerStatics: {
-                    debt: {
-                        totalPrice: 0,
-                        history: Debtmanagers
-                    },
-                    prixod: {
-                        totalPrice: 0,
-                        history: []
-                    },
-                    pending: {
-                        totalPrice: 0,
-                        history: []
-                    }
-                }
+                managerStatics: Debtmanagers
             })
         }
     }

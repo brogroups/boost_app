@@ -26,8 +26,7 @@ exports.createTypeOfWareHouse = async (req, res) => {
 
 exports.getTypeOfWareHouse = async (req, res) => {
     try {
-        const typeOfWareHousesCache = null
-        await getCache("typeOfWareHouse")
+        const typeOfWareHousesCache =  await getCache("typeOfWareHouse")
         if (typeOfWareHousesCache) {
             return res.status(200).json({
                 success: true,

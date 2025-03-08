@@ -32,8 +32,7 @@ exports.createSellerBread = async (req, res) => {
 
 exports.getSellerBread = async (req, res) => {
     try {
-        const cache = null
-        // await getCache(`sellerBread`)
+        const cache = await getCache(`sellerBread`)
         if (cache) {
             return res.status(200).json({
                 success: true,
