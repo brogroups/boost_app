@@ -44,20 +44,28 @@ exports.getTypeOfWareHouse = async (req, res) => {
             const warehouses = await WareHouseModel.aggregate([
                 { $match: { typeId: key._id } }
             ])
-            const warehouse = warehouses[warehouses.length - 1]
+
+            const history = warehouses.map((item) => {
+                return { ...item, type: "payed" }
+            }).concat(debt.map((item) => {
+                return { ...item, type: "debt" }
+            }))
+
+            const warehouse = history[history.length - 1]
             // let allPrice = warehouses.reduce((a, b) => {
             //     return b.price + a
             // }, 0)
-            let allQuantity = warehouses.reduce((a, b) => {
-                return b.quantity + a
+            let debtQuantity = history.reduce((a, b) => {
+                return b.type === "debt" ? b.quantity - a : a
             }, 0)
 
-            let totalPrice = warehouses.reduce((a, b) => {
-                return (b.price * b.quantity) + a
+            let payedQuantity = history.reduce((a, b) => {
+                return b.type === "payed" ? a + b.quantity : a
             }, 0)
 
+            let quantity = key.quantity - debtQuantity + payedQuantity
 
-            data.push({ ...key._doc, price: warehouse.price, quantity: allQuantity - debt.reduce((a, b) => a + b.quantity, 0), history: warehouses, totalPrice: totalPrice })
+            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, quantity, history, totalPrice: warehouse?.price ? warehouse?.price : key.price * quantity })
         }
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({

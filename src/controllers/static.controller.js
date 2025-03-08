@@ -144,7 +144,6 @@ exports.getStatics = async (req, res) => {
                 }
             }
 
-            console.log(deliveryPrixod);
 
 
 
