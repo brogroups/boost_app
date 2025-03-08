@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper");
 const { default: mongoose } = require("mongoose");
 const { decrypt, encrypt } = require("../helpers/crypto.helper");
+const SellerModel = require("../models/seller.model");
 
 exports.createDelivery = async (req, res) => {
     try {
@@ -56,13 +57,18 @@ exports.getDeliveries = async (req, res) => {
             });
         }
         let deliveries;
-        console.log(req.use.role);
-        
-        if (req.use.role === "superAdmin" || req.use.role === "manager") {
+
+        if (req.use.role === "superAdmin") {
             deliveries = await DeliveryModel.find({});
-        } else if(req.use.role === "seller") {
+        } else if (req.use.role === "manager") {
             deliveries = await DeliveryModel.aggregate([
                 { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }
+            ]);
+        }
+        else if (req.use.role === "seller") {
+            const seller = await SellerModel.findById(req.use.id)
+            deliveries = await DeliveryModel.aggregate([
+                { $match: { superAdminId: new mongoose.Types.ObjectId(seller.superAdminId) } }
             ]);
         }
         const data = [];
@@ -87,7 +93,7 @@ exports.getDeliveries = async (req, res) => {
                     }
                 }, 0);
 
-                if (req.use.role === "superAdmin" || req.use.role === "manager") {
+                if (req.use.role === "superAdmin") {
                     data.push({
                         ...key._doc,
                         price: deliveryPayedes[deliveryPayedes.length - 1]

@@ -33,7 +33,7 @@ exports.AuthLogin = async (req, res) => {
         if (decryptPassword !== password) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid Password or Username"
+                message: "Invalid Username or Password"
             })
         }
         const accessToken = jwt.sign(
