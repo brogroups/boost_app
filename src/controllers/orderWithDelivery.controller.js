@@ -74,6 +74,17 @@ exports.getOrderWithDeliveries = async (req, res) => {
             },
             {
                 $lookup: {
+                    from: "deliveries",
+                    localField: "deliveryId",
+                    foreignField: "_id",
+                    as: "deliveryDetails"
+                }
+            },
+            {
+                $unwind: "$deliveryDetails"
+            },
+            {
+                $lookup: {
                     from: "typeofbreads",
                     localField: "typeOfBreadIds.bread",
                     foreignField: "_id",
@@ -81,35 +92,40 @@ exports.getOrderWithDeliveries = async (req, res) => {
                 }
             },
             {
-                $unwind: "$breadDetails"
+                $unwind: "$breadDetails" 
             },
             {
                 $project: {
-                    typeOfBreadIds: 1,
-                    quantity: 1,
                     description: 1,
+                    quantity: 1,
                     sellerId: {
-                        _id: 1,
+                        _id: "$seller._id",
                         username: "$seller.username"
                     },
-                    deliveryId: 1,
+                    deliveryId: {
+                        _id: "$deliveryDetails._id",
+                        username: "$deliveryDetails.username"
+                    },
                     createdAt: 1,
                     typeOfBreadIds: {
                         $map: {
                             input: "$typeOfBreadIds",
                             as: "breadItem",
                             in: {
-                                bread: "$breadDetails",
-                                quantity: "$$breadItem.quantity"
+                                bread: "$breadDetails", // Matching the breadDetails with typeOfBreadIds
+                                quantity: "$$breadItem.quantity" // Directly mapping quantity
                             }
                         }
                     }
                 }
             }
-        ])
-        // orderWithDeliveries = orderWithDeliveries.map((item) => {
-        //     return { ...item._id, totalPrice: item.breads?.reduce((a, b) => a + b.price, 0) * item.quantity }
-        // })
+        ]);
+
+        orderWithDeliveries = orderWithDeliveries.map((item) => {
+            return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.bread.price, 0) * item.quantity }
+        })
+        console.log(orderWithDeliveries);
+
 
         await setCache(`orderWithDelivery`, orderWithDeliveries)
         return res.status(200).json({

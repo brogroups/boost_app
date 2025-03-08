@@ -1,5 +1,4 @@
 const { Schema, model } = require("mongoose");
-const SuperAdminModel = require("./superAdmin.model");
 
 const DeliverySchema = new Schema({
     username: { type: String, required: true, unique: true },

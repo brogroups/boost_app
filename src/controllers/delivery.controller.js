@@ -80,9 +80,6 @@ exports.getDeliveries = async (req, res) => {
 
             data.push({
                 ...key._doc,
-                price: deliveryPayedes[deliveryPayedes.length - 1]
-                    ? deliveryPayedes[deliveryPayedes.length - 1]?.price
-                    : key.price,
                 deliveryPayed: deliveryPayedes,
                 totalPrice,
             })
