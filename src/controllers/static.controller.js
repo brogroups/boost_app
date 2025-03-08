@@ -64,108 +64,110 @@ exports.getStatics = async (req, res) => {
                     }
                 }
             })
-        } else if (req.use.role === "manager") {
-            const sellers = await SellerModel.aggregate([{ $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }])
-            const deliveries = await DeliveryModel.aggregate([{ $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }])
-            let AllDebt = []
-            let deliveryPrixod = []
-            const pending = []
-
-            for (const key of sellers) {
-                let debt1 = await Debt1Model.aggregate([
-                    { $match: { sellerId: key?._id } }
-                ])
-
-                debt1.forEach((item) => {
-                    AllDebt.push({ ...item, role: "seller" })
-                })
-
-                let debt2 = await Debt2Model.aggregate([
-                    { $match: { sellerId: key?._id } }
-                ])
-                debt2.forEach((item) => {
-                    AllDebt.push({ ...item, role: "seller" })
-                })
-            }
-            for (const key of deliveries) {
-                console.log(key);
-
-                let debt3 = await DeliveryDebtModel.aggregate([
-                    { $match: { deliveryId: key?._id } }
-                ])
-                debt3.forEach((item) => {
-                    AllDebt.push({ ...item, role: "delivery" })
-                })
-
-                let prixod = await SellingBreadModel.aggregate([
-                    { $match: { deliveryId: key?._id } },
-                    {
-                        $lookup: {
-                            from: "deliveries",   
-                            localField: "deliveryId",  
-                            foreignField: "_id",  
-                            as: "delivery"       
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "typeofbreads",
-                            localField: "typeOfBreadIds",
-                            foreignField: "_id",
-                            as: "typeOfBreads"
-                        }
-                    },
-                    {
-                        $unwind: "$delivery"
-                    },
-                    {
-                        $project: {
-                            delivery: { username: 1 },
-                            typeOfBreadIds: 1,
-                            _id: 1,
-                            quantity: 1,
-                            paymentMethod: 1,
-                            money: 1,
-                            createdAt: 1,
-                            updateAt: 1
-                        }
-                    }
-                ])
-
-                prixod.forEach((item) => {
-                    deliveryPrixod.push({ ...item })
-                })
-            }
-
-            for (const key of deliveryPrixod) {
-                let allPrice = key.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * key.quantity
-                if (allPrice - key.money < 0) {
-                    pending.push({ ...key._doc })
-                }
-            }
-
-
-
-
-            return res.status(200).json({
-                managerStatics: {
-                    debt: {
-                        totalPrice: 0,
-                        history: AllDebt
-                    },
-                    prixod: {
-                        totalPrice: deliveryPrixod.reduce((a, b) => a + b.money, 0),
-                        history: deliveryPrixod
-                    },
-                    pending: {
-                        totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * b.quantity) + b.money, 0),
-                        history: pending
-                    }
-                }
-            })
-        }
+        } 
     }
     catch (error) {
         console.error(error)
     }
 }
+
+// else if (req.use.role === "manager") {
+//     const sellers = await SellerModel.aggregate([{ $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }])
+//     const deliveries = await DeliveryModel.aggregate([{ $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }])
+//     let AllDebt = []
+//     let deliveryPrixod = []
+//     const pending = []
+
+//     for (const key of sellers) {
+//         let debt1 = await Debt1Model.aggregate([
+//             { $match: { sellerId: key?._id } }
+//         ])
+
+//         debt1.forEach((item) => {
+//             AllDebt.push({ ...item, role: "seller" })
+//         })
+
+//         let debt2 = await Debt2Model.aggregate([
+//             { $match: { sellerId: key?._id } }
+//         ])
+//         debt2.forEach((item) => {
+//             AllDebt.push({ ...item, role: "seller" })
+//         })
+//     }
+//     for (const key of deliveries) {
+//         console.log(key);
+
+//         let debt3 = await DeliveryDebtModel.aggregate([
+//             { $match: { deliveryId: key?._id } }
+//         ])
+//         debt3.forEach((item) => {
+//             AllDebt.push({ ...item, role: "delivery" })
+//         })
+
+//         let prixod = await SellingBreadModel.aggregate([
+//             { $match: { deliveryId: key?._id } },
+//             {
+//                 $lookup: {
+//                     from: "deliveries",   
+//                     localField: "deliveryId",  
+//                     foreignField: "_id",  
+//                     as: "delivery"       
+//                 }
+//             },
+//             {
+//                 $lookup: {
+//                     from: "typeofbreads",
+//                     localField: "typeOfBreadIds",
+//                     foreignField: "_id",
+//                     as: "typeOfBreads"
+//                 }
+//             },
+//             {
+//                 $unwind: "$delivery"
+//             },
+//             {
+//                 $project: {
+//                     delivery: { username: 1 },
+//                     typeOfBreadIds: 1,
+//                     _id: 1,
+//                     quantity: 1,
+//                     paymentMethod: 1,
+//                     money: 1,
+//                     createdAt: 1,
+//                     updateAt: 1
+//                 }
+//             }
+//         ])
+
+//         prixod.forEach((item) => {
+//             deliveryPrixod.push({ ...item })
+//         })
+//     }
+
+//     for (const key of deliveryPrixod) {
+//         let allPrice = key.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * key.quantity
+//         if (allPrice - key.money < 0) {
+//             pending.push({ ...key._doc })
+//         }
+//     }
+
+
+
+
+//     return res.status(200).json({
+//         managerStatics: {
+//             debt: {
+//                 totalPrice: 0,
+//                 history: AllDebt
+//             },
+//             prixod: {
+//                 totalPrice: deliveryPrixod.reduce((a, b) => a + b.money, 0),
+//                 history: deliveryPrixod
+//             },
+//             pending: {
+//                 totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * b.quantity) + b.money, 0),
+//                 history: pending
+//             }
+//         }
+//     })
+// }

@@ -69,9 +69,7 @@ exports.getDebt2s = async (req, res) => {
                     $project: {
                         _id: 1,
                         quantity: 1,
-                        price: 1,
                         description: 1,
-                        reason: 1,
                         createdAt: 1,
                         updateAt: 1,
                         omborxonaProId: {
