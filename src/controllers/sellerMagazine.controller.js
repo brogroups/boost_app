@@ -92,8 +92,10 @@ exports.findAll = async (req, res) => {
                         quantity: 1,
                         price: 1,
                         totalPrice: { $multiply: ['$quantity', '$price'] },
-                        // 'sellerBreadDetails': 1,
-                        // 'breadDetails': { title: 1, price: 1 },
+                        title: 1,
+                        description: 1,
+                        'sellerBreadDetails': 1,
+                        'breadDetails': { title: 1, price: 1 },
                     }
                 }
             ]);

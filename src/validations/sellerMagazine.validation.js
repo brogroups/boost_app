@@ -5,6 +5,8 @@ const createSchema = Joi.object({
     sellerId: Joi.string().optional(),
     quantity: Joi.number().required(),
     price: Joi.number().required(),
+    title: Joi.string().required(),
+    description: Joi.string().required(),
 })
 
 
@@ -13,6 +15,8 @@ const updateSchema = Joi.object({
     sellerId: Joi.string().optional(),
     quantity: Joi.number().required(),
     price: Joi.number().required(),
+    title: Joi.string().required(),
+    description: Joi.string().required(),
 })
 
 module.exports = { createSchema, updateSchema }
