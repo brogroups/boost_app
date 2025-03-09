@@ -96,11 +96,11 @@ exports.getMagazines = async (req, res) => {
         }
 
 
-        await setCache(`magazine`, data)
+        await setCache(`magazine`, data.reverse())
         return res.status(200).json({
             success: true,
             message: "list of magazines",
-            magazines: data
+            magazines: data.reverse()
         })
     }
     catch (error) {

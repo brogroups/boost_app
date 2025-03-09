@@ -1,5 +1,5 @@
 const CreateMagazineModel = require("../models/createMagazine.model")
-const {getCache, setCache, deleteCache} = require('../helpers/redis.helper')
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createCreateMagazine = async (req, res) => {
     try {
@@ -22,15 +22,15 @@ exports.createCreateMagazine = async (req, res) => {
 exports.getCreateMagazine = async (req, res) => {
     try {
         const cashe = await getCache(`createmagazine`)
-        if(cashe){
+        if (cashe) {
             return res.status(200).json({
                 success: true,
                 message: "list of create magazines",
                 createMagazines
             })
         }
-        const createMagazines = await CreateMagazineModel.find({}).populate("DeliveryId")
-        await setCache(`createMagazine`,createMagazines)
+        const createMagazines = (await CreateMagazineModel.find({}).populate("DeliveryId")).reverse()
+        await setCache(`createMagazine`, createMagazines)
         return res.status(200).json({
             success: true,
             message: "list of create magazines",

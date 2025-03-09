@@ -89,12 +89,12 @@ exports.getSellers = async (req, res) => {
             }
         }
 
-        await setCache("sellers", data)
+        await setCache("sellers", data.reverse())
 
         return res.status(200).json({
             success: true,
             message: "list of sellers",
-            sellers: data
+            sellers: data.reverse()
         })
     }
     catch (error) {

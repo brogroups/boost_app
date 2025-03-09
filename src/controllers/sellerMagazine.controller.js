@@ -1,5 +1,6 @@
 const { default: mongoose } = require("mongoose")
-const SellerMagazineModel = require("../models/sellerMagazine.model")
+const SellerMagazineModel = require("../models/sellerMagazine.model");
+const { deleteCache, setCache } = require("../helpers/redis.helper");
 
 exports.create = async (req, res) => {
     try {
@@ -11,6 +12,7 @@ exports.create = async (req, res) => {
         } else {
             return;
         }
+        await deleteCache(`sellerMagazine`)
         return res.status(201).json(sellerMagazine)
     }
     catch (error) {
@@ -102,9 +104,10 @@ exports.findAll = async (req, res) => {
             sellerMagazines = sellerMagazines.map((item) => {
                 let totalPrice = item.price * item.quantity
                 return { ...item, totalPrice }
-            })
+            }).reverse()
         }
-        return res.status(200).json(sellerMagazines)
+        await setCache('sellerMagazine',sellerMagazines.reverse())
+        return res.status(200).json(sellerMagazines.reverse())
     }
     catch (error) {
         return res.status(500).json({
@@ -144,6 +147,7 @@ exports.update = async (req, res) => {
                 message: "seller magazine not found"
             })
         }
+        await deleteCache(`sellerMagazine`)
         return res.status(200).json(sellerMagazine)
     }
     catch (error) {
@@ -164,6 +168,7 @@ exports.delete = async (req, res) => {
                 message: "seller magazine not found"
             })
         }
+        await deleteCache(`sellerMagazine`)
         return res.status(200).json(sellerMagazine)
     }
     catch (error) {

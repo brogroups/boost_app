@@ -1,8 +1,10 @@
+const { deleteCache, setCache, getCache } = require("../helpers/redis.helper");
 const TypeOfPayedModel = require("../models/typeOfPayed.model");
 
 exports.create = async (req, res) => {
     try {
         const typeOfPayed = await TypeOfPayedModel.create(req.body)
+        await deleteCache(`typeOfPayed`)
         return res.status(201).json({
             success: true,
             message: "type of payed created",
@@ -19,7 +21,16 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
     try {
-        const typeOfPayeds = await TypeOfPayedModel.find({})
+        const typeOfPayedsCache = await getCache(`typeOfPayeds`)
+        if (typeOfPayedsCache) {
+            return res.status(200).json({
+                success: true,
+                message: "list of typeOfPayeds",
+                typeOfPayeds: typeOfPayedsCache
+            })
+        }
+        const typeOfPayeds = await TypeOfPayedModel.find({}).reverse()
+        await setCache(`typeOfPayed`, typeOfPayeds)
         return res.status(200).json({
             success: true,
             message: "list of typeOfPayeds",
@@ -68,6 +79,7 @@ exports.update = async (req, res) => {
                 message: "type of payed not found",
             })
         }
+        await deleteCache(`typeOfPayed`)
         return res.status(200).json({
             success: true,
             message: "type of payed updated",
@@ -93,6 +105,7 @@ exports.delete = async (req, res) => {
                 typeOfPayed
             })
         }
+        await deleteCache(`typeOfPayed`)
         return res.status(200).json({
             success: true,
             message: "type of payed deleted",

@@ -70,11 +70,11 @@ exports.getTypeOfWareHouse = async (req, res) => {
 
             data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, quantity: (quantity ? quantity - key.quantity : key.quantity), history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * quantity })
         }
-        await setCache("typeOfWareHouse", data)
+        await setCache("typeOfWareHouse", data.reverse())
         return res.status(200).json({
             success: true,
             message: "list of type of ware houses",
-            typeOfWareHouses: data
+            typeOfWareHouses: data.reverse()
         })
     }
     catch (error) {

@@ -52,11 +52,11 @@ exports.getSellerBread = async (req, res) => {
             const price = key.typeOfBreadId.reduce((a, b) => a + (b.breadId.price * b.quantity), 0)
             data.push({ ...key, price:price * key.quantity })
         }
-        await setCache(`sellerBread`, data)
+        await setCache(`sellerBread`, data.reverse())
         return res.status(200).json({
             success: true,
             message: "list of seller breads",
-            sellerBreads: data
+            sellerBreads: data.reverse()
         })
     }
     catch (error) {

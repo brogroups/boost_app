@@ -31,7 +31,7 @@ exports.getTypeOfBread = async (req, res) => {
                 typeOfBreads: cache
             })
         }
-        const typeOfBreads = await TypeOfBreadModel.find({})
+        const typeOfBreads = await TypeOfBreadModel.find({}).reverse()
         await setCache(`typeOfbread`,typeOfBreads)
         return res.status(200).json({
             success: true,

@@ -155,11 +155,11 @@ exports.getOrderWithDeliveries = async (req, res) => {
             default:
                 break;
         }
-        await setCache(`orderWithDelivery`, orderWithDeliveries)
+        await setCache(`orderWithDelivery`, orderWithDeliveries.reverse())
         return res.status(200).json({
             success: true,
             message: "list of order with delivereis",
-            orderWithDeliveries
+            orderWithDeliveries:orderWithDeliveries.reverse()
         })
     }
     catch (error) {

@@ -71,7 +71,7 @@ exports.getStatics = async (req, res) => {
                         history: pending
                     }
                 },
-                managerStatics: Debtmanagers
+                managerStatics: Debtmanagers.reverse()
             })
         }
     }

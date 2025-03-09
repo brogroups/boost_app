@@ -84,11 +84,11 @@ exports.getDeliveries = async (req, res) => {
                 totalPrice,
             })
         }
-        await setCache(`delivery`, data);
+        await setCache(`delivery`, data.reverse());
         return res.status(200).json({
             success: true,
             message: "list of deliveries",
-            deliveries: data,
+            deliveries: data.reverse(),
         });
     } catch (error) {
         return res.status(500).json({

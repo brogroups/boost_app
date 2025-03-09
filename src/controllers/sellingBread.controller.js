@@ -1,5 +1,5 @@
 const SellingBreadModel = require("../models/sellingBread.model")
-const { deleteCache, getCache } = require("../helpers/redis.helper")
+const { deleteCache, getCache, setCache } = require("../helpers/redis.helper")
 
 exports.createSellingBread = async (req, res) => {
     try {
@@ -33,7 +33,8 @@ exports.getSellingBread = async (req, res) => {
         sellingBreads = sellingBreads.map((item) => {
             const price = item.typeOfBreadIds.reduce((a, b) => a + b.price, 0)
             return { ...item._doc, price: price * item.quantity }
-        })
+        }).reverse()
+        await setCache(`sellingBread`,sellingBreads)
         return res.status(200).json({
             success: true,
             message: "list of selling breads",

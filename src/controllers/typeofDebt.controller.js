@@ -36,7 +36,7 @@ exports.getTypeOfDebt = async (req, res) => {
                 typeOfDebts:cache
             })
         }
-        const typeOfDebts = await TypeOfDebtModel.find({})
+        const typeOfDebts = await TypeOfDebtModel.find({}).reverse()
         await setCache(`typeOfDebt`,typeOfDebts)
         return res.status(200).json({
             success: true,

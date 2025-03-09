@@ -30,7 +30,7 @@ exports.getDeliveryPayed = async (req, res) => {
                 deliveryPayeds: deliveryPayedsCache
             })
         }
-        const deliveryPayeds = await deliveryPayedModel.find({}).populate("deliveryId")
+        const deliveryPayeds = (await deliveryPayedModel.find({}).populate("deliveryId")).reverse()
         await setCache(`deliveryPayed`,deliveryPayeds)
         return res.status(200).json({
             success: true,

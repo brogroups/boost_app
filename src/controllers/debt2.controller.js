@@ -28,8 +28,7 @@ exports.createDebt2 = async (req, res) => {
 
 exports.getDebt2s = async (req, res) => {
     try {
-        const cashe = null
-        // await getCache(`debt2`)
+        const cashe = await getCache(`debt2`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
@@ -89,11 +88,11 @@ exports.getDebt2s = async (req, res) => {
             debt2s = await Debt2Model.find({}).populate("omborxonaProId sellerId")
         }
 
-        await setCache(`debt2`, debt2s)
+        await setCache(`debt2`, debt2s.reverse())
         return res.status(200).json({
             success: true,
             message: "list of debt2s",
-            debt2s
+            debt2s:debt2s.reverse()
         })
     }
     catch (error) {
