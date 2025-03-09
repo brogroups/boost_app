@@ -1,7 +1,7 @@
 const Joi = require("joi");
 
 const CreateDeliveryDebtSchema = Joi.object({
-    // reason: Joi.string().required(),
+    title: Joi.string().required(),
     price: Joi.number().required(),
     description: Joi.string().required(),
     deliveryId: Joi.string().optional(),
@@ -9,7 +9,7 @@ const CreateDeliveryDebtSchema = Joi.object({
 })
 
 const UpdateDeliveryDebtSchema = Joi.object({
-    // reason: Joi.string().required(),
+    title: Joi.string().required(),
     price: Joi.number().required(),
     description: Joi.string().required(),
     deliveryId: Joi.string().optional(),
