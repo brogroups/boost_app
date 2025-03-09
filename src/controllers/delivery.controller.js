@@ -3,7 +3,7 @@ const DeliveryPayedModel = require("../models/deliveryPayed.model");
 const jwt = require("jsonwebtoken");
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper");
 const { default: mongoose } = require("mongoose");
-const { decrypt, encrypt } = require("../helpers/crypto.helper");
+const { encrypt } = require("../helpers/crypto.helper");
 const SellerModel = require("../models/seller.model");
 
 exports.createDelivery = async (req, res) => {
@@ -125,11 +125,11 @@ exports.updateDelivery = async (req, res) => {
         const { username, password, phone, price } = req.body;
         let hashPassword;
         if (password) {
-            hashPassword = await bcrypt.hash(password, 10);
+            hashPassword = encrypt(password)
         }
         const delivery = await DeliveryModel.findByIdAndUpdate(
             req.params.id,
-            { username, hashPassword, phone, price, updateAt: new Date() },
+            { username, password:hashPassword, phone, price, updateAt: new Date() },
             { new: true }
         );
         if (!delivery) {
