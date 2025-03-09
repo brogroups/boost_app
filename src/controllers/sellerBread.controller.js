@@ -5,16 +5,8 @@ const { default: mongoose } = require("mongoose")
 
 exports.createSellerBread = async (req, res) => {
     try {
-        const { typeOfBreadId, quantity, time, name, ovenId } = req.body
         let sellerId = req.use.id
-        const sellerBread = await SellerBreadModel.create({
-            typeOfBreadId,
-            time: time ? time : new Date(),
-            quantity,
-            name,
-            ovenId,
-            sellerId
-        })
+        const sellerBread = await SellerBreadModel.create(req.body)
         await deleteCache(`sellerBread`)
         return res.status(201).json({
             success: true,
