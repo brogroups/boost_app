@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken")
+const { default: mongoose } = require("mongoose")
 
 exports.verifyValidation = (schema) => (req, res, next) => {
     const { error } = schema.validate(req.body)
@@ -21,7 +22,7 @@ exports.verifyToken = (jwt_secret) => (req, res, next) => {
         if (error) {
             return res.status(500).json({ success: false, message: error })
         }
-        req.use = use      
+        req.use = use
         next()
     })
 };
@@ -29,13 +30,13 @@ exports.verifyToken = (jwt_secret) => (req, res, next) => {
 exports.isCorrectRole = (models) => async (req, res, next) => {
     try {
         for (const model of models) {
-            const item = await model.findById(req.use.id)                
+            const item = await model.findById(new mongoose.Types.ObjectId(req.use.id))                
             if (item) {
               return next()
             } 
         }
         return res.status(403).json({ success: false, message: "Access denied! " });
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message });
+        return res.status(500).json({ success: false, message: error });
     }
 }
