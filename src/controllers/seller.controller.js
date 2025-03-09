@@ -82,9 +82,9 @@ exports.getSellers = async (req, res) => {
                     }
                 }, 0)
                 if (req.use.role === "superAdmin") {
-                    data.push({ ...key._doc, totalPrice, history: sellerPayedes })
+                    data.push({ ...key._doc, totalPrice, history: sellerPayedes.reverse() })
                 } else {
-                    data.push({ ...key, totalPrice, history: sellerPayedes })
+                    data.push({ ...key, totalPrice, history: sellerPayedes.reverse() })
                 }
             }
         }
