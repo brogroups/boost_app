@@ -5,7 +5,7 @@ const { default: mongoose } = require("mongoose")
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
-        const { typeOfBreadIds, quantity, description, sellerId, deliveryId } = req.body
+        const { typeOfBreadIds, quantity, description, sellerId, deliveryId, magazineId } = req.body
         let order = null
         switch (req.use.role) {
             case "superAdmin":
@@ -14,7 +14,8 @@ exports.createOrderWithDelivery = async (req, res) => {
                     quantity,
                     description,
                     sellerId,
-                    deliveryId
+                    deliveryId,
+                    magazineId
                 })
                 break;
             case "seller":
@@ -23,7 +24,8 @@ exports.createOrderWithDelivery = async (req, res) => {
                     quantity,
                     description,
                     sellerId: new mongoose.Types.ObjectId(req.use.id),
-                    deliveryId
+                    deliveryId,
+                    magazineId
                 })
                 break;
 
@@ -48,7 +50,8 @@ exports.createOrderWithDelivery = async (req, res) => {
 
 exports.getOrderWithDeliveries = async (req, res) => {
     try {
-        const cache = await getCache(`orderWithDelisvery`)
+        const cache = null
+        // await getCache(`orderWithDelisvery`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -56,76 +59,102 @@ exports.getOrderWithDeliveries = async (req, res) => {
                 orderWithDeliveries: cache
             })
         }
-        let orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
-            {
-                $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) }
-            },
-            {
-                $lookup: {
-                    from: "sellers",
-                    localField: "sellerId",
-                    foreignField: "_id",
-                    as: "seller"
-                }
-            },
-            {
-                $unwind: "$seller"
-            },
-            {
-                $lookup: {
-                    from: "deliveries",
-                    localField: "deliveryId",
-                    foreignField: "_id",
-                    as: "deliveryDetails"
-                }
-            },
-            {
-                $unwind: "$deliveryDetails"
-            },
-            {
-                $lookup: {
-                    from: "typeofbreads",
-                    localField: "typeOfBreadIds.bread",
-                    foreignField: "_id",
-                    as: "breadDetails"
-                }
-            },
-            {
-                $unwind: "$breadDetails" 
-            },
-            {
-                $project: {
-                    description: 1,
-                    quantity: 1,
-                    sellerId: {
-                        _id: "$seller._id",
-                        username: "$seller.username"
+        let orderWithDeliveries = []
+
+        switch (req.use.role) {
+            case "superAdmin":
+                orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("sellerId", 'username').populate("deliveryId", "username").populate("magazineId", "title")
+                orderWithDeliveries = orderWithDeliveries.map((item) => {
+                    return { ...item._doc, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.bread?.price, 0) }
+                })
+                break;
+            case "seller":
+                orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
+                    {
+                        $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) }
                     },
-                    deliveryId: {
-                        _id: "$deliveryDetails._id",
-                        username: "$deliveryDetails.username"
+                    {
+                        $lookup: {
+                            from: "sellers",
+                            localField: "sellerId",
+                            foreignField: "_id",
+                            as: "seller"
+                        }
                     },
-                    createdAt: 1,
-                    typeOfBreadIds: {
-                        $map: {
-                            input: "$typeOfBreadIds",
-                            as: "breadItem",
-                            in: {
-                                bread: "$breadDetails", // Matching the breadDetails with typeOfBreadIds
-                                quantity: "$$breadItem.quantity" // Directly mapping quantity
+                    {
+                        $unwind: "$seller",
+                    },
+                    {
+                        $lookup: {
+                            from: "deliveries",
+                            localField: "deliveryId",
+                            foreignField: "_id",
+                            as: "deliveryDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$deliveryDetails",
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "typeOfBreadIds.bread",
+                            foreignField: "_id",
+                            as: "breadDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadDetails",
+                    },
+                    {
+                        $lookup: {
+                            from: "magazines",
+                            localField: "magazineId",
+                            foreignField: "_id",
+                            as: "magazineDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$magazineDetails",
+                    },
+                    {
+                        $project: {
+                            description: 1,
+                            quantity: 1,
+                            sellerId: {
+                                _id: "$seller._id",
+                                username: "$seller.username"
+                            },
+                            deliveryId: {
+                                _id: "$deliveryDetails._id",
+                                username: "$deliveryDetails.username"
+                            },
+                            magazineId: {
+                                _id:"$magazineDetails._id",
+                                title:"$magazineDetails.title"
+                            },
+                            createdAt: 1,
+                            typeOfBreadIds: {
+                                $map: {
+                                    input: "$typeOfBreadIds",
+                                    as: "breadItem",
+                                    in: {
+                                        bread: "$breadDetails",
+                                        quantity: "$$breadItem.quantity"
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-        ]);
+                ])
+                orderWithDeliveries = orderWithDeliveries.map((item) => {
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.bread.price, 0) }
+                })
+                break;
 
-        orderWithDeliveries = orderWithDeliveries.map((item) => {
-            return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.bread.price, 0) * item.quantity }
-        })
-        console.log(orderWithDeliveries);
-
-
+            default:
+                break;
+        }
         await setCache(`orderWithDelivery`, orderWithDeliveries)
         return res.status(200).json({
             success: true,
@@ -143,7 +172,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
 exports.getOrderWithDeliveryById = async (req, res) => {
     try {
-        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id).populate("typeOfBreadIds sellerId deliveryId")
+        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id).populate("typeOfBreadIds sellerId deliveryId magazineId")
         if (!orderWithDelivery) {
             return res.status(404).json({
                 success: false,
@@ -167,7 +196,7 @@ exports.getOrderWithDeliveryById = async (req, res) => {
 exports.updateOrderWithDelivery = async (req, res) => {
     try {
         const { typeOfBreadIds, quantity, description, sellerBreadId, time } = req.body
-        const orderWithDelivery = await OrderWithDeliveryModel.findByIdAndUpdate(req.params.id, { typeOfBreadIds, quantity, description, sellerBreadId, time: time ? time : new Date(), updateAt: new Date() }).populate("typeOfBreadIds sellerId")
+        const orderWithDelivery = await OrderWithDeliveryModel.findByIdAndUpdate(req.params.id, { typeOfBreadIds, quantity, description, sellerBreadId, time: time ? time : new Date(), updateAt: new Date() }, { new: true }).populate("typeOfBreadIds sellerId")
         if (!orderWithDelivery) {
             return res.status(404).json({
                 success: false,
