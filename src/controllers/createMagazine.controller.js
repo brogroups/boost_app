@@ -29,12 +29,12 @@ exports.getCreateMagazine = async (req, res) => {
                 createMagazines
             })
         }
-        const createMagazines = (await CreateMagazineModel.find({}).populate("DeliveryId")).reverse()
-        await setCache(`createMagazine`, createMagazines)
+        const createMagazines = (await CreateMagazineModel.find({}).populate("DeliveryId"))
+        await setCache(`createMagazine`, createMagazines.reverse())
         return res.status(200).json({
             success: true,
             message: "list of create magazines",
-            createMagazines
+            createMagazines:createMagazines.reverse()
         })
     }
     catch (error) {

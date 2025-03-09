@@ -29,12 +29,12 @@ exports.findAll = async (req, res) => {
                 typeOfPayeds: typeOfPayedsCache
             })
         }
-        const typeOfPayeds = await TypeOfPayedModel.find({}).reverse()
-        await setCache(`typeOfPayed`, typeOfPayeds)
+        const typeOfPayeds = await TypeOfPayedModel.find({})
+        await setCache(`typeOfPayed`, typeOfPayeds.reverse())
         return res.status(200).json({
             success: true,
             message: "list of typeOfPayeds",
-            typeOfPayeds
+            typeOfPayeds:typeOfPayeds.reverse()
         })
     }
     catch (error) {

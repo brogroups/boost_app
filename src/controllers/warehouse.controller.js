@@ -30,13 +30,13 @@ exports.getWareHouses = async (req, res) => {
                 warehouses: warehousesCache
             })
         }
-        const warehouses = await WareHouseModel.find({}).reverse()
+        const warehouses = await WareHouseModel.find({})
         
-        await setCache("warehouse",warehouses)
+        await setCache("warehouse",warehouses.reverse())
         return res.status(200).json({
             success: true,
             message: "list of ware houses",
-            warehouses
+            warehouses:warehouses.reverse()
         })
     }
     catch (error) {

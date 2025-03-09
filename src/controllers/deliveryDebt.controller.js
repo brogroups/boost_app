@@ -29,12 +29,12 @@ exports.getDeliveryDebt = async (req, res) => {
                 deliveryDebts: cashe
             })
         }
-        const deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId").reverse()
-        await setCache(`deliveryDebt`,deliveryDebts)
+        const deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
+        await setCache(`deliveryDebt`,deliveryDebts.reverse())
         return res.status(200).json({
             success: true,
             message: "list of delivery debts",
-            deliveryDebts
+            deliveryDebts:deliveryDebts.reverse()
         })
     }
     catch (error) {

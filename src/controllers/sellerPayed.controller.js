@@ -30,12 +30,12 @@ exports.getSellerPayed = async (req, res) => {
                 sellerPayeds: sellerPayedSCache
             })
         }
-        const sellerPayeds = await sellerPayedModel.find({}).populate("sellerId").reverse()
-        await deleteCache(`sellerPayed`)
+        const sellerPayeds = await sellerPayedModel.find({}).populate("sellerId")
+        await setCache(`sellerPayed`,sellerPayeds.reverse())
         return res.status(200).json({
             success: true,
             message: 'list of seller payeds',
-            sellerPayeds
+            sellerPayeds:sellerPayeds.reverse()
         })
     }
     catch (error) {

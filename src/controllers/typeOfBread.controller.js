@@ -31,12 +31,12 @@ exports.getTypeOfBread = async (req, res) => {
                 typeOfBreads: cache
             })
         }
-        const typeOfBreads = await TypeOfBreadModel.find({}).reverse()
-        await setCache(`typeOfbread`,typeOfBreads)
+        const typeOfBreads = await TypeOfBreadModel.find({})
+        await setCache(`typeOfbread`,typeOfBreads.reverse())
         return res.status(200).json({
             success: true,
             message: "list of type of breads",
-            typeOfBreads
+            typeOfBreads:typeOfBreads.reverse()
         })
     }
     catch (error) {

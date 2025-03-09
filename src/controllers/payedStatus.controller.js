@@ -29,12 +29,12 @@ exports.findAll = async (req, res) => {
                 payedStatus: payedStatusesCache
             })
         }
-        const payedStatus = await payedStatusModel.find({}).reverse()
-        await setCache(`sellerPayedStatus`, payedStatus)
+        const payedStatus = await payedStatusModel.find({})
+        await setCache(`sellerPayedStatus`, payedStatus.reverse())
         return res.status(200).json({
             success: true,
             message: "seller payed status created",
-            payedStatus
+            payedStatus:payedStatus.reverse()
         })
     }
     catch (error) {
