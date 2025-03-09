@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 const DeliverModel = require("../models/delivery.model")
 
 const DeliveryDebtSchema = new Schema({
-    reason: {type:String,required:true},
+    // reason: {type:String,required:true},
     price: {type:Number,required:true},
     deliveryId: {type:Schema.Types.ObjectId,ref:DeliverModel},
     description: {type:String,required:true},

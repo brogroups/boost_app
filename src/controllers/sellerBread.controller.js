@@ -5,8 +5,10 @@ const { default: mongoose } = require("mongoose")
 
 exports.createSellerBread = async (req, res) => {
     try {
-        let sellerId = req.use.id
-        const sellerBread = await SellerBreadModel.create(req.body)
+        const sellerBread = await SellerBreadModel.create({
+            ...req.body,
+            sellerId:req.use.id
+        })
         await deleteCache(`sellerBread`)
         return res.status(201).json({
             success: true,
@@ -41,7 +43,7 @@ exports.getSellerBread = async (req, res) => {
         });
         const data = []
         for (const key of populatedSellerBreads) {
-            const price = key.typeOfBreadId.reduce((a, b) => a + (b.breadId.price * b.quantity), 0)
+            const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
             data.push({ ...key, price:price * key.quantity })
         }
         await setCache(`sellerBread`, data.reverse())

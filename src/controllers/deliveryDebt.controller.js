@@ -1,9 +1,20 @@
 const DeliveryDebtModel = require("../models/deliveryDebt.model")
-const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper');
+const { default: mongoose } = require("mongoose");
 
 exports.createDeliveryDebt = async (req, res) => {
     try {
-        const newDeliveryDebt = await DeliveryDebtModel.create(req.body)
+        let newDeliveryDebt;
+        switch (req.use.role) {
+            case "superAdmin":
+                newDeliveryDebt = await DeliveryDebtModel.create(req.body)
+                break;
+            case "delivery":
+                newDeliveryDebt = await DeliveryDebtModel.create({ ...req.body, deliveryId: req.use.id })
+                break;
+            default:
+                break;
+        }
         await deleteCache(`deliveryDebt`)
         return res.status(201).json({
             success: true,
@@ -29,12 +40,26 @@ exports.getDeliveryDebt = async (req, res) => {
                 deliveryDebts: cashe
             })
         }
-        const deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
-        await setCache(`deliveryDebt`,deliveryDebts.reverse())
+        let deliveryDebts;
+
+        switch (req.use.role) {
+            case "superAdmin":
+                deliveryDebts = await DeliveryDebtModel.find({})
+                break;
+            case "delivery":
+                deliveryDebts = await DeliveryDebtModel.aggregate([
+                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id) } },
+                ])
+                break;
+            default:
+                break;
+        }
+
+        await setCache(`deliveryDebt`, deliveryDebts.reverse())
         return res.status(200).json({
             success: true,
             message: "list of delivery debts",
-            deliveryDebts:deliveryDebts.reverse()
+            deliveryDebts: deliveryDebts.reverse()
         })
     }
     catch (error) {
