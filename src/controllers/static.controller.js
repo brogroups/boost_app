@@ -47,13 +47,38 @@ exports.getStatics = async (req, res) => {
                 let debt = []
                 for (const seller of sellers) {
                     debt.push(await Debt1Model.aggregate([
-                        { $match: { sellerId: seller._id } }
+                        { $match: { sellerId: seller._id } },
+                        {
+                            $lookup: {
+                                from: "sellers",
+                                localField: "sellerId",
+                                foreignField: "_id",
+                                as: "seller"
+                            }
+                        },
+                        {
+                            $unwind:"$seller"
+                        },
+                        {
+                            $project: {
+                                title: 1,
+                                quantity: 1,
+                                sellerId: {
+                                    _id:"$seller._id",
+                                    username:"$seller.username"
+                                },
+                                reason: 1,
+                                price: 1,
+                                createdAt: 1,
+                            }
+                        }
                     ]))
                     debt.push(await Debt2Model.aggregate([
                         { $match: { sellerId: seller._id } }
                     ]))
                 }
-                Debtmanagers.push({ _id: item._id, username: item.username, createdAt: item.createdAt, debt: debt.filter((item) => item.length !== 0) })
+                debt = debt.filter((item) => item.length !== 0).flat(Infinity)
+                Debtmanagers.push({ _id: item._id, username: item.username, createdAt: item.createdAt, debt: { totalPrice: debt.reduce((a, b) => a + b.price, 0), history: debt }, pending: [], prixod: [] })
             }
 
             return res.status(200).json({
