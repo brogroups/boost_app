@@ -5,7 +5,6 @@ const MagazineSchema = new Schema({
     phone: { type: String},
     address: { type: String, required: true },
     pending: { type: Number, required: true },
-    remainprice: { type: Number, required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })
