@@ -5,10 +5,24 @@ const { getCache, setCache, deleteCache } = require("../helpers/redis.helper");
 const { default: mongoose } = require("mongoose");
 const { encrypt } = require("../helpers/crypto.helper");
 const SellerModel = require("../models/seller.model");
+const SuperAdminModel = require("../models/superAdmin.model");
+const ManagerModel = require("../models/manager.model");
 
 exports.createDelivery = async (req, res) => {
     try {
         const { username, phone, price } = req.body;
+
+        const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel]
+
+        for (const model of models) {
+            const item = await model.findOne({username})
+            if (item) {
+                return res.status(400).json({
+                    succes: false,
+                    message: "username must be unique"
+                })
+            }
+        }
 
         const password = phone.slice(-4);
         // const superAdminId = req.use.id;
@@ -129,7 +143,7 @@ exports.updateDelivery = async (req, res) => {
         }
         const delivery = await DeliveryModel.findByIdAndUpdate(
             req.params.id,
-            { username, password:hashPassword, phone, price, updateAt: new Date() },
+            { username, password: hashPassword, phone, price, updateAt: new Date() },
             { new: true }
         );
         if (!delivery) {

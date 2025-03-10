@@ -4,11 +4,24 @@ const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { encrypt } = require("../helpers/crypto.helper")
 const SellerModel = require("../models/seller.model")
 const DeliveryModel = require("../models/delivery.model")
+const SuperAdminModel = require("../models/superAdmin.model");
 
 exports.createManager = async (req, res) => {
     try {
         const { username, password } = req.body
         const superAdminId = req.use.id
+
+        const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel]
+
+        for (const model of models) {
+            const item = await model.findOne({ username })
+            if (item) {
+                return res.status(400).json({
+                    succes: false,
+                    message: "username must be unique"
+                })
+            }
+        }
 
         const refreshToken = await jwt.sign({ password, username }, process.env.JWT_TOKEN_REFRESH)
         const hashPassword = encrypt(password)
@@ -50,7 +63,7 @@ exports.getAllManagers = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "list of managers",
-            managers:managers.reverse()
+            managers: managers.reverse()
         })
     }
     catch (error) {
@@ -124,9 +137,9 @@ exports.deleteManager = async (req, res) => {
                 message: "manager not found"
             })
         }
-        
+
         sellers.forEach(async () => {
-           await SellerModel.deleteOne({ superAdminId: manager._id })
+            await SellerModel.deleteOne({ superAdminId: manager._id })
         })
         await deleteCache(`manager`)
         await deleteCache("delivery")

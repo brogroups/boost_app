@@ -4,12 +4,27 @@ const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
 const SellerPayedModel = require("../models/sellerPayed.model")
 const { encrypt, decrypt } = require("../helpers/crypto.helper")
+const DeliveryModel = require("../models/delivery.model")
+const SuperAdminModel = require("../models/superAdmin.model");
+const ManagerModel = require("../models/manager.model");
 
 exports.createSeller = async (req, res) => {
     try {
         const { username, phone, price, ovenId, password } = req.body
         let hashPassword = encrypt(password ? password : phone.slice(-4))
         const superAdminId = req.use.id
+
+        const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel]
+
+        for (const model of models) {
+            const item = await model.findOne({ username })
+            if (item) {
+                return res.status(400).json({
+                    succes: false,
+                    message: "username must be unique"
+                })
+            }
+        }
 
         const newSeller = new SellerModel({
             username,

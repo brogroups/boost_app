@@ -98,7 +98,7 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/manager/67aee08f6d2f7789c0a6abcd"
+						"url": "{{BASE_URL}}/api/manager/67c751c1f7ff735b866388f0"
 					},
 					"response": []
 				},
@@ -209,13 +209,13 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{admin_token}}",
+								"value": "{{manager_token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\":\"usernam\",\r\n    \"password\":\"password15\",\r\n    \"phone\":\"+998995556622\",\r\n    \"price\":15\r\n}",
+							"raw": "{\r\n    \"username\":\"bekz\",\r\n    \"phone\":\"+998972528500\",\r\n    \"price\":15,\r\n    \"ovenId\":\"15\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -228,15 +228,27 @@
 				},
 				{
 					"name": "get seller",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{admin_token}}",
+								"value": "{{manager_token}}",
 								"type": "text"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": "{{BASE_URL}}/api/sellers"
 					},
 					"response": []
@@ -269,14 +281,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"username\",\r\n    \"password\": \"password\",\r\n    \"phone\": \"+998904565152\",\r\n    \"price\": 15\r\n}",
+							"raw": "{\r\n    \"username\": \"usame\",\r\n    \"password\": \"password\",\r\n    \"phone\": \"+998904565152\",\r\n    \"price\": 15,\r\n    \"ovenId\":\"salom\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/seller/67af0269c7a9a51c5934f4ae"
+						"url": "{{BASE_URL}}/api/seller/67b628cda0bdef85475398bb"
 					},
 					"response": []
 				},
@@ -327,6 +339,36 @@
 						"url": "{{BASE_URL}}/api/seller/token"
 					},
 					"response": []
+				},
+				{
+					"name": "get seller payed history",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/seller/67bd42b35dbd4525508a4f73/payed"
+					},
+					"response": []
+				},
+				{
+					"name": "get seller's password by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/seller/67c5ec4c19fb1f7766578789/password"
+					},
+					"response": []
 				}
 			]
 		},
@@ -340,13 +382,13 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{admin_token}}",
+								"value": "{{manager_token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\":\"username05\",\r\n    \"password\":\"1515\",\r\n    \"phone\":\"+998990072778\",\r\n    \"price\":15\r\n}",
+							"raw": "{\r\n    \"username\":\"ue\",\r\n    \"phone\":\"+998990072778\",\r\n    \"price\":15\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -364,7 +406,7 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{admin_token}}",
+								"value": "{{manager_token}}",
 								"type": "text"
 							}
 						],
@@ -379,11 +421,11 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{delivery_token}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2"
+						"url": "{{BASE_URL}}/api/delivery/67c5c6039b86cb11a617b2b5"
 					},
 					"response": []
 				},
@@ -422,7 +464,7 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2"
+						"url": "{{BASE_URL}}/api/delivery/67cbe29713f2c791ae8f3995"
 					},
 					"response": []
 				},
@@ -514,7 +556,7 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f"
+						"url": "{{BASE_URL}}/api/magazine/67c73958f7066a571d0457a5"
 					},
 					"response": []
 				},
@@ -612,7 +654,7 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7"
+						"url": "{{BASE_URL}}/api/typeOfBread/67cbe0d66b55d0875efca023"
 					},
 					"response": []
 				},
@@ -667,13 +709,13 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{admin_token}}",
+								"value": "{{seller_token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"typeOfBreadId\": \"67af5f000968cbc9b2c682e8\",\r\n    \"quantity\": 2\r\n}",
+							"raw": "{\r\n    \"typeOfBreadId\": [{\"breadId\":\"67cbe0d66b55d0875efca023\",\"quantity\":3}],\r\n    \"quantity\": 2,\r\n    \"name\":\"name\",\r\n    \"ovenId\":\"ovend\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -691,7 +733,7 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{admin_token}}",
+								"value": "{{seller_token}}",
 								"type": "text"
 							}
 						],
@@ -727,14 +769,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"typeOfBreadId\": \"67af5f000968cbc9b2c682e8\",\r\n    \"quantity\": 5\r\n}",
+							"raw": "{\r\n    \"typeOfBreadId\": [\r\n        {\"breadId\":\"67c72fba7f6a639fd5843b6b\",\"quantity\":1},\r\n        {\"breadId\":\"67c72fba7f6a639fd5843b6b\",\"quantity\":1}\r\n        ],\r\n    \"quantity\": 2,\r\n    \"name\":\"name\",\r\n    \"ovenId\":\"ovend\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d"
+						"url": "{{BASE_URL}}/api/sellerBread/67c87d22c6b4c09ce6f757ea"
 					},
 					"response": []
 				},
@@ -745,11 +787,11 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{admin_token}}",
+								"value": "{{seller_token}}",
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d"
+						"url": "{{BASE_URL}}/api/sellerBread/67c825c50b76efe944452581"
 					},
 					"response": []
 				}
@@ -771,7 +813,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n        \"67afd315c5722f1c26a4ebac\",\r\n        \"67afd315c5722f1c26a4ebac\"\r\n    ],\r\n    \"quantity\":15,\r\n    \"description\":\"description\",\r\n    \"sellerBreadId\":\"67afd320c5722f1c26a4ebaf\"\r\n}",
+							"raw": "{\r\n    \"typeOfBreadIds\": [\r\n        {\r\n            \"bread\": \"67c72fba7f6a639fd5843b6b\",\r\n            \"quantity\": 10\r\n        }\r\n    ],\r\n    \"quantity\": 15,\r\n    \"description\": \"description\",\r\n    \"sellerId\": \"67af14cfa9faad75175dd408\",\r\n    \"deliveryId\": \"67cc71c73eefbb498d01989e\",\r\n    \"magazineId\": \"67c73958f7066a571d0457a5\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -789,7 +831,7 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{seller_token}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
@@ -825,14 +867,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n        \"67afd315c5722f1c26a4ebac\",\r\n        \"67afd315c5722f1c26a4ebac\",\r\n        \"67afd315c5722f1c26a4ebac\"\r\n    ],\r\n    \"quantity\":150,\r\n    \"description\":\"description\",\r\n    \"sellerBreadId\":\"67afd320c5722f1c26a4ebaf\"\r\n}",
+							"raw": "{\r\n    \"typeOfBreadIds\": [\r\n        {\r\n            \"bread\": \"67c72fba7f6a639fd5843b6b\",\r\n            \"quantity\": 10\r\n        },\r\n        {\r\n            \"bread\": \"67c72fba7f6a639fd5843b6b\",\r\n            \"quantity\": 10\r\n        }\r\n    ],\r\n    \"quantity\": 15,\r\n    \"description\": \"description\",\r\n    \"sellerId\": \"67af14cfa9faad75175dd408\",\r\n    \"deliveryId\": \"67c74c88e57658ed17f0a7f5\",\r\n    \"magazineId\": \"67c73958f7066a571d0457a5\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/orderWithDelivery/67b0fe3d1def27ab757f37df"
+						"url": "{{BASE_URL}}/api/orderWithDelivery/67cd7c5477328bf37e6ea950"
 					},
 					"response": []
 				},
@@ -847,7 +889,7 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/orderWithDelivery/67b0fda5b9e2ab4f42fe965e"
+						"url": "{{BASE_URL}}/api/orderWithDelivery/67cd88674d9bc997398bd4ce"
 					},
 					"response": []
 				}
@@ -863,13 +905,13 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{seller_token}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"title\":\"title\",\r\n    \"quantity\":1,\r\n    \"sellerBreadId\":\"67af5ffe61ca7c5b4109933d\",\r\n    \"reason\":\"reason\"\r\n}",
+							"raw": "{\r\n    \"title\":\"title\",\r\n    \"quantity\":1,\r\n    \"sellerId\":\"67c8ae666235884bb5e31ee7\",\r\n    \"reason\":\"reason\",\r\n    \"price\":15\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -945,7 +987,7 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9"
+						"url": "{{BASE_URL}}/api/debt1/67c8961a3206ed9c7f33ef98"
 					},
 					"response": []
 				}
@@ -961,7 +1003,7 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{seller_token}}",
+								"value": "{{manager_token}}",
 								"type": "text"
 							}
 						],
@@ -1065,7 +1107,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"debtId\":\"67aff24823f96e3855134052\",\r\n    \"quantity\":15,\r\n    \"description\":\"description\",\r\n    \"reason\":\"reason\"\r\n}",
+							"raw": "{\r\n    \"omborxonaProId\":\"67c8c0eee9aa99655f7df923\",\r\n    \"quantity\":15,\r\n    \"description\":\"description\",\r\n    \"sellerId\":\"67c8ae666235884bb5e31ee7\",\r\n    \"price\":15\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1083,7 +1125,7 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{seller_token}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
@@ -1119,14 +1161,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"debtId\":\"67aff24823f96e3855134052\",\r\n    \"quantity\":1,\r\n    \"description\":\"description\",\r\n    \"reason\":\"reason\"\r\n}",
+							"raw": "{\r\n    \"omborxonaProId\":\"67c8c0eee9aa99655f7df923\",\r\n    \"quantity\":15,\r\n    \"description\":\"description\",\r\n    \"reason\":\"reason\",\r\n    \"sellerId\":\"67c8ae666235884bb5e31ee7\",\r\n    \"price\":15\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055"
+						"url": "{{BASE_URL}}/api/debt2/67c9df1d947a845b1efb4d54"
 					},
 					"response": []
 				},
@@ -1141,7 +1183,7 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055"
+						"url": "{{BASE_URL}}/api/debt2/67cc9d19020f065b1b7faadd"
 					},
 					"response": []
 				}
@@ -1157,13 +1199,13 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{delivery_token}}",
+								"value": "{{manager_token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"reason\":\"reason\",\r\n    \"price\":10,\r\n    \"description\":\"description\"\r\n}",
+							"raw": "{\r\n    \"reason\":\"reason\",\r\n    \"price\":10,\r\n    \"description\":\"description\",\r\n    \"deliveryId\":\"67c8b018291cfe0724bb10f5\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1181,7 +1223,7 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{delivery_token}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
@@ -1353,7 +1395,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\":\"username\",\r\n    \"password\":\"password\"\r\n}",
+							"raw": "{\r\n    \"username\":\"delivery\",\r\n    \"password\":\"password\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1371,11 +1413,35 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{manager_token}}",
+								"value": "{{delivery_token}}",
 								"type": "text"
 							}
 						],
 						"url": "{{BASE_URL}}/api/token"
+					},
+					"response": []
+				},
+				{
+					"name": "update password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\":\"admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/auth/password"
 					},
 					"response": []
 				}
@@ -1391,13 +1457,13 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{delivery_token}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n      \"67af5f000968cbc9b2c682e8\"        \r\n    ],\r\n    \"quantity\":3,\r\n    \"paymentMethod\":\"karta\",\r\n    \"deliveryId\":\"67af4501161e62acc2cd5777\"\r\n}",
+							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n      \"67af5f000968cbc9b2c682e8\"        \r\n    ],\r\n    \"quantity\":3,\r\n    \"paymentMethod\":\"karta\",\r\n    \"deliveryId\":\"67c8b018291cfe0724bb10f5\",\r\n    \"magazineId\":\"67c73958f7066a571d0457a5\",\r\n    \"money\":15\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1415,7 +1481,7 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{delivery_token}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
@@ -1445,20 +1511,20 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{delivery_token}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n      \"67af5f000968cbc9b2c682e8\" ,       \r\n      \"67af5f000968cbc9b2c682e8\"       \r\n    ],\r\n    \"quantity\":2,\r\n    \"paymentMethod\":\"karta\",\r\n    \"deliveryId\":\"67af4501161e62acc2cd5777\"\r\n}",
+							"raw": "{\r\n    \"typeOfBreadIds\":[\r\n      \"67c72fba7f6a639fd5843b6b\"       \r\n    ],\r\n    \"quantity\":2,\r\n    \"paymentMethod\":\"karta\",\r\n    \"deliveryId\":\"67c74c88e57658ed17f0a7f5\",\r\n    \"magazineId\":\"67c73958f7066a571d0457a5\",\r\n    \"money\":150\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718"
+						"url": "{{BASE_URL}}/api/sellingBread/67c89cd130da0d2bd23df17d"
 					},
 					"response": []
 				},
@@ -1480,13 +1546,769 @@
 			]
 		},
 		{
+			"name": "history",
+			"item": [
+				{
+					"name": "get all histories",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/histories"
+					},
+					"response": []
+				},
+				{
+					"name": "get seller history",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/history/seller/67bd42b35dbd4525508a4f73"
+					},
+					"response": []
+				},
+				{
+					"name": "get delivery history",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/history/delivery"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Statics",
+			"item": [
+				{
+					"name": "getStatics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/statics"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "seller payed",
+			"item": [
+				{
+					"name": "create seller payed",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sellerId\":\"67bd42b35dbd4525508a4f73\",\r\n    \"price\":15,\r\n    \"status\":\"status\",\r\n    \"type\":\"type\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/sellerPayed"
+					},
+					"response": []
+				},
+				{
+					"name": "get seller payed",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellerPayeds"
+					},
+					"response": []
+				},
+				{
+					"name": "get seller payed by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellerPayed/67b74ef585cd32e6fd64413f"
+					},
+					"response": []
+				},
+				{
+					"name": "update seller payed",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sellerId\":\"67af14cfa9faad75175dd408\",\r\n    \"price\":10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/sellerPayed/67b74ef585cd32e6fd64413f"
+					},
+					"response": []
+				},
+				{
+					"name": "delete seller payed",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellerPayed/"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "delivery payed",
+			"item": [
+				{
+					"name": "create delivery payed",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"deliveryId\":\"67c32fad554f22e345dffadc\",\r\n    \"price\":100,\r\n    \"statusId\":\"67c21f0895d49eab695473ae\",\r\n    \"typeId\":\"67c21f1b95d49eab695473b5\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/deliveryPayed"
+					},
+					"response": []
+				},
+				{
+					"name": "get delivery payeds",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/deliveryPayeds"
+					},
+					"response": []
+				},
+				{
+					"name": "get delivery by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/deliveryPayed/67b763f4689d2170453632ae"
+					},
+					"response": []
+				},
+				{
+					"name": "update delivery",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"deliveryId\":\"67af4501161e62acc2cd5777\",\r\n    \"price\":5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/deliveryPayed/67b763f4689d2170453632ae"
+					},
+					"response": []
+				},
+				{
+					"name": "delete delivery payed",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/deliveryPayed/67b763f4689d2170453632ae"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "typeOfWareHouse",
+			"item": [
+				{
+					"name": "create typeOfWareHouse",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"name\":\"ware house id\",\r\n     \"price\":15,\r\n     \"quantity\":15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/typeOfWareHouse"
+					},
+					"response": []
+				},
+				{
+					"name": "get typeOfWareHouses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/typeOfWareHouses"
+					},
+					"response": []
+				},
+				{
+					"name": "get type of ware house by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/typeOfWareHouse/67c4974e32a120f3f7b1cf47"
+					},
+					"response": []
+				},
+				{
+					"name": "update type of ware house by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"name\":\"name15\",\r\n     \"price\":15,\r\n     \"quantity\":15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/typeOfWareHouse/67bc994b4de80decaf100a7d"
+					},
+					"response": []
+				},
+				{
+					"name": "delete type of ware house by id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/typeOfWareHouse/67bc994b4de80decaf100a7d"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ware house",
+			"item": [
+				{
+					"name": "create ware house",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"typeId\":\"67bd5d2191ae3c5babc9d422\",\r\n     \"price\":15,\r\n     \"quantity\":15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/warehouse"
+					},
+					"response": []
+				},
+				{
+					"name": "get ware houses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/warehouses"
+					},
+					"response": []
+				},
+				{
+					"name": "get ware house by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/warehouse/67bd5dbf91ae3c5babc9d42c"
+					},
+					"response": []
+				},
+				{
+					"name": "update ware house by id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"typeId\":\"67bd5d2191ae3c5babc9d422\",\r\n     \"price\":105,\r\n     \"quantity\":15\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/warehouse/67bd5dbf91ae3c5babc9d42c"
+					},
+					"response": []
+				},
+				{
+					"name": "delete ware house by id",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/warehouse/67bd5dbf91ae3c5babc9d42c"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "payed status",
+			"item": [
+				{
+					"name": "create payed status",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\":\"To`lanmoqda\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/payedStatus"
+					},
+					"response": []
+				},
+				{
+					"name": "get payedStatuses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/payedStatuses"
+					},
+					"response": []
+				},
+				{
+					"name": "get payedStatus by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/payedStatuses/67c210b7d06bde6f94e5df2a"
+					},
+					"response": []
+				},
+				{
+					"name": "update payedStatus",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\":\"salom\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/payedStatuses/67c210b7d06bde6f94e5df2a"
+					},
+					"response": []
+				},
+				{
+					"name": "delete payed status",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/payedStatuses/67c210b7d06bde6f94e5df2a"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "typeOfPayed",
+			"item": [
+				{
+					"name": "create typeOfPayed",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\":\"Bonus\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/typeOfPayed"
+					},
+					"response": []
+				},
+				{
+					"name": "get typeOfPayed",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/typeOfPayeds"
+					},
+					"response": []
+				},
+				{
+					"name": "get typeOfPayed by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/typeOfPayed/67c219dc08ef5ee0c003c8da"
+					},
+					"response": []
+				},
+				{
+					"name": "update type of payed",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\":\"bonus\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/typeOfPayed/67c219dc08ef5ee0c003c8da"
+					},
+					"response": []
+				},
+				{
+					"name": "delete type of payed",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{manager_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/typeOfPayed/67c219dc08ef5ee0c003c8da"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "seller magazine",
+			"item": [
+				{
+					"name": "create seller magazine",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{seller_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sellerBreadId\": \"67cc18bbe1fc1007bd2c8ab1\",\r\n    \"sellerId\": \"67c9e951a0e4113fda0ace78\",\r\n    \"quantity\": 2,\r\n    \"price\": 15,\r\n    \"title\":\"title\",\r\n    \"description\":\"description\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/sellerMagazine"
+					},
+					"response": []
+				},
+				{
+					"name": "get seller magazine",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellerMagazines"
+					},
+					"response": []
+				},
+				{
+					"name": "get seller magazine by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellerMagazine/67cb0cd93807070874284b15"
+					},
+					"response": []
+				},
+				{
+					"name": "update seller magazine",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sellerBreadId\": \"67c9ee8fb4a6a012bdac445f\",\r\n    \"sellerId\": \"67c9e951a0e4113fda0ace78\",\r\n    \"quantity\": 2,\r\n    \"price\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BASE_URL}}/api/sellerMagazine/67cb0cd93807070874284b15"
+					},
+					"response": []
+				},
+				{
+					"name": "delete seller magazine",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"url": "{{BASE_URL}}/api/sellerMagazine/67cdab0853e1fbbfbdfcc94f"
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "refreshToken",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaGFzaFBhc3N3b3JkIjoiJDJiJDEwJGlMeC8ydWh6YTMuSG5RSUIvQzhFdk9MdUwvQzNldS5Sa0FXTWN3WW16Sy5yL2lFejVTaFZTIiwibG9naW4iOiJhZG1pbiIsImlhdCI6MTczOTQ3NjgwNn0.HukxyaLw9RPc4f6Zu0uUxipetOjwF_-Dwz8IkpwaL9w\"\r\n}",
+					"raw": "{\r\n    \"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YmQ0MThmODdiNTU1MDQwZGI4ZjdkMCIsInVzZXJuYW1lIjoiYmVrem9kIiwicm9sZSI6Im1hbmFnZXIiLCJpYXQiOjE3NDA0NTYzNTAsImV4cCI6MTc0MTA2MTE1MH0.E0-3yb4wIcoTy8I9O0Bmcu5QX9J9TDj4CSOpsYK7JNY\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1528,22 +2350,22 @@
 		},
 		{
 			"key": "manager_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YjBiNjExOTU0ZmMzMDIzZTI4OWIyYiIsInVzZXJuYW1lIjoidXNlcm5hbWUiLCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTczOTY5NDI5MiwiZXhwIjoxNzQwMjk5MDkyfQ.c1hG1KACnv4K28o1g8nNFNVTazwspBnqr5RJWlch9XM",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Yzg3NGQxMDYxMTE4NzEwYjk2MGE3YiIsInVzZXJuYW1lIjoidXNlcm5hbWUiLCJyb2xlIjoibWFuYWdlciIsImlhdCI6MTc0MTIwNDYxMywiZXhwIjoxNzQxODA5NDEzfQ.x0R3odR51nrUmJH0PrgR0fKwKt-Yjo8-DFpanuoVnSQ",
 			"type": "string"
 		},
 		{
 			"key": "admin_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWYwMjRkYzdhOWE1MWM1OTM0ZjRhNyIsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoic3VwZXJBZG1pbiIsImlhdCI6MTczOTY5MzY5OSwiZXhwIjoxNzQwMjk4NDk5fQ.VzlCrDWPMU8MtjafRfp2b86JtA2e_qBPCVYzqPTsFUk",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzYwNjIwYmM1NzZjZjI0Mzc3NDgyZiIsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoic3VwZXJBZG1pbiIsImlhdCI6MTc0MTU0MjkxNiwiZXhwIjoxNzQyMTQ3NzE2fQ.XM_Wg38qlPSAfMj9dIfKMHFOKZm3IZjFysbKLSL7s_U",
 			"type": "string"
 		},
 		{
 			"key": "seller_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWYyNzZhZTc3Y2JlNWI1YjVkNmI3ZiIsInVzZXJuYW1lIjoidXNlcm5hbSIsImlhdCI6MTczOTUzMjEzOCwiZXhwIjoxNzQwMTM2OTM4fQ.Dyu57TTXC0FYymZLq_S0VJwE1N2jYzlzN5zNTnoFzBE",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzhhZTY2NjIzNTg4NGJiNWUzMWVlNyIsInVzZXJuYW1lIjoiYmVreiIsInJvbGUiOiJzZWxsZXIiLCJpYXQiOjE3NDEyNzU2NjIsImV4cCI6MTc0MTg4MDQ2Mn0.NDRY16KjXURFInQILajz_tW7HdLjjjkFPRTr80bw1P8",
 			"type": "string"
 		},
 		{
 			"key": "delivery_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YWY0NzA4YWZlN2U0Yjc0ZDY4YzM0YyIsInVzZXJuYW1lIjoidXNlcm5hbWUwNSIsImlhdCI6MTczOTU0MDIzMiwiZXhwIjoxNzQwMTQ1MDMyfQ.-dUIZWpJ42URetu9ykhOf5wws_2lZDoTsuOM_HSAsbk",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Y2RlYmM4YTYyYjFjYjYwZGY2YjM5ZCIsInVzZXJuYW1lIjoiZGVsaXZlcnkiLCJyb2xlIjoiZGVsaXZlcnkiLCJpYXQiOjE3NDE1NTc3MTQsImV4cCI6MTc0MjE2MjUxNH0.oep1JibijrvXHj-kfLNj5oVsNH-B320HuLxngao7O9Q",
 			"type": "string"
 		}
 	]
