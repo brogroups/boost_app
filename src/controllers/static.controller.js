@@ -9,95 +9,100 @@ const ManagerModel = require("../models/manager.model")
 
 exports.getStatics = async (req, res) => {
     try {
-        if (req.use.role === "superAdmin") {
+        switch (req.use.role) {
+            case "superAdmin":
 
-            let debt1s = await Debt1Model.find({}).populate("sellerId", 'username')
-            let debt2s = await Debt2Model.find({}).populate("sellerId", 'username')
-            let deliveryDebt = await DeliveryDebtModel.find({}).populate("deliveryId", 'username')
+                let debt1s = await Debt1Model.find({}).populate("sellerId", 'username')
+                let debt2s = await Debt2Model.find({}).populate("sellerId", 'username')
+                let deliveryDebt = await DeliveryDebtModel.find({}).populate("deliveryId", 'username')
 
-            debt1s = debt1s.map((item) => {
-                return { ...item._doc, role: "seller" }
-            })
+                debt1s = debt1s.map((item) => {
+                    return { ...item._doc, role: "seller" }
+                })
 
-            debt2s = debt2s.map((item) => {
-                return { ...item._doc, role: "seller" }
-            })
+                debt2s = debt2s.map((item) => {
+                    return { ...item._doc, role: "seller" }
+                })
 
-            deliveryDebt = deliveryDebt.map((item) => {
-                return { ...item._doc, role: "delivery" }
-            })
+                deliveryDebt = deliveryDebt.map((item) => {
+                    return { ...item._doc, role: "delivery" }
+                })
 
-            let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate("typeOfBreadIds")
-            const pending = []
-            for (const key of deliveryPrixod) {
-                let allPrice = key.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * key.quantity
-                if (allPrice - key.money < 0) {
-                    pending.push({ ...key._doc })
-                }
-            }
-
-            const managers = await ManagerModel.find({})
-            const Debtmanagers = []
-
-            for (const item of managers) {
-                const sellers = await SellerModel.aggregate([
-                    { $match: { superAdminId: new mongoose.Types.ObjectId(item._id) } }
-                ])
-
-                let debt = []
-                for (const seller of sellers) {
-                    debt.push(await Debt1Model.aggregate([
-                        { $match: { sellerId: seller._id } },
-                        {
-                            $lookup: {
-                                from: "sellers",
-                                localField: "sellerId",
-                                foreignField: "_id",
-                                as: "seller"
-                            }
-                        },
-                        {
-                            $unwind:"$seller"
-                        },
-                        {
-                            $project: {
-                                title: 1,
-                                quantity: 1,
-                                sellerId: {
-                                    _id:"$seller._id",
-                                    username:"$seller.username"
-                                },
-                                reason: 1,
-                                price: 1,
-                                createdAt: 1,
-                            }
-                        }
-                    ]))
-                    debt.push(await Debt2Model.aggregate([
-                        { $match: { sellerId: seller._id } }
-                    ]))
-                }
-                debt = debt.filter((item) => item.length !== 0).flat(Infinity)
-                Debtmanagers.push({ _id: item._id, username: item.username, createdAt: item.createdAt, debt: { totalPrice: debt.reduce((a, b) => a + b.price, 0), history: debt }, pending: [], prixod: [] })
-            }
-
-            return res.status(200).json({
-                statics: {
-                    debt: {
-                        totalPrice: 0,
-                        history: [...debt1s, ...debt2s, ...deliveryDebt]
-                    },
-                    prixod: {
-                        totalPrice: deliveryPrixod.reduce((a, b) => a + b.money, 0),
-                        history: deliveryPrixod
-                    },
-                    pending: {
-                        totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * b.quantity) + b.money, 0),
-                        history: pending
+                let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate("typeOfBreadIds")
+                const pending = []
+                for (const key of deliveryPrixod) {
+                    let allPrice = key.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * key.quantity
+                    if (allPrice - key.money < 0) {
+                        pending.push({ ...key._doc })
                     }
-                },
-                managerStatics: Debtmanagers.reverse()
-            })
+                }
+
+                const managers = await ManagerModel.find({})
+                const Debtmanagers = []
+
+                for (const item of managers) {
+                    const sellers = await SellerModel.aggregate([
+                        { $match: { superAdminId: new mongoose.Types.ObjectId(item._id) } }
+                    ])
+
+                    let debt = []
+                    for (const seller of sellers) {
+                        debt.push(await Debt1Model.aggregate([
+                            { $match: { sellerId: seller._id } },
+                            {
+                                $lookup: {
+                                    from: "sellers",
+                                    localField: "sellerId",
+                                    foreignField: "_id",
+                                    as: "seller"
+                                }
+                            },
+                            {
+                                $unwind: "$seller"
+                            },
+                            {
+                                $project: {
+                                    title: 1,
+                                    quantity: 1,
+                                    sellerId: {
+                                        _id: "$seller._id",
+                                        username: "$seller.username"
+                                    },
+                                    reason: 1,
+                                    price: 1,
+                                    createdAt: 1,
+                                }
+                            }
+                        ]))
+                        debt.push(await Debt2Model.aggregate([
+                            { $match: { sellerId: seller._id } }
+                        ]))
+                    }
+                    debt = debt.filter((item) => item.length !== 0).flat(Infinity)
+                    Debtmanagers.push({ _id: item._id, username: item.username, createdAt: item.createdAt, debt: { totalPrice: debt.reduce((a, b) => a + b.price, 0), history: debt }, pending: [], prixod: [] })
+                }
+
+                return res.status(200).json({
+                    statics: {
+                        debt: {
+                            totalPrice: 0,
+                            history: [...debt1s, ...debt2s, ...deliveryDebt]
+                        },
+                        prixod: {
+                            totalPrice: deliveryPrixod.reduce((a, b) => a + b.money, 0),
+                            history: deliveryPrixod
+                        },
+                        pending: {
+                            totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * b.quantity) + b.money, 0),
+                            history: pending
+                        }
+                    },
+                    managerStatics: Debtmanagers.reverse()
+                })
+                break;
+
+            default:
+                break;
         }
     }
     catch (error) {
