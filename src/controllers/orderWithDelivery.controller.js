@@ -105,6 +105,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     },
                     {
                         $unwind: "$breadDetails",
+                        // preserveNullAndEmptyArrats: true
                     },
                     {
                         $lookup: {
@@ -130,8 +131,8 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                 username: "$deliveryDetails.username"
                             },
                             magazineId: {
-                                _id:"$magazineDetails._id",
-                                title:"$magazineDetails.title"
+                                _id: "$magazineDetails._id",
+                                title: "$magazineDetails.title"
                             },
                             createdAt: 1,
                             typeOfBreadIds: {
@@ -159,7 +160,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "list of order with delivereis",
-            orderWithDeliveries:orderWithDeliveries.reverse()
+            orderWithDeliveries: orderWithDeliveries.reverse()
         })
     }
     catch (error) {
