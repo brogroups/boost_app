@@ -1,6 +1,7 @@
 const Debt2Model = require("../models/debt2.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
-const { default: mongoose } = require("mongoose")
+const { default: mongoose } = require("mongoose");
+const TypeOfWareHouseModel = require("../models/typeofwarehouse.model");
 
 
 exports.createDebt2 = async (req, res) => {
@@ -11,7 +12,12 @@ exports.createDebt2 = async (req, res) => {
         } else if (req.use.role === "superAdmin" || req.use.role === "manager") {
             newDebt2 = await Debt2Model.create(req.body)
         }
+        let typeOfWareHouse = await TypeOfWareHouseModel.findById(newDebt2.omborxonaProId)
+        if (typeOfWareHouse) {
+            await TypeOfWareHouseModel.updateOne({quantity:typeOfWareHouse.quantity},{$set:{quantity:typeOfWareHouse.quantity - newDebt2.quantity}})
+        }
         await deleteCache(`debt2`)
+        await deleteCache(`typeOfWareHouse`)
         return res.status(201).json({
             success: true,
             message: "debt2 created",
@@ -92,7 +98,7 @@ exports.getDebt2s = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "list of debt2s",
-            debt2s:debt2s.reverse()
+            debt2s: debt2s.reverse()
         })
     }
     catch (error) {

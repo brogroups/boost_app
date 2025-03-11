@@ -63,7 +63,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
         switch (req.use.role) {
             case "superAdmin":
-                orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("sellerId", 'username').populate("deliveryId", "username").populate("magazineId", "title")
+                orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("sellerId", 'username').populate("deliveryId", "username").populate("magazineId", "title").populate("typeOfBreadIds.bread")
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
                     return { ...item._doc, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.bread?.price, 0) }
                 })
@@ -105,7 +105,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     },
                     {
                         $unwind: "$breadDetails",
-                        // preserveNullAndEmptyArrats: true
                     },
                     {
                         $lookup: {

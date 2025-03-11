@@ -31,7 +31,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of type of ware houses",
-                typeOfWareHouses: typeOfWareHousesCache
+                typeOfWareHouses: typeOfWareHousesCache.reverse()
             })
         }
         const typeOfWareHouses = await TypeOfWareHouse.find({})
@@ -66,11 +66,10 @@ exports.getTypeOfWareHouse = async (req, res) => {
                 return b.type === "payed" ? a + b.quantity : a
             }, 0)
 
-            quantity = (key.quantity - debtQuantity) + payedQuantity
 
-            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, quantity: (quantity ? quantity - key.quantity : key.quantity), history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * quantity })
+            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * quantity })
         }
-        await setCache("typeOfWareHouse", data.reverse())
+        await setCache("typeOfWareHouse", data)
         return res.status(200).json({
             success: true,
             message: "list of type of ware houses",
