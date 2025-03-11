@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "48d5ca84-c3c6-412e-a032-cff61c05b511",
 		"name": "Baker",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "33421532"
 	},
 	"item": [
@@ -29,7 +29,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/manager"
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager"
+							]
+						}
 					},
 					"response": []
 				},
@@ -44,7 +53,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/managers"
+						"url": {
+							"raw": "{{BASE_URL}}/api/managers",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"managers"
+							]
+						}
 					},
 					"response": []
 				},
@@ -59,7 +77,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035"
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager",
+								"67ae521f2739d7b62719c035"
+							]
+						}
 					},
 					"response": []
 				},
@@ -83,7 +111,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035"
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager/67ae521f2739d7b62719c035",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager",
+								"67ae521f2739d7b62719c035"
+							]
+						}
 					},
 					"response": []
 				},
@@ -98,7 +136,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/manager/67c751c1f7ff735b866388f0"
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager/67c751c1f7ff735b866388f0",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager",
+								"67c751c1f7ff735b866388f0"
+							]
+						}
 					},
 					"response": []
 				},
@@ -116,7 +164,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/manager/login"
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager",
+								"login"
+							]
+						}
 					},
 					"response": []
 				},
@@ -131,7 +189,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/manager"
+						"url": {
+							"raw": "{{BASE_URL}}/api/manager",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"manager"
+							]
+						}
 					},
 					"response": []
 				}
@@ -154,7 +221,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/superAdmin/login"
+						"url": {
+							"raw": "{{BASE_URL}}/api/superAdmin/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"superAdmin",
+								"login"
+							]
+						}
 					},
 					"response": []
 				},
@@ -169,7 +246,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/superAdmin/token"
+						"url": {
+							"raw": "{{BASE_URL}}/api/superAdmin/token",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"superAdmin",
+								"token"
+							]
+						}
 					},
 					"response": []
 				},
@@ -193,7 +280,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/superAdmin"
+						"url": {
+							"raw": "{{BASE_URL}}/api/superAdmin",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"superAdmin"
+							]
+						}
 					},
 					"response": []
 				}
@@ -209,20 +305,29 @@
 						"header": [
 							{
 								"key": "authorization",
-								"value": "{{manager_token}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\":\"bekz\",\r\n    \"phone\":\"+998972528500\",\r\n    \"price\":15,\r\n    \"ovenId\":\"15\"\r\n}",
+							"raw": "{\r\n    \"username\":\"delivery\",\r\n    \"phone\":\"+998972528500\",\r\n    \"price\":15,\r\n    \"ovenId\":\"15\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/seller"
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller"
+							]
+						}
 					},
 					"response": []
 				},
@@ -249,7 +354,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellers"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellers",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellers"
+							]
+						}
 					},
 					"response": []
 				},
@@ -264,7 +378,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/seller/67af276ae77cbe5b5b5d6b7f"
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/67af276ae77cbe5b5b5d6b7f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"67af276ae77cbe5b5b5d6b7f"
+							]
+						}
 					},
 					"response": []
 				},
@@ -288,7 +412,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/seller/67b628cda0bdef85475398bb"
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/67b628cda0bdef85475398bb",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"67b628cda0bdef85475398bb"
+							]
+						}
 					},
 					"response": []
 				},
@@ -303,7 +437,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/seller/67af145fa9b7e1ff931bcec4"
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/67af145fa9b7e1ff931bcec4",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"67af145fa9b7e1ff931bcec4"
+							]
+						}
 					},
 					"response": []
 				},
@@ -321,7 +465,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/seller/login"
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"login"
+							]
+						}
 					},
 					"response": []
 				},
@@ -336,7 +490,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/seller/token"
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/token",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"token"
+							]
+						}
 					},
 					"response": []
 				},
@@ -351,7 +515,18 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/seller/67bd42b35dbd4525508a4f73/payed"
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/67bd42b35dbd4525508a4f73/payed",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"67bd42b35dbd4525508a4f73",
+								"payed"
+							]
+						}
 					},
 					"response": []
 				},
@@ -366,7 +541,18 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/seller/67c5ec4c19fb1f7766578789/password"
+						"url": {
+							"raw": "{{BASE_URL}}/api/seller/67c5ec4c19fb1f7766578789/password",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"seller",
+								"67c5ec4c19fb1f7766578789",
+								"password"
+							]
+						}
 					},
 					"response": []
 				}
@@ -395,7 +581,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/delivery"
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery"
+							]
+						}
 					},
 					"response": []
 				},
@@ -410,7 +605,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/deliveries"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveries",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveries"
+							]
+						}
 					},
 					"response": []
 				},
@@ -425,7 +629,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/delivery/67c5c6039b86cb11a617b2b5"
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/67c5c6039b86cb11a617b2b5",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"67c5c6039b86cb11a617b2b5"
+							]
+						}
 					},
 					"response": []
 				},
@@ -449,7 +663,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2"
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/67af31a44b57138335eb4fb2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"67af31a44b57138335eb4fb2"
+							]
+						}
 					},
 					"response": []
 				},
@@ -464,7 +688,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/delivery/67cbe29713f2c791ae8f3995"
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/67cbe29713f2c791ae8f3995",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"67cbe29713f2c791ae8f3995"
+							]
+						}
 					},
 					"response": []
 				},
@@ -482,7 +716,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/delivery/login"
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"login"
+							]
+						}
 					},
 					"response": []
 				},
@@ -497,7 +741,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/delivery/token"
+						"url": {
+							"raw": "{{BASE_URL}}/api/delivery/token",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"delivery",
+								"token"
+							]
+						}
 					},
 					"response": []
 				}
@@ -526,7 +780,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/magazine"
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazine",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazine"
+							]
+						}
 					},
 					"response": []
 				},
@@ -541,7 +804,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/magazines"
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazines",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazines"
+							]
+						}
 					},
 					"response": []
 				},
@@ -556,7 +828,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/magazine/67c73958f7066a571d0457a5"
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazine/67c73958f7066a571d0457a5",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazine",
+								"67c73958f7066a571d0457a5"
+							]
+						}
 					},
 					"response": []
 				},
@@ -580,7 +862,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f"
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazine",
+								"67af4ac568a063ce1ca4024f"
+							]
+						}
 					},
 					"response": []
 				},
@@ -595,7 +887,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f"
+						"url": {
+							"raw": "{{BASE_URL}}/api/magazine/67af4ac568a063ce1ca4024f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"magazine",
+								"67af4ac568a063ce1ca4024f"
+							]
+						}
 					},
 					"response": []
 				}
@@ -624,7 +926,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/typeOfBread"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBread",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBread"
+							]
+						}
 					},
 					"response": []
 				},
@@ -639,7 +950,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfBreads"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBreads",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBreads"
+							]
+						}
 					},
 					"response": []
 				},
@@ -654,7 +974,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfBread/67cbe0d66b55d0875efca023"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBread/67cbe0d66b55d0875efca023",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBread",
+								"67cbe0d66b55d0875efca023"
+							]
+						}
 					},
 					"response": []
 				},
@@ -678,7 +1008,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBread",
+								"67af58374955ab7ca3df8bb7"
+							]
+						}
 					},
 					"response": []
 				},
@@ -693,7 +1033,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfBread/67af58374955ab7ca3df8bb7",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfBread",
+								"67af58374955ab7ca3df8bb7"
+							]
+						}
 					},
 					"response": []
 				}
@@ -722,7 +1072,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellerBread"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBread",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBread"
+							]
+						}
 					},
 					"response": []
 				},
@@ -737,7 +1096,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerBreads"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBreads",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBreads"
+							]
+						}
 					},
 					"response": []
 				},
@@ -752,7 +1120,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBread/67af60bddb302633810e043d",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBread",
+								"67af60bddb302633810e043d"
+							]
+						}
 					},
 					"response": []
 				},
@@ -776,7 +1154,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellerBread/67c87d22c6b4c09ce6f757ea"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBread/67c87d22c6b4c09ce6f757ea",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBread",
+								"67c87d22c6b4c09ce6f757ea"
+							]
+						}
 					},
 					"response": []
 				},
@@ -791,7 +1179,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerBread/67c825c50b76efe944452581"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerBread/67c825c50b76efe944452581",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerBread",
+								"67c825c50b76efe944452581"
+							]
+						}
 					},
 					"response": []
 				}
@@ -820,7 +1218,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/orderWithDelivery"
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDelivery",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDelivery"
+							]
+						}
 					},
 					"response": []
 				},
@@ -835,7 +1242,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/orderWithDeliveries"
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDeliveries",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDeliveries"
+							]
+						}
 					},
 					"response": []
 				},
@@ -850,7 +1266,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/orderWithDelivery/67b0fe3d1def27ab757f37df"
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDelivery/67b0fe3d1def27ab757f37df",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDelivery",
+								"67b0fe3d1def27ab757f37df"
+							]
+						}
 					},
 					"response": []
 				},
@@ -874,7 +1300,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/orderWithDelivery/67cd7c5477328bf37e6ea950"
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDelivery/67cd7c5477328bf37e6ea950",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDelivery",
+								"67cd7c5477328bf37e6ea950"
+							]
+						}
 					},
 					"response": []
 				},
@@ -889,7 +1325,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/orderWithDelivery/67cd88674d9bc997398bd4ce"
+						"url": {
+							"raw": "{{BASE_URL}}/api/orderWithDelivery/67cd88674d9bc997398bd4ce",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"orderWithDelivery",
+								"67cd88674d9bc997398bd4ce"
+							]
+						}
 					},
 					"response": []
 				}
@@ -918,7 +1364,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/debt1"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1"
+							]
+						}
 					},
 					"response": []
 				},
@@ -933,7 +1388,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/debt1s"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1s",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1s"
+							]
+						}
 					},
 					"response": []
 				},
@@ -948,7 +1412,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1",
+								"67afda846c370b155471d1d9"
+							]
+						}
 					},
 					"response": []
 				},
@@ -972,7 +1446,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1/67afda846c370b155471d1d9",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1",
+								"67afda846c370b155471d1d9"
+							]
+						}
 					},
 					"response": []
 				},
@@ -987,7 +1471,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/debt1/67c8961a3206ed9c7f33ef98"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt1/67c8961a3206ed9c7f33ef98",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt1",
+								"67c8961a3206ed9c7f33ef98"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1016,7 +1510,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/typeOfDebt"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebt",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebt"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1031,7 +1534,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfDebts"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebts",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebts"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1046,7 +1558,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebt",
+								"67afebc9f8d174e93fa3248a"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1070,7 +1592,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebt/67afebc9f8d174e93fa3248a",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebt",
+								"67afebc9f8d174e93fa3248a"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1085,7 +1617,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfDebt/67afede7c8244abe58c66dd8"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfDebt/67afede7c8244abe58c66dd8",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfDebt",
+								"67afede7c8244abe58c66dd8"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1114,7 +1656,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/debt2"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1129,7 +1680,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/debt2s"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2s",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2s"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1144,7 +1704,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2/67aff26a23f96e3855134055",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2",
+								"67aff26a23f96e3855134055"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1168,7 +1738,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/debt2/67c9df1d947a845b1efb4d54"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2/67c9df1d947a845b1efb4d54",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2",
+								"67c9df1d947a845b1efb4d54"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1183,7 +1763,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/debt2/67cc9d19020f065b1b7faadd"
+						"url": {
+							"raw": "{{BASE_URL}}/api/debt2/67cc9d19020f065b1b7faadd",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"debt2",
+								"67cc9d19020f065b1b7faadd"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1212,7 +1802,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/deliveryDebt"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryDebt",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryDebt"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1227,7 +1826,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/deliveryDebts"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryDebts",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryDebts"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1242,7 +1850,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/deliveryDebt/67b0f91c5eeb9ac2ea541fcb"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryDebt/67b0f91c5eeb9ac2ea541fcb",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryDebt",
+								"67b0f91c5eeb9ac2ea541fcb"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1266,7 +1884,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/deliveryDebt/67b0f91c5eeb9ac2ea541fcb"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryDebt/67b0f91c5eeb9ac2ea541fcb",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryDebt",
+								"67b0f91c5eeb9ac2ea541fcb"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1281,7 +1909,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/deliveryDebt/67b0f91c5eeb9ac2ea541fcb"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryDebt/67b0f91c5eeb9ac2ea541fcb",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryDebt",
+								"67b0f91c5eeb9ac2ea541fcb"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1310,7 +1948,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/createMagazine"
+						"url": {
+							"raw": "{{BASE_URL}}/api/createMagazine",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"createMagazine"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1325,7 +1972,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/createMagazines"
+						"url": {
+							"raw": "{{BASE_URL}}/api/createMagazines",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"createMagazines"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1340,7 +1996,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/createMagazine/67b10aa4c2a0cc4aeaa939a9"
+						"url": {
+							"raw": "{{BASE_URL}}/api/createMagazine/67b10aa4c2a0cc4aeaa939a9",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"createMagazine",
+								"67b10aa4c2a0cc4aeaa939a9"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1364,7 +2030,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/createMagazine/67b10aa4c2a0cc4aeaa939a9"
+						"url": {
+							"raw": "{{BASE_URL}}/api/createMagazine/67b10aa4c2a0cc4aeaa939a9",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"createMagazine",
+								"67b10aa4c2a0cc4aeaa939a9"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1379,7 +2055,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/createMagazine/67b10aa4c2a0cc4aeaa939a9"
+						"url": {
+							"raw": "{{BASE_URL}}/api/createMagazine/67b10aa4c2a0cc4aeaa939a9",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"createMagazine",
+								"67b10aa4c2a0cc4aeaa939a9"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1395,14 +2081,23 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\":\"delivery\",\r\n    \"password\":\"password\"\r\n}",
+							"raw": "{\r\n    \"username\":\"admin\",\r\n    \"password\":\"admin\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/login"
+						"url": {
+							"raw": "{{BASE_URL}}/api/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1417,7 +2112,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/token"
+						"url": {
+							"raw": "{{BASE_URL}}/api/token",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"token"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1441,7 +2145,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/auth/password"
+						"url": {
+							"raw": "{{BASE_URL}}/api/auth/password",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"password"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1470,7 +2184,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellingBread"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellingBread",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellingBread"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1485,7 +2208,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellingBreads"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellingBreads",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellingBreads"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1500,7 +2232,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellingBread",
+								"67b2357d24331c43a4c30718"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1524,7 +2266,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellingBread/67c89cd130da0d2bd23df17d"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellingBread/67c89cd130da0d2bd23df17d",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellingBread",
+								"67c89cd130da0d2bd23df17d"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1539,7 +2291,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellingBread/67b2357d24331c43a4c30718",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellingBread",
+								"67b2357d24331c43a4c30718"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1559,7 +2321,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/histories"
+						"url": {
+							"raw": "{{BASE_URL}}/api/histories",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"histories"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1574,7 +2345,18 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/history/seller/67bd42b35dbd4525508a4f73"
+						"url": {
+							"raw": "{{BASE_URL}}/api/history/seller/67bd42b35dbd4525508a4f73",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"history",
+								"seller",
+								"67bd42b35dbd4525508a4f73"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1589,7 +2371,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/history/delivery"
+						"url": {
+							"raw": "{{BASE_URL}}/api/history/delivery",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"history",
+								"delivery"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1609,7 +2401,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/statics"
+						"url": {
+							"raw": "{{BASE_URL}}/api/statics",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"statics"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1638,7 +2439,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellerPayed"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerPayed",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerPayed"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1653,7 +2463,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerPayeds"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerPayeds",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerPayeds"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1668,7 +2487,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerPayed/67b74ef585cd32e6fd64413f"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerPayed/67b74ef585cd32e6fd64413f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerPayed",
+								"67b74ef585cd32e6fd64413f"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1692,7 +2521,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellerPayed/67b74ef585cd32e6fd64413f"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerPayed/67b74ef585cd32e6fd64413f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerPayed",
+								"67b74ef585cd32e6fd64413f"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1707,7 +2546,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerPayed/"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerPayed/",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerPayed",
+								""
+							]
+						}
 					},
 					"response": []
 				}
@@ -1736,7 +2585,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/deliveryPayed"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryPayed",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryPayed"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1751,7 +2609,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/deliveryPayeds"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryPayeds",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryPayeds"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1766,7 +2633,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/deliveryPayed/67b763f4689d2170453632ae"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryPayed/67b763f4689d2170453632ae",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryPayed",
+								"67b763f4689d2170453632ae"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1790,7 +2667,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/deliveryPayed/67b763f4689d2170453632ae"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryPayed/67b763f4689d2170453632ae",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryPayed",
+								"67b763f4689d2170453632ae"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1805,7 +2692,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/deliveryPayed/67b763f4689d2170453632ae"
+						"url": {
+							"raw": "{{BASE_URL}}/api/deliveryPayed/67b763f4689d2170453632ae",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"deliveryPayed",
+								"67b763f4689d2170453632ae"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1834,7 +2731,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/typeOfWareHouse"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfWareHouse",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfWareHouse"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1849,7 +2755,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfWareHouses"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfWareHouses",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfWareHouses"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1864,7 +2779,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfWareHouse/67c4974e32a120f3f7b1cf47"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfWareHouse/67c4974e32a120f3f7b1cf47",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfWareHouse",
+								"67c4974e32a120f3f7b1cf47"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1888,7 +2813,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/typeOfWareHouse/67bc994b4de80decaf100a7d"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfWareHouse/67bc994b4de80decaf100a7d",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfWareHouse",
+								"67bc994b4de80decaf100a7d"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1903,7 +2838,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfWareHouse/67bc994b4de80decaf100a7d"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfWareHouse/67bc994b4de80decaf100a7d",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfWareHouse",
+								"67bc994b4de80decaf100a7d"
+							]
+						}
 					},
 					"response": []
 				}
@@ -1932,7 +2877,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/warehouse"
+						"url": {
+							"raw": "{{BASE_URL}}/api/warehouse",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"warehouse"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1947,7 +2901,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/warehouses"
+						"url": {
+							"raw": "{{BASE_URL}}/api/warehouses",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"warehouses"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1962,7 +2925,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/warehouse/67bd5dbf91ae3c5babc9d42c"
+						"url": {
+							"raw": "{{BASE_URL}}/api/warehouse/67bd5dbf91ae3c5babc9d42c",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"warehouse",
+								"67bd5dbf91ae3c5babc9d42c"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1986,7 +2959,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/warehouse/67bd5dbf91ae3c5babc9d42c"
+						"url": {
+							"raw": "{{BASE_URL}}/api/warehouse/67bd5dbf91ae3c5babc9d42c",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"warehouse",
+								"67bd5dbf91ae3c5babc9d42c"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2001,7 +2984,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/warehouse/67bd5dbf91ae3c5babc9d42c"
+						"url": {
+							"raw": "{{BASE_URL}}/api/warehouse/67bd5dbf91ae3c5babc9d42c",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"warehouse",
+								"67bd5dbf91ae3c5babc9d42c"
+							]
+						}
 					},
 					"response": []
 				}
@@ -2030,7 +3023,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/payedStatus"
+						"url": {
+							"raw": "{{BASE_URL}}/api/payedStatus",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"payedStatus"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2045,7 +3047,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/payedStatuses"
+						"url": {
+							"raw": "{{BASE_URL}}/api/payedStatuses",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"payedStatuses"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2060,7 +3071,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/payedStatuses/67c210b7d06bde6f94e5df2a"
+						"url": {
+							"raw": "{{BASE_URL}}/api/payedStatuses/67c210b7d06bde6f94e5df2a",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"payedStatuses",
+								"67c210b7d06bde6f94e5df2a"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2084,7 +3105,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/payedStatuses/67c210b7d06bde6f94e5df2a"
+						"url": {
+							"raw": "{{BASE_URL}}/api/payedStatuses/67c210b7d06bde6f94e5df2a",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"payedStatuses",
+								"67c210b7d06bde6f94e5df2a"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2099,7 +3130,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/payedStatuses/67c210b7d06bde6f94e5df2a"
+						"url": {
+							"raw": "{{BASE_URL}}/api/payedStatuses/67c210b7d06bde6f94e5df2a",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"payedStatuses",
+								"67c210b7d06bde6f94e5df2a"
+							]
+						}
 					},
 					"response": []
 				}
@@ -2128,7 +3169,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/typeOfPayed"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfPayed",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfPayed"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2143,7 +3193,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfPayeds"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfPayeds",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfPayeds"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2158,7 +3217,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfPayed/67c219dc08ef5ee0c003c8da"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfPayed/67c219dc08ef5ee0c003c8da",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfPayed",
+								"67c219dc08ef5ee0c003c8da"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2182,7 +3251,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/typeOfPayed/67c219dc08ef5ee0c003c8da"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfPayed/67c219dc08ef5ee0c003c8da",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfPayed",
+								"67c219dc08ef5ee0c003c8da"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2197,7 +3276,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/typeOfPayed/67c219dc08ef5ee0c003c8da"
+						"url": {
+							"raw": "{{BASE_URL}}/api/typeOfPayed/67c219dc08ef5ee0c003c8da",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"typeOfPayed",
+								"67c219dc08ef5ee0c003c8da"
+							]
+						}
 					},
 					"response": []
 				}
@@ -2226,7 +3315,16 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellerMagazine"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerMagazine",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerMagazine"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2241,7 +3339,16 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerMagazines"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerMagazines",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerMagazines"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2256,7 +3363,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerMagazine/67cb0cd93807070874284b15"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerMagazine/67cb0cd93807070874284b15",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerMagazine",
+								"67cb0cd93807070874284b15"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2280,7 +3397,17 @@
 								}
 							}
 						},
-						"url": "{{BASE_URL}}/api/sellerMagazine/67cb0cd93807070874284b15"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerMagazine/67cb0cd93807070874284b15",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerMagazine",
+								"67cb0cd93807070874284b15"
+							]
+						}
 					},
 					"response": []
 				},
@@ -2295,7 +3422,17 @@
 								"type": "text"
 							}
 						],
-						"url": "{{BASE_URL}}/api/sellerMagazine/67cdab0853e1fbbfbdfcc94f"
+						"url": {
+							"raw": "{{BASE_URL}}/api/sellerMagazine/67cdab0853e1fbbfbdfcc94f",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"sellerMagazine",
+								"67cdab0853e1fbbfbdfcc94f"
+							]
+						}
 					},
 					"response": []
 				}
@@ -2315,7 +3452,16 @@
 						}
 					}
 				},
-				"url": "{{BASE_URL}}/api/refreshtoken"
+				"url": {
+					"raw": "{{BASE_URL}}/api/refreshtoken",
+					"host": [
+						"{{BASE_URL}}"
+					],
+					"path": [
+						"api",
+						"refreshtoken"
+					]
+				}
 			},
 			"response": []
 		}
@@ -2355,12 +3501,12 @@
 		},
 		{
 			"key": "admin_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzYwNjIwYmM1NzZjZjI0Mzc3NDgyZiIsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoic3VwZXJBZG1pbiIsImlhdCI6MTc0MTU0MjkxNiwiZXhwIjoxNzQyMTQ3NzE2fQ.XM_Wg38qlPSAfMj9dIfKMHFOKZm3IZjFysbKLSL7s_U",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Y2Y0ZDVlMzkxYThkZTNiYjhjMTFlMSIsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoic3VwZXJBZG1pbiIsImlhdCI6MTc0MTY0MDI3MywiZXhwIjoxNzQyMjQ1MDczfQ.17A-6i4fShlpmxuzho0sMCdxnY0sdpy_9YHv7fPjEsU",
 			"type": "string"
 		},
 		{
 			"key": "seller_token",
-			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3YzhhZTY2NjIzNTg4NGJiNWUzMWVlNyIsInVzZXJuYW1lIjoiYmVreiIsInJvbGUiOiJzZWxsZXIiLCJpYXQiOjE3NDEyNzU2NjIsImV4cCI6MTc0MTg4MDQ2Mn0.NDRY16KjXURFInQILajz_tW7HdLjjjkFPRTr80bw1P8",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3Yzg3OGFiZTIyZDlmM2M5ZDdhMzYwOSIsInVzZXJuYW1lIjoic2VsbGVyIiwicm9sZSI6InNlbGxlciIsImlhdCI6MTc0MTYzNjk2NywiZXhwIjoxNzQyMjQxNzY3fQ.hV3Sd7uqqvH463Jy48cE8yMWjp8zgR1Vm_HrIvcTdOw",
 			"type": "string"
 		},
 		{

@@ -5,9 +5,11 @@ const MagazineModel = require("./magazine.model")
 
 const SellingBreadSchema = new Schema({
     typeOfBreadIds: [
-        { type: Schema.Types.ObjectId, ref: TypeOfBreadModel, require: true }
+        {
+            breadId: { type: Schema.Types.ObjectId, ref: TypeOfBreadModel, required: true },
+            quantity: { type: Number, required: true }
+        }
     ],
-    quantity: { type: Number, required: true },
     paymentMethod: { type: String, required: true },
     deliveryId: { type: Schema.Types.ObjectId, ref: DeliveryModel, required: true },
     magazineId: { type: Schema.Types.ObjectId, ref: MagazineModel, required: true },

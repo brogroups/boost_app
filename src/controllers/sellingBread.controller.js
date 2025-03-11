@@ -3,7 +3,18 @@ const { deleteCache, getCache, setCache } = require("../helpers/redis.helper")
 
 exports.createSellingBread = async (req, res) => {
     try {
-        const sellingBread = await SellingBreadModel.create(req.body)
+        let sellingBread;
+        switch (req.use.role) {
+            case "superAdmin":
+                sellingBread = await SellingBreadModel.create(req.body)
+                break;
+            case "manager":
+                sellingBread = await SellingBreadModel.create(req.body)
+                break;
+            case "delivery":
+                sellingBread = await SellingBreadModel.create({ ...req.body, deliveryId: req.use.id })
+                break;
+        }
         await deleteCache(`sellingBread`)
         return res.status(201).json({
             success: true,
@@ -29,12 +40,12 @@ exports.getSellingBread = async (req, res) => {
                 sellingBreads: cache
             })
         }
-        let sellingBreads = await SellingBreadModel.find({}).populate("typeOfBreadIds deliveryId magazineId")
+        let sellingBreads = await SellingBreadModel.find({}).populate("typeOfBreadIds.breadId deliveryId magazineId")
         sellingBreads = sellingBreads.map((item) => {
-            const price = item.typeOfBreadIds.reduce((a, b) => a + b.price, 0)
-            return { ...item._doc, price: price * item.quantity }
+            const price = item.typeOfBreadIds.reduce((a, b) => a + (b.breadId.price * b.quantity), 0)
+            return { ...item._doc, price: price }
         }).reverse()
-        await setCache(`sellingBread`,sellingBreads)
+        await setCache(`sellingBread`, sellingBreads)
         return res.status(200).json({
             success: true,
             message: "list of selling breads",
