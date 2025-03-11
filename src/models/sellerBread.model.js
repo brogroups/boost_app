@@ -12,6 +12,8 @@ const SellerBreadSchema = new Schema({
     ],
     quantity: { type: Number, required: true },
     price: { type: Number },
+    name: { type: String, required: true },
+    // ovenId: { type: String, required: true, unique: true },
     qopQuantity: { type: Number, required: true },
     sellerId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
     createdAt: { type: Date, default: new Date() },
