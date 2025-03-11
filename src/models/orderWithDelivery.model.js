@@ -11,7 +11,7 @@ const OrderWithDeliverySchema = new Schema({
             quantity: { type: Number, required: true }
         }
     ],
-    quantity: { type: Number, required: true },
+    // quantity: { type: Number, required: true },
     description: { type: String, required: true },
     sellerId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
     deliveryId: { type: Schema.Types.ObjectId, ref: DeliveryModel, required: true },
