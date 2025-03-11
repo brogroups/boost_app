@@ -35,7 +35,7 @@ exports.getSellerBread = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of seller breads",
-                sellerBreads: cache
+                sellerBreads: cache?.reverse()
             })
         }
         const sellerBreads = await SellerBreadModel.aggregate([
@@ -50,7 +50,7 @@ exports.getSellerBread = async (req, res) => {
             const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
             data.push({ ...key, price: price * key.quantity })
         }
-        await setCache(`sellerBread`, data.reverse())
+        await setCache(`sellerBread`, data)
         return res.status(200).json({
             success: true,
             message: "list of seller breads",
@@ -101,7 +101,7 @@ exports.updateSellerById = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "seller bread updated",
-            sellerBread
+            sellerBread:sellerBread
         })
     }
     catch (error) {

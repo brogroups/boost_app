@@ -66,7 +66,7 @@ exports.getSellers = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of sellers",
-                sellers: cashedSeller
+                sellers: cashedSeller?.reverse()
             })
         }
         let sellers = null;
@@ -107,7 +107,7 @@ exports.getSellers = async (req, res) => {
             }
         }
 
-        await setCache("sellers", data.reverse())
+        await setCache("sellers", data)
 
         return res.status(200).json({
             success: true,

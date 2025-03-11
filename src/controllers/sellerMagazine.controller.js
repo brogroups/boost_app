@@ -106,7 +106,7 @@ exports.findAll = async (req, res) => {
                 return { ...item, totalPrice }
             }).reverse()
         }
-        await setCache('sellerMagazine',sellerMagazines.reverse())
+        await setCache('sellerMagazine',sellerMagazines)
         return res.status(200).json(sellerMagazines.reverse())
     }
     catch (error) {

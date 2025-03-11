@@ -15,7 +15,7 @@ exports.createDelivery = async (req, res) => {
         const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel]
 
         for (const model of models) {
-            const item = await model.findOne({username})
+            const item = await model.findOne({ username })
             if (item) {
                 return res.status(400).json({
                     succes: false,
@@ -41,6 +41,8 @@ exports.createDelivery = async (req, res) => {
             // superAdminId,
         });
         await deleteCache(`delivery`);
+        await deleteCache(`debt2`);
+        await deleteCache("deliveryPayed");
         await deleteCache("deliveryPayed");
         const accessToken = await jwt.sign(
             { id: newDelivery._id, username: newDelivery.username, role: "delivery" },
@@ -67,7 +69,7 @@ exports.getDeliveries = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of deliveries",
-                deliveries: cashe,
+                deliveries: cashe.reverse(),
             });
         }
         let deliveries = await DeliveryModel.find({});
@@ -98,7 +100,7 @@ exports.getDeliveries = async (req, res) => {
                 totalPrice,
             })
         }
-        await setCache(`delivery`, data.reverse());
+        await setCache(`delivery`, data);
         return res.status(200).json({
             success: true,
             message: "list of deliveries",

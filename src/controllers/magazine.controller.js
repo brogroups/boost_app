@@ -28,7 +28,7 @@ exports.getMagazines = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of magazines",
-                magazines: cache
+                magazines: cache?.reverse()
             })
         }
         const magazines = await MagazineModel.find({})
@@ -96,7 +96,7 @@ exports.getMagazines = async (req, res) => {
         }
 
 
-        await setCache(`magazine`, data.reverse())
+        await setCache(`magazine`, data)
         return res.status(200).json({
             success: true,
             message: "list of magazines",

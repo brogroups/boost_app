@@ -5,6 +5,7 @@ exports.createDebt1 = async (req, res) => {
     try {
         const newDebt1 = await Debt1Model.create(req.body)
         await deleteCache(`debt1`)
+        await deleteCache(`debt2`)
         return res.status(201).json({
             success: true,
             message: "debt created",
@@ -26,11 +27,11 @@ exports.getDebt1s = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of debt1s",
-                debt1s: cashe
+                debt1s: cashe.reverse()
             })
         }
         const debt1s = (await Debt1Model.find({}).populate("sellerId"))
-        await setCache(`debt1`,debt1s.reverse())
+        await setCache(`debt1`,debt1s)
         return res.status(200).json({
             success: true,
             message: "list of debt1s",

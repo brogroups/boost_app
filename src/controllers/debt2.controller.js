@@ -2,6 +2,8 @@ const Debt2Model = require("../models/debt2.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { default: mongoose } = require("mongoose");
 const TypeOfWareHouseModel = require("../models/typeofwarehouse.model");
+const Debt1Model = require("../models/debt1.model");
+const DeliveryDebtModel = require("../models/deliveryDebt.model");
 
 
 exports.createDebt2 = async (req, res) => {
@@ -14,7 +16,7 @@ exports.createDebt2 = async (req, res) => {
         }
         let typeOfWareHouse = await TypeOfWareHouseModel.findById(newDebt2.omborxonaProId)
         if (typeOfWareHouse) {
-            await TypeOfWareHouseModel.updateOne({quantity:typeOfWareHouse.quantity},{$set:{quantity:typeOfWareHouse.quantity - newDebt2.quantity}})
+            await TypeOfWareHouseModel.updateOne({ quantity: typeOfWareHouse.quantity }, { $set: { quantity: typeOfWareHouse.quantity - newDebt2.quantity } })
         }
         await deleteCache(`debt2`)
         await deleteCache(`typeOfWareHouse`)
@@ -34,15 +36,17 @@ exports.createDebt2 = async (req, res) => {
 
 exports.getDebt2s = async (req, res) => {
     try {
-        const cashe = await getCache(`debt2`)
+        const cashe = null
+        // await getCache(`debt2`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
                 message: "list of debt2s",
-                debt2s: cashe
+                debt2s: cashe?.reverse()
             })
         }
         let debt2s = []
+        let debts = []
         if (req.use.role === "seller") {
             debt2s = await Debt2Model.aggregate([
                 {
@@ -92,13 +96,22 @@ exports.getDebt2s = async (req, res) => {
             ]);
         } else {
             debt2s = await Debt2Model.find({}).populate("omborxonaProId sellerId")
+            let debt1s = await Debt1Model.find({}).populate("sellerId")
+            let deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
+            debts = [...debt2s.map((item) => {
+                return { ...item._doc, role: "seller" }
+            }), ...debt1s.map((item) => {
+                return { ...item._doc, role: "seller" }
+            }), ...deliveryDebts.map((item) => {
+                return { ...item._doc, role: "delivery" }
+            })]
         }
 
-        await setCache(`debt2`, debt2s.reverse())
+        await setCache(`debt2`, debts)
         return res.status(200).json({
             success: true,
             message: "list of debt2s",
-            debt2s: debt2s.reverse()
+            debt2s: debts.reverse()
         })
     }
     catch (error) {

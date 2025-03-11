@@ -37,7 +37,7 @@ exports.getSellingBread = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of selling breads",
-                sellingBreads: cache
+                sellingBreads: cache?.reverse()
             })
         }
         let sellingBreads = await SellingBreadModel.find({}).populate("typeOfBreadIds.breadId deliveryId magazineId")
@@ -49,7 +49,7 @@ exports.getSellingBread = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "list of selling breads",
-            sellingBreads
+            sellingBreads:sellingBreads.reverse()
         })
     }
     catch (error) {

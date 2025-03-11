@@ -26,11 +26,11 @@ exports.getCreateMagazine = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of create magazines",
-                createMagazines
+                createMagazines:cache.reverse()
             })
         }
         const createMagazines = (await CreateMagazineModel.find({}).populate("DeliveryId"))
-        await setCache(`createMagazine`, createMagazines.reverse())
+        await setCache(`createMagazine`, createMagazines)
         return res.status(200).json({
             success: true,
             message: "list of create magazines",

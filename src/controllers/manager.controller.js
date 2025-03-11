@@ -55,11 +55,11 @@ exports.getAllManagers = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of managers",
-                managers: cache
+                managers: cache?.reverse()
             })
         }
         const managers = (await ManagerModel.find({}))
-        await setCache(`manager`, managers.reverse())
+        await setCache(`manager`, managers)
         return res.status(200).json({
             success: true,
             message: "list of managers",

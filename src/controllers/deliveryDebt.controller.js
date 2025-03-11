@@ -37,7 +37,7 @@ exports.getDeliveryDebt = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of delivery debts",
-                deliveryDebts: cashe
+                deliveryDebts: cashe?.reverse()
             })
         }
         let deliveryDebts;
@@ -55,7 +55,7 @@ exports.getDeliveryDebt = async (req, res) => {
                 break;
         }
 
-        await setCache(`deliveryDebt`, deliveryDebts.reverse())
+        await setCache(`deliveryDebt`, deliveryDebts)
         return res.status(200).json({
             success: true,
             message: "list of delivery debts",
