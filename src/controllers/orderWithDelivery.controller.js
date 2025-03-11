@@ -97,7 +97,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     },
                     {
                         $lookup: {
-                            from: "typeofbreads",
+                            from: "sellerbreads",
                             localField: "typeOfBreadIds.bread",
                             foreignField: "_id",
                             as: "breadDetails"
@@ -116,6 +116,17 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     },
                     {
                         $unwind: "$magazineDetails",
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "breadDetails.typeOfBreadId.breadId",
+                            foreignField: "_id",
+                            as: "breadIdDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadIdDetails",
                     },
                     {
                         $project: {
@@ -139,7 +150,27 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                     input: "$typeOfBreadIds",
                                     as: "breadItem",
                                     in: {
-                                        bread: "$breadDetails",
+                                        bread: {
+                                            _id: "$breadDetails._id",
+                                            typeOfBreadId: {
+                                                $map: {
+                                                    input: "$breadDetails.typeOfBreadId",
+                                                    as: "breadIdItem",
+                                                    in: {
+                                                        breadId: {
+                                                            _id: "$breadIdDetails._id",
+                                                            title: "$breadIdDetails.title",
+                                                            price: "$breadIdDetails.price",
+                                                            price2: "$breadIdDetails.price2",
+                                                            price3: "$breadIdDetails.price3",
+                                                            price4: "$breadIdDetails.price4",
+                                                            createdAt: "$breadIdDetails.createdAt",
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            createdAt: "$breadDetails.createdAt",
+                                        },
                                         quantity: "$$breadItem.quantity"
                                     }
                                 }

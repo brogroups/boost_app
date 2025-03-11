@@ -86,8 +86,7 @@ exports.getSellerById = async (req, res) => {
 
 exports.updateSellerById = async (req, res) => {
     try {
-        const { typeOfBreadId, quantity, time } = req.body
-        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { typeOfBreadId, quantity, time, updateAt: new Date() }, { new: true }).populate("typeOfBreadId")
+        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true }).populate("typeOfBreadId")
         if (!sellerBread) {
             return res.status(404).json({
                 success: false,
