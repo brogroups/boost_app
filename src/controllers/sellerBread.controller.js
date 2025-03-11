@@ -1,15 +1,19 @@
 const SellerBreadModel = require("../models/sellerBread.model")
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
+const { createSelleryPayed } = require("./sellerPayed.controller")
 
 
 exports.createSellerBread = async (req, res) => {
     try {
         const sellerBread = await SellerBreadModel.create({
             ...req.body,
-            sellerId:req.use.id
+            sellerId: req.use.id
         })
         await deleteCache(`sellerBread`)
+        let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId typeOfBreadId.breadId.breadId")
+        sellerPayedBread = sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
+        await createSelleryPayed({ body: { sellerId: req.use.id, price: sellerPayedBread, type: "Ishhaqi", status: "To`landi" } })
         return res.status(201).json({
             success: true,
             message: "seller bread yaratildi",
@@ -44,7 +48,7 @@ exports.getSellerBread = async (req, res) => {
         const data = []
         for (const key of populatedSellerBreads) {
             const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
-            data.push({ ...key, price:price * key.quantity })
+            data.push({ ...key, price: price * key.quantity })
         }
         await setCache(`sellerBread`, data.reverse())
         return res.status(200).json({

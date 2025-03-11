@@ -86,6 +86,9 @@ exports.getSellers = async (req, res) => {
                         case "Bonus":
                             return a + b?.price
                             break;
+                        case "Ishhaqi":
+                            return a + b?.price
+                            break;
                         case "Shtraf":
                             return a - b?.price
                             break;
