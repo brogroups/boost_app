@@ -3,7 +3,7 @@ const Joi = require("joi");
 const CreateDebt1Schema = Joi.object({
     title: Joi.string().required(),
     quantity: Joi.number().required(),
-    sellerId: Joi.string().required(),
+    sellerId: Joi.string().optional(),
     reason: Joi.string().required(),
     price: Joi.number().required()
 })
@@ -11,7 +11,7 @@ const CreateDebt1Schema = Joi.object({
 const UpdateDebt1Schema = Joi.object({
     title: Joi.string().required(),
     quantity: Joi.number().required(),
-    sellerId: Joi.string().required(),
+    sellerId: Joi.string().optional(),
     reason: Joi.string().required(),
     price: Joi.number().required()
 })

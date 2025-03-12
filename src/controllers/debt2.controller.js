@@ -36,8 +36,7 @@ exports.createDebt2 = async (req, res) => {
 
 exports.getDebt2s = async (req, res) => {
     try {
-        const cashe = null
-        // await getCache(`debt2`)
+        const cashe = await getCache(`debt2`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
@@ -46,67 +45,116 @@ exports.getDebt2s = async (req, res) => {
             })
         }
         let debt2s = []
+        let debt1s = []
+        let deliveryDebts = []
         let debts = []
-        if (req.use.role === "seller") {
-            debt2s = await Debt2Model.aggregate([
-                {
-                    $match: {
-                        sellerId: new mongoose.Types.ObjectId(req.use.id)
-                    }
-                }, {
-                    $lookup: {
-                        from: "typeofwarehouses",
-                        localField: "omborxonaProId",
-                        foreignField: "_id",
-                        as: "omborxona"
-                    }
-                },
-                {
-                    $unwind: "$omborxona"
-                },
-                {
-                    $lookup: {
-                        from: "sellers",
-                        localField: "sellerId",
-                        foreignField: "_id",
-                        as: "seller"
-                    }
-                },
-                {
-                    $unwind: "$seller"
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        quantity: 1,
-                        description: 1,
-                        createdAt: 1,
-                        updateAt: 1,
-                        omborxonaProId: {
-                            _id: "$omborxona._id",
-                            name: "$omborxona.name",
-                            price: "$omborxona.price",
-                        },
-                        seller: {
-                            _id: "$seller._id",
-                            username: "$seller.username"
+        switch (req.use.role) {
+            case "seller":
+                debt2s = await Debt2Model.aggregate([
+                    {
+                        $match: {
+                            sellerId: new mongoose.Types.ObjectId(req.use.id)
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofwarehouses",
+                            localField: "omborxonaProId",
+                            foreignField: "_id",
+                            as: "omborxona"
+                        }
+                    },
+                    {
+                        $unwind: "$omborxona"
+                    },
+                    {
+                        $lookup: {
+                            from: "sellers",
+                            localField: "sellerId",
+                            foreignField: "_id",
+                            as: "seller"
+                        }
+                    },
+                    {
+                        $unwind: "$seller"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            quantity: 1,
+                            description: 1,
+                            createdAt: 1,
+                            omborxonaProId: {
+                                _id: "$omborxona._id",
+                                name: "$omborxona.name",
+                                price: "$omborxona.price",
+                            },
+                            seller: {
+                                _id: "$seller._id",
+                                username: "$seller.username"
+                            }
                         }
                     }
-                }
-            ]);
-        } else {
-            debt2s = await Debt2Model.find({}).populate("omborxonaProId sellerId")
-            let debt1s = await Debt1Model.find({}).populate("sellerId")
-            let deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
-            debts = [...debt2s.map((item) => {
-                return { ...item._doc, role: "seller" }
-            }), ...debt1s.map((item) => {
-                return { ...item._doc, role: "seller" }
-            }), ...deliveryDebts.map((item) => {
-                return { ...item._doc, role: "delivery" }
-            })]
+                ]);
+                // debt1s = await Debt1Model.aggregate([
+                //     {
+                //         $match: {
+                //             sellerId: new mongoose.Types.ObjectId(req.use.id)
+                //         }
+                //     },
+                //     {
+                //         $lookup: {
+                //             from: "sellers",
+                //             localField: "sellerId",
+                //             foreignField: "_id",
+                //             as: "seller"
+                //         }
+                //     },
+                //     {
+                //         $unwind: "$seller"
+                //     },
+                //     {
+                //         $project: {
+                //             _id: 1,
+                //             title: 1,
+                //             reason: 1,
+                //             price: 1,
+                //             quantity: 1,
+                //             createdAt: 1,
+                //             seller: {
+                //                 _id: "$seller._id",
+                //                 username: "$seller.username"
+                //             }
+                //         }
+                //     }
+                // ])
+                debts = [...debt2s]
+                break;
+            case "manager":
+                debt2s = await Debt2Model.find({}).populate("omborxonaProId sellerId")
+                debt1s = await Debt1Model.find({}).populate("sellerId")
+                deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
+                debts = [...debt2s.map((item) => {
+                    return { ...item._doc, role: "seller" }
+                }), ...debt1s.map((item) => {
+                    return { ...item._doc, role: "seller" }
+                }), ...deliveryDebts.map((item) => {
+                    return { ...item._doc, role: "delivery" }
+                })]
+                break;
+            case "superAdmin":
+                debt2s = await Debt2Model.find({}).populate("omborxonaProId sellerId")
+                debt1s = await Debt1Model.find({}).populate("sellerId")
+                deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
+                debts = [...debt2s.map((item) => {
+                    return { ...item._doc, role: "seller" }
+                }), ...debt1s.map((item) => {
+                    return { ...item._doc, role: "seller" }
+                }), ...deliveryDebts.map((item) => {
+                    return { ...item._doc, role: "delivery" }
+                })]
+                break;
         }
-
         await setCache(`debt2`, debts)
         return res.status(200).json({
             success: true,

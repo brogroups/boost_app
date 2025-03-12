@@ -3,7 +3,20 @@ const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 
 exports.createDebt1 = async (req, res) => {
     try {
-        const newDebt1 = await Debt1Model.create(req.body)
+        let newDebt1;
+        switch (req.use.role) {
+            case "seller":
+                newDebt1 = await Debt1Model.create({ ...req.body, sellerId: req.use.id })
+                break;
+            case "superAdmin":
+                newDebt1 = await Debt1Model.create(req.body)
+                break;
+            case "manager":
+                newDebt1 = await Debt1Model.create(req.body)
+                break;
+            default:
+                break;
+        }
         await deleteCache(`debt1`)
         await deleteCache(`debt2`)
         return res.status(201).json({
@@ -31,11 +44,11 @@ exports.getDebt1s = async (req, res) => {
             })
         }
         const debt1s = (await Debt1Model.find({}).populate("sellerId"))
-        await setCache(`debt1`,debt1s)
+        await setCache(`debt1`, debt1s)
         return res.status(200).json({
             success: true,
             message: "list of debt1s",
-            debt1s:debt1s.reverse()
+            debt1s: debt1s.reverse()
         })
     }
     catch (error) {
@@ -71,7 +84,7 @@ exports.getDebt1ById = async (req, res) => {
 
 exports.updateDebt1ById = async (req, res) => {
     try {
-        const debt1 = await Debt1Model.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true }).populate("sellerBreadId")
+        const debt1 = await Debt1Model.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true })
         if (!debt1) {
             return res.status(404).json({
                 success: false,
