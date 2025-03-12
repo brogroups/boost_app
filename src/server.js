@@ -4,7 +4,7 @@ const SuperAdminModel = require("./models/superAdmin.model");
 const jwt = require("jsonwebtoken");
 const ConnecToDb = require("./configs/connection");
 const { encrypt } = require("./helpers/crypto.helper");
-
+require('colors')
 require("dotenv").config();
 
 const app = express();
