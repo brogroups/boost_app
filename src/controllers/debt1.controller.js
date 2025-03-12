@@ -1,5 +1,6 @@
 const Debt1Model = require("../models/debt1.model")
-const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
+const { getCache, setCache, deleteCache } = require('../helpers/redis.helper');
+const { default: mongoose } = require("mongoose");
 
 exports.createDebt1 = async (req, res) => {
     try {
@@ -35,20 +36,58 @@ exports.createDebt1 = async (req, res) => {
 
 exports.getDebt1s = async (req, res) => {
     try {
-        const cashe = await getCache(`debt1`)
+        const cashe = null
+        // await getCache(`debt1`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
                 message: "list of debt1s",
-                debt1s: cashe.reverse()
+                debt1s: cashe?.reverse()
             })
         }
-        const debt1s = (await Debt1Model.find({}).populate("sellerId"))
+        let debt1s = []
+        switch (req.use.role) {
+            case "seller":
+                debt1s = await Debt1Model.aggregate([
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
+                    {
+                        $lookup: {
+                            from: "sellers",
+                            localField: "sellerId",
+                            foreignField: "_id",
+                            as: "seller"
+                        }
+                    },
+                    {
+                        $unwind: "$seller"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            title: 1,
+                            quantity: 1,
+                            reason: 1,
+                            createdAt: 1,
+                            seller: {
+                                _id: "$seller._id",
+                                username: "$seller.username"
+                            }
+                        }
+                    }
+                ])
+                break;
+            case "superAdmin":
+                debt1s = (await Debt1Model.find({}).populate("sellerId"))
+            case "manager":
+                debt1s = (await Debt1Model.find({}).populate("sellerId"))
+            default:
+                break;
+        }
         await setCache(`debt1`, debt1s)
         return res.status(200).json({
             success: true,
             message: "list of debt1s",
-            debt1s: debt1s.reverse()
+            debt1s
         })
     }
     catch (error) {

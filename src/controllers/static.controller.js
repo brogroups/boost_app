@@ -44,7 +44,7 @@ exports.getStatics = async (req, res) => {
                     const sellers = await SellerModel.aggregate([
                         { $match: { superAdminId: new mongoose.Types.ObjectId(item._id) } }
                     ])
-
+                     
                     let debt = []
                     for (const seller of sellers) {
                         debt.push(await Debt1Model.aggregate([

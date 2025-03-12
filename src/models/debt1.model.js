@@ -13,3 +13,5 @@ const Debt1Schema = new Schema({
 
 const Debt1Model = model("Debt1", Debt1Schema)
 module.exports = Debt1Model
+
+// 67cf4dcb391a8de3bb8c121b
