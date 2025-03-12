@@ -26,7 +26,8 @@ exports.createTypeOfWareHouse = async (req, res) => {
 
 exports.getTypeOfWareHouse = async (req, res) => {
     try {
-        const typeOfWareHousesCache =  await getCache("typeOfWareHouse")
+        const typeOfWareHousesCache = null
+        // await getCache("typeOfWareHouse")
         if (typeOfWareHousesCache) {
             return res.status(200).json({
                 success: true,
@@ -38,7 +39,46 @@ exports.getTypeOfWareHouse = async (req, res) => {
         const data = []
         for (const key of typeOfWareHouses) {
             const debt = await Debt2Model.aggregate([
-                { $match: { omborxonaProId: key._id } }
+                { $match: { omborxonaProId: key._id } },
+                {
+                    $lookup: {
+                        from: "typeofwarehouses",
+                        localField: "omborxonaProId",
+                        foreignField: "_id",
+                        as: "omborxona"
+                    }
+                },
+                {
+                    $unwind: "$omborxona"
+                },
+                {
+                    $lookup: {
+                        from: "sellers",
+                        localField: "sellerId",
+                        foreignField: "_id",
+                        as: "seller"
+                    }
+                },
+                {
+                    $unwind: "$seller"
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        quantity: 1,
+                        description: 1,
+                        omborxonaProId: {
+                            _id: "$omborxona._id",
+                            name: "$omborxona.name",
+                            price: "$omborxona.price",
+                        },
+                        seller: {
+                            _id: "$seller._id",
+                            username: "$seller.username"
+                        },
+                        createdAt: 1,
+                    }
+                }
             ])
 
             const warehouses = await WareHouseModel.aggregate([
@@ -46,18 +86,18 @@ exports.getTypeOfWareHouse = async (req, res) => {
             ])
 
             const history = warehouses.map((item) => {
-                return { ...item, type: "payed" }
+                return { ...item, totalPrice: item.price * item.quantity, type: "payed" }
             }).concat(debt.map((item) => {
-                return { ...item, type: "debt" }
+                return { ...item, totalPrice: item.omborxonaProId.price * item.quantity, type: "debt" }
             }))
 
             const warehouse = history[history.length - 1]
             // let allPrice = warehouses.reduce((a, b) => {
             //     return b.price + a'
             // }, 0)
-            let debtQuantity = null;
-            let payedQuantity = null;
-            let quantity = null;
+            // let debtQuantity = null;
+            // let payedQuantity = null;
+            // let quantity = null;
             debtQuantity = history.reduce((a, b) => {
                 return b.type === "debt" ? b.quantity - a : a
             }, 0)
@@ -66,8 +106,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
                 return b.type === "payed" ? a + b.quantity : a
             }, 0)
 
-
-            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * quantity })
+            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * key.quantity })
         }
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({

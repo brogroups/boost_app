@@ -50,7 +50,8 @@ exports.createOrderWithDelivery = async (req, res) => {
 
 exports.getOrderWithDeliveries = async (req, res) => {
     try {
-        const cache = await getCache(`orderWithDelisvery`)
+        const cache = null
+        // await getCache(`orderWithDelisvery`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -178,7 +179,10 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     }
                 ])
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.bread.price, 0) }
+                    return { ...item, typeOfBreadIdss: item.typeOfBreadIds.map((item) => item.bread.typeOfBreadId).flat(Infinity) }
+                })
+                orderWithDeliveries = orderWithDeliveries.map((item) => {
+                    return { ...item, totalPrice: item.typeOfBreadIdss.reduce((a, b) => a + b.breadId.price, 0) }
                 })
                 break;
 

@@ -121,14 +121,14 @@ exports.getStatics = async (req, res) => {
                         ]))
                     }
                     debt = debt.filter((item) => item.length !== 0).flat(Infinity)
-                    Debtmanagers.push({ _id: item._id, username: item.username, createdAt: item.createdAt, debt: { totalPrice: debt.reduce((a, b) => a + b.price ? b.price : a, 0), history: debt }, pending: [], prixod: [] })
+                    Debtmanagers.push({ _id: item._id, username: item.username, createdAt: item.createdAt, debt: { totalPrice: debt.length > 0 ? debt.reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0) : 0, history: debt }, pending: [], prixod: [] })
                 }
 
 
                 return res.status(200).json({
                     statics: {
                         debt: {
-                            totalPrice: [...debt1s, ...debt2s, ...deliveryDebt].reduce((a, b) => a + (b.price ? b.price : 0), 0),
+                            totalPrice: [...debt1s, ...debt2s, ...deliveryDebt].reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0),
                             history: [...debt1s, ...debt2s, ...deliveryDebt]
                         },
                         prixod: {
