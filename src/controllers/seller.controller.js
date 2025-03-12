@@ -10,7 +10,7 @@ const ManagerModel = require("../models/manager.model");
 
 exports.createSeller = async (req, res) => {
     try {
-        const { username, phone, price, ovenId, password } = req.body
+        const { username, phone, ovenId, password } = req.body
         let hashPassword = encrypt(password ? password : phone.slice(-4))
         const superAdminId = req.use.id
 
@@ -30,7 +30,7 @@ exports.createSeller = async (req, res) => {
             username,
             password: hashPassword,
             phone,
-            price,
+            // price,
             superAdminId,
             ovenId
         })

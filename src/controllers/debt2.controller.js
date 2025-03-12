@@ -16,10 +16,18 @@ exports.createDebt2 = async (req, res) => {
         }
         let typeOfWareHouse = await TypeOfWareHouseModel.findById(newDebt2.omborxonaProId)
         if (typeOfWareHouse) {
-            await TypeOfWareHouseModel.updateOne({ quantity: typeOfWareHouse.quantity }, { $set: { quantity: typeOfWareHouse.quantity - newDebt2.quantity } })
+            if (typeOfWareHouse.quantity - newDebt2.quantity >= 0) {
+                await TypeOfWareHouseModel.updateOne({ quantity: typeOfWareHouse.quantity }, { $set: { quantity: typeOfWareHouse.quantity - newDebt2.quantity } })
+            } else {
+                return res.status(400).json({
+                    success: false,
+                    message: "Bunday maahsulot omorxonada tugagan"
+                })
+            }
         }
         await deleteCache(`debt2`)
         await deleteCache(`typeOfWareHouse`)
+        await deleteCache(`warehouse`)
         return res.status(201).json({
             success: true,
             message: "debt2 created",
@@ -229,7 +237,11 @@ exports.deleteDebt2ById = async (req, res) => {
                 message: "debt2 is not found"
             })
         }
+        let typeOfWareHouse = await TypeOfWareHouseModel.findById(debt2.omborxonaProId)
+        await TypeOfWareHouseModel.updateOne({ quantity: typeOfWareHouse.quantity }, { $set: { quantity: typeOfWareHouse.quantity + debt2.quantity } })
         await deleteCache(`debt2`)
+        await deleteCache(`typeOfWareHouse`)
+        await deleteCache(`warehouse`)
         return res.status(200).json({
             success: true,
             message: "debt2 deleted",

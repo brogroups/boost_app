@@ -131,6 +131,7 @@ exports.updateDebt1ById = async (req, res) => {
             })
         }
         await deleteCache(`debt1`)
+        await deleteCache(`debt2`)
         return res.status(200).json({
             success: true,
             message: "debt1 updated",
@@ -156,6 +157,7 @@ exports.deleteDebt1ById = async (req, res) => {
             })
         }
         await deleteCache(`debt1`)
+        await deleteCache(`debt2`)
         return res.status(200).json({
             success: true,
             message: "debt1 deleted",

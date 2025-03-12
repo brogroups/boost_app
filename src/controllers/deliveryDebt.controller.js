@@ -16,6 +16,7 @@ exports.createDeliveryDebt = async (req, res) => {
                 break;
         }
         await deleteCache(`deliveryDebt`)
+        await deleteCache(`debt2`)
         return res.status(201).json({
             success: true,
             message: 'delivery debt created',
@@ -103,6 +104,7 @@ exports.updateDeliveryDebt = async (req, res) => {
             })
         }
         await deleteCache(`deliveryDebt`)
+        await deleteCache(`debt2`)
         return res.status(200).json({
             success: true,
             message: 'delivery debt updated',
@@ -127,6 +129,7 @@ exports.deleteDeliveryDebt = async (req, res) => {
             })
         }
         await deleteCache(`deliveryDebt`)
+        await deleteCache(`debt2`)
         return res.status(200).json({
             success: true,
             message: 'delivery debt deleted',
