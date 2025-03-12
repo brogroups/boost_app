@@ -13,7 +13,7 @@ exports.getStatics = async (req, res) => {
             case "superAdmin":
 
                 let debt1s = await Debt1Model.find({}).populate("sellerId", 'username')
-                let debt2s = await Debt2Model.find({}).populate("sellerId", 'username')
+                let debt2s = await Debt2Model.find({}).populate("sellerId", 'username').populate('omborxonaProId', "name price")
                 let deliveryDebt = await DeliveryDebtModel.find({}).populate("deliveryId", 'username')
 
                 debt1s = debt1s.map((item) => {
@@ -28,7 +28,10 @@ exports.getStatics = async (req, res) => {
                     return { ...item._doc, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate("typeOfBreadIds")
+                let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate("typeOfBreadIds.breadId magazineId")
+                deliveryPrixod = deliveryPrixod.map((item) => {
+                    return { ...item._doc, price: item.typeOfBreadIds.reduce((a, b) => a + b.breadId.price, 0), quantity: item.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }
+                })
                 const pending = []
                 for (const key of deliveryPrixod) {
                     let allPrice = key.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * key.quantity
@@ -75,7 +78,46 @@ exports.getStatics = async (req, res) => {
                             }
                         ]))
                         debt.push(await Debt2Model.aggregate([
-                            { $match: { sellerId: seller._id } }
+                            { $match: { sellerId: seller._id } },
+                            {
+                                $lookup: {
+                                    from: "typeofwarehouses",
+                                    localField: "omborxonaProId",
+                                    foreignField: "_id",
+                                    as: "omborxona"
+                                }
+                            },
+                            {
+                                $unwind: "$omborxona"
+                            },
+                            {
+                                $lookup: {
+                                    from: "sellers",
+                                    localField: "sellerId",
+                                    foreignField: "_id",
+                                    as: "seller"
+                                }
+                            },
+                            {
+                                $unwind: "$seller"
+                            },
+                            {
+                                $project: {
+                                    _id: 1,
+                                    quantity: 1,
+                                    description: 1,
+                                    omborxonaProId: {
+                                        _id: "$omborxona._id",
+                                        name: "$omborxona.name",
+                                        price: "$omborxona.price",
+                                    },
+                                    seller: {
+                                        _id: "$seller._id",
+                                        username: "$seller.username"
+                                    },
+                                    createdAt: 1,
+                                }
+                            }
                         ]))
                     }
                     debt = debt.filter((item) => item.length !== 0).flat(Infinity)
