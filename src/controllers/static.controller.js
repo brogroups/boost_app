@@ -9,12 +9,17 @@ const ManagerModel = require("../models/manager.model")
 
 exports.getStatics = async (req, res) => {
     try {
+        const startDay = new Date();
+        startDay.setHours(0, 0, 0, 0);
+        const endDay = new Date();
+        endDay.setHours(23, 59, 59, 999); 
+
         switch (req.use.role) {
             case "superAdmin":
 
                 let debt1s = await Debt1Model.find({}).populate("sellerId", 'username')
-                let debt2s = await Debt2Model.find({}).populate("sellerId", 'username').populate('omborxonaProId', "name price")
-                let deliveryDebt = await DeliveryDebtModel.find({}).populate("deliveryId", 'username')
+                let debt2s = await Debt2Model.find({ createdAt: { $gte: startDay, $lte: endDay } }).populate("sellerId", 'username').populate('omborxonaProId', "name price")
+                let deliveryDebt = await DeliveryDebtModel.find({ createdAt: { $gte: startDay, $lte: endDay } }).populate("deliveryId", 'username')
 
                 debt1s = debt1s.map((item) => {
                     return { ...item._doc, role: "seller" }
@@ -28,7 +33,7 @@ exports.getStatics = async (req, res) => {
                     return { ...item._doc, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate({
+                let deliveryPrixod = await SellingBreadModel.find({ createdAt: { $gte: startDay, $lte: endDay } }).populate("deliveryId", 'username').populate({
                     path: "typeOfBreadIds.breadId",
                     populate: {
                         path: "typeOfBreadId.breadId",
@@ -38,6 +43,7 @@ exports.getStatics = async (req, res) => {
                 deliveryPrixod = deliveryPrixod.map((item) => {
                     return { ...item._doc, price: item.typeOfBreadIds.reduce((a, b) => a + b?.breadId?.price, 0), quantity: item.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }
                 })
+
                 const pending = []
                 for (const key of deliveryPrixod) {
                     let allPrice = key.typeOfBreadIds.reduce((a, b) => {
@@ -45,7 +51,7 @@ exports.getStatics = async (req, res) => {
                             return a + b.breadId.price
                         }, 0)
                     }, 0) * key.quantity
-                    if (allPrice - key.money >= 0) {
+                    if (allPrice - key.money > 0) {
                         pending.push({ ...key })
                     }
                 }
@@ -90,7 +96,7 @@ exports.getStatics = async (req, res) => {
                             }
                         ]))
                         debt.push(await Debt2Model.aggregate([
-                            { $match: { sellerId: seller._id } },
+                            { $match: { sellerId: seller._id, createdAt: { $gte: startDay, $lte: endDay } } },
                             {
                                 $lookup: {
                                     from: "typeofwarehouses",
@@ -131,7 +137,6 @@ exports.getStatics = async (req, res) => {
                                 }
                             }
                         ]))
-                        console.log((await SellingBreadModel.find({}).populate("typeOfBreadIds.breadId")).map((item) => item.typeOfBreadIds.map((i) => i.breadId)))
                         managerPrixod = await SellingBreadModel.aggregate([
                             {
                                 $lookup: {
@@ -146,7 +151,7 @@ exports.getStatics = async (req, res) => {
                             },
                             {
                                 $match: {
-                                    "breadDetails.sellerId": seller._id
+                                    "breadDetails.sellerId": seller._id, createdAt: { $gte: startDay, $lte: endDay }
                                 }
                             },
                             {
@@ -229,8 +234,6 @@ exports.getStatics = async (req, res) => {
                         }
                     })
                 }
-
-
                 return res.status(200).json({
                     statics: {
                         debt: {
@@ -258,6 +261,7 @@ exports.getStatics = async (req, res) => {
         console.error(error)
     }
 }
+
 
 // else if (req.use.role === "manager") {
 //     const sellers = await SellerModel.aggregate([{ $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }])
