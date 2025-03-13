@@ -28,20 +28,30 @@ exports.getStatics = async (req, res) => {
                     return { ...item._doc, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate("typeOfBreadIds.breadId magazineId")
+                let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate({
+                    path: "typeOfBreadIds.breadId",
+                    populate: {
+                        path: "typeOfBreadId.breadId",
+                        model: "TypeOfBread"
+                    }
+                }).populate("magazineId")
                 deliveryPrixod = deliveryPrixod.map((item) => {
-                    return { ...item._doc, price: item.typeOfBreadIds.reduce((a, b) => a + b.breadId.price, 0), quantity: item.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }
+                    return { ...item._doc, price: item.typeOfBreadIds.reduce((a, b) => a + b?.breadId?.price, 0), quantity: item.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }
                 })
                 const pending = []
                 for (const key of deliveryPrixod) {
-                    let allPrice = key.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * key.quantity
-                    if (allPrice - key.money < 0) {
-                        pending.push({ ...key._doc })
+                    let allPrice = key.typeOfBreadIds.reduce((a, b) => {
+                        return a + b.breadId?.typeOfBreadId.reduce((a, b) => {
+                            return a + b.breadId.price
+                        }, 0)
+                    }, 0) * key.quantity
+                    if (allPrice - key.money >= 0) {
+                        pending.push({ ...key })
                     }
                 }
 
                 const managers = await ManagerModel.find({})
-                const Debtmanagers = []
+                const mamangersStatics = []
 
                 for (const item of managers) {
                     const sellers = await SellerModel.aggregate([
@@ -49,6 +59,8 @@ exports.getStatics = async (req, res) => {
                     ])
 
                     let debt = []
+                    let managerPrixod = []
+                    let managerPending = []
                     for (const seller of sellers) {
                         debt.push(await Debt1Model.aggregate([
                             { $match: { sellerId: seller._id } },
@@ -119,9 +131,103 @@ exports.getStatics = async (req, res) => {
                                 }
                             }
                         ]))
+                        console.log((await SellingBreadModel.find({}).populate("typeOfBreadIds.breadId")).map((item) => item.typeOfBreadIds.map((i) => i.breadId)))
+                        managerPrixod = await SellingBreadModel.aggregate([
+                            {
+                                $lookup: {
+                                    from: "sellerbreads",
+                                    localField: "typeOfBreadIds.breadId",
+                                    foreignField: "_id",
+                                    as: "breadDetails"
+                                }
+                            },
+                            {
+                                $unwind: "$breadDetails",
+                            },
+                            {
+                                $match: {
+                                    "breadDetails.sellerId": seller._id
+                                }
+                            },
+                            {
+                                $lookup: {
+                                    from: "typeofbreads",
+                                    localField: "breadDetails.typeOfBreadId.breadId",
+                                    foreignField: "_id",
+                                    as: "breadIdDetails"
+                                }
+                            },
+                            {
+                                $unwind: "$breadIdDetails",
+                            },
+                            {
+                                $project: {
+                                    _id: 1,
+                                    typeOfBreadIds: {
+                                        $map: {
+                                            input: "$typeOfBreadIds",
+                                            as: "breadItem",
+                                            in: {
+                                                bread: {
+                                                    _id: "$breadDetails._id",
+                                                    typeOfBreadId: {
+                                                        $map: {
+                                                            input: "$breadDetails.typeOfBreadId",
+                                                            as: "breadIdItem",
+                                                            in: {
+                                                                breadId: {
+                                                                    _id: "$breadIdDetails._id",
+                                                                    title: "$breadIdDetails.title",
+                                                                    price: "$breadIdDetails.price",
+                                                                    price2: "$breadIdDetails.price2",
+                                                                    price3: "$breadIdDetails.price3",
+                                                                    price4: "$breadIdDetails.price4",
+                                                                    createdAt: "$breadIdDetails.createdAt",
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    createdAt: "$breadDetails.createdAt",
+                                                },
+                                                quantity: "$$breadItem.quantity"
+                                            }
+                                        }
+                                    },
+                                    paymentMethod: 1,
+                                    delivertId: 1,
+                                    magazineId: 1,
+                                    money: 1,
+                                    createdAt: 1
+                                }
+                            },
+                        ])
+                    }
+                    for (const key of managerPrixod) {
+                        let allPrice = key.typeOfBreadIds.reduce((a, b) => {
+                            return a + b.breadId?.typeOfBreadId.reduce((a, b) => {
+                                return a + b.breadId.price
+                            }, 0)
+                        }, 0) * key.quantity
+                        if (allPrice - key.money >= 0) {
+                            managerPending.push({ ...key })
+                        }
                     }
                     debt = debt.filter((item) => item.length !== 0).flat(Infinity)
-                    Debtmanagers.push({ _id: item._id, username: item.username, createdAt: item.createdAt, debt: { totalPrice: debt.length > 0 ? debt.reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0) : 0, history: debt }, pending: [], prixod: [] })
+
+                    mamangersStatics.push({
+                        _id: item._id,
+                        username: item.username,
+                        createdAt: item.createdAt,
+                        debt: { totalPrice: debt.length > 0 ? debt.reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0) : 0, history: debt },
+                        pending: {
+                            totalPrice: managerPending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.breadId.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0) * b.quantity - b.money), 0),
+                            history: managerPending
+                        },
+                        prixod: {
+                            totalPrice: managerPrixod.reduce((a, b) => a + b.money, 0),
+                            history: managerPrixod
+                        }
+                    })
                 }
 
 
@@ -136,11 +242,11 @@ exports.getStatics = async (req, res) => {
                             history: deliveryPrixod
                         },
                         pending: {
-                            totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * b.quantity) + b.money, 0),
+                            totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.breadId.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0) * b.quantity - b.money), 0),
                             history: pending
                         }
                     },
-                    managerStatics: Debtmanagers.reverse()
+                    managerStatics: mamangersStatics.reverse()
                 })
                 break;
 
