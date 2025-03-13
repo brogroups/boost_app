@@ -160,7 +160,6 @@ exports.getUserNameAndPasswordById = async (req, res) => {
             })
         }
         const decryptPassword = decrypt(user.password)
-        console.log(user,decryptPassword);
         
         return res.status(200).json({
             success: true,

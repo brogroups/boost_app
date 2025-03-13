@@ -5,7 +5,7 @@ const { default: mongoose } = require("mongoose")
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
-        const { typeOfBreadIds, quantity, description, sellerId, deliveryId, magazineId } = req.body
+        const { typeOfBreadIds, quantity, description, sellerId, deliveryId} = req.body
         let order = null
         switch (req.use.role) {
             case "superAdmin":
@@ -15,7 +15,6 @@ exports.createOrderWithDelivery = async (req, res) => {
                     description,
                     sellerId,
                     deliveryId,
-                    magazineId
                 })
                 break;
             case "seller":
@@ -25,13 +24,13 @@ exports.createOrderWithDelivery = async (req, res) => {
                     description,
                     sellerId: new mongoose.Types.ObjectId(req.use.id),
                     deliveryId,
-                    magazineId
                 })
                 break;
 
             default:
                 break;
         }
+
 
         await deleteCache(`orderWithDelivery`)
         return res.status(201).json({
@@ -63,7 +62,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
         switch (req.use.role) {
             case "superAdmin":
-                orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("sellerId", 'username').populate("deliveryId", "username").populate("magazineId", "title").populate("typeOfBreadIds.bread")
+                orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("sellerId", 'username').populate("deliveryId", "username").populate("typeOfBreadIds.bread")
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
                     return { ...item._doc, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.bread?.price, 0) }
                 })
@@ -106,17 +105,17 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     {
                         $unwind: "$breadDetails",
                     },
-                    {
-                        $lookup: {
-                            from: "magazines",
-                            localField: "magazineId",
-                            foreignField: "_id",
-                            as: "magazineDetails"
-                        }
-                    },
-                    {
-                        $unwind: "$magazineDetails",
-                    },
+                    // {
+                    //     $lookup: {
+                    //         from: "magazines",
+                    //         localField: "magazineId",
+                    //         foreignField: "_id",
+                    //         as: "magazineDetails"
+                    //     }
+                    // },
+                    // {
+                    //     $unwind: "$magazineDetails",
+                    // },
                     {
                         $lookup: {
                             from: "typeofbreads",
@@ -140,10 +139,10 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                 _id: "$deliveryDetails._id",
                                 username: "$deliveryDetails.username"
                             },
-                            magazineId: {
-                                _id: "$magazineDetails._id",
-                                title: "$magazineDetails.title"
-                            },
+                            // magazineId: {
+                            //     _id: "$magazineDetails._id",
+                            //     title: "$magazineDetails.title"
+                            // },
                             createdAt: 1,
                             typeOfBreadIds: {
                                 $map: {

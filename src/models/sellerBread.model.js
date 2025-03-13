@@ -5,7 +5,7 @@ const SellerModel = require("../models/sellingBread.model")
 const SellerBreadSchema = new Schema({
     typeOfBreadId: [
         {
-            breadId: { type: Schema.Types.ObjectId, ref: TypeOfBread, required: true },
+            breadId: { type: Schema.Types.ObjectId, ref: "TypeOfBread", required: true },
             quantity: { type: Number, required: true },
             qopQuantity: { type: Number, required: true }
         }
@@ -15,7 +15,7 @@ const SellerBreadSchema = new Schema({
     description: { type: String, required: true },
     // ovenId: { type: String, required: true, unique: true },
     // qopQuantity: { type: Number, required: true },
-    sellerId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
+    sellerId: { type: Schema.Types.ObjectId, ref: "Seller", required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })
