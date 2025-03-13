@@ -36,7 +36,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
             })
         }
         const typeOfWareHouses = await TypeOfWareHouse.find({})
-        const data = []
+        let data = []
         for (const key of typeOfWareHouses) {
             const debt = await Debt2Model.aggregate([
                 { $match: { omborxonaProId: key._id } },
@@ -108,6 +108,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
 
             data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * key.quantity })
         }
+        data = data.filter((i) => i.quantity > 0)
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({
             success: true,
