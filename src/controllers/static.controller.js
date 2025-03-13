@@ -6,10 +6,10 @@ const SellingBreadModel = require("../models/sellingBread.model")
 const SellerModel = require("../models/seller.model")
 const DeliveryModel = require("../models/delivery.model")
 const ManagerModel = require("../models/manager.model")
+const SellerBreadModel = require("../models/sellerBread.model")
 
 exports.getStatics = async (req, res) => {
     try {
-        console.log("SALOM")
         const startDay = new Date();
         startDay.setHours(0, 0, 0, 0);
         const endDay = new Date();
@@ -432,7 +432,142 @@ exports.getStatics = async (req, res) => {
                     },
                 })
                 break;
+            case "seller":
+                let selerBreads = await SellerBreadModel.aggregate([
+                    {
+                        $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) }
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "typeOfBreadId.breadId",
+                            foreignField: "_id",
+                            as: "BREADID"
+                        }
+                    },
+                    {
+                        $unwind: "$BREADID"
+                    },
+                    {
+                        $lookup: {
+                            from: "sellers",
+                            localField: "sellerId",
+                            foreignField: "_id",
+                            as: "seller"
+                        }
+                    },
+                    {
+                        $unwind: "$seller"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            description: 1,
+                            sellerId: {
+                                _id: "$seller.id",
+                                username: "$seller.username"
+                            },
+                            createdAt: 1,
+                            typeOfBreadId: {
+                                $map: {
+                                    input: "$typeOfBreadId",
+                                    as: "breadItem",
+                                    in: {
+                                        breadId: "$BREADID",
+                                        quantity: "$$breadItem.quantity",
+                                        qopQuantity: "$$breadItem.qopQuantity",
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ])
+                let debt1 = await Debt1Model.aggregate([
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
+                    {
+                        $lookup: {
+                            from: "sellers",
+                            localField: "sellerId",
+                            foreignField: "_id",
+                            as: "seller"
+                        }
+                    },
+                    {
+                        $unwind: "$seller"
+                    },
+                    {
+                        $project: {
+                            title: 1,
+                            quantity: 1,
+                            sellerId: {
+                                _id: "$seller._id",
+                                username: "$seller.username"
+                            },
+                            reason: 1,
+                            price: 1,
+                            createdAt: 1,
+                        }
+                    }
+                ])
+                let debt2 = await Debt2Model.aggregate([
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } } },
+                    {
+                        $lookup: {
+                            from: "typeofwarehouses",
+                            localField: "omborxonaProId",
+                            foreignField: "_id",
+                            as: "omborxona"
+                        }
+                    },
+                    {
+                        $unwind: "$omborxona"
+                    },
+                    {
+                        $lookup: {
+                            from: "sellers",
+                            localField: "sellerId",
+                            foreignField: "_id",
+                            as: "seller"
+                        }
+                    },
+                    {
+                        $unwind: "$seller"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            quantity: 1,
+                            description: 1,
+                            omborxonaProId: {
+                                _id: "$omborxona._id",
+                                name: "$omborxona.name",
+                                price: "$omborxona.price",
+                            },
+                            seller: {
+                                _id: "$seller._id",
+                                username: "$seller.username"
+                            },
+                            createdAt: 1,
+                        }
+                    }
+                ])
 
+
+                // console.log(selerBreads.reduce((a, b) => a + b.typeOfBreadId.reduce((c, d) => c + d?.breadId.price, 0), 0))
+                // console.log(debt1.reduce((a, b) => a + b.price, 0))
+
+                return res.status(200).json({
+                    prixod: {
+                        totalPrice: selerBreads.reduce((a, b) => a + b.typeOfBreadId.reduce((c, d) => c + d?.breadId.price, 0), 0),
+                        history: selerBreads
+                    },
+                    debt: {
+                        totalPrice: [...debt1, ...debt2].length > 0 ? [...debt1, ...debt2].reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0) : 0,
+                        history: [...debt1, ...debt2]
+                    },
+                    benefit: 0
+                })
+                break;
             default:
                 break;
         }

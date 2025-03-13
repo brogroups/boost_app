@@ -39,7 +39,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
         let data = []
         for (const key of typeOfWareHouses) {
             const debt = await Debt2Model.aggregate([
-                { $match: { omborxonaProId: key._id } },
+                { $match: { omborxonaProId: new mongoose.Types.ObjectId(key._id) } },
                 {
                     $lookup: {
                         from: "typeofwarehouses",
@@ -82,7 +82,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
             ])
 
             const warehouses = await WareHouseModel.aggregate([
-                { $match: { typeId: key._id } }
+                { $match: { typeId: new mongoose.Types.ObjectId(key._id) } }
             ])
 
             const history = warehouses.map((item) => {
@@ -90,6 +90,8 @@ exports.getTypeOfWareHouse = async (req, res) => {
             }).concat(debt.map((item) => {
                 return { ...item, totalPrice: item.omborxonaProId.price * item.quantity, type: "debt" }
             }))
+
+            
 
             const warehouse = history[history.length - 1]
             // let allPrice = warehouses.reduce((a, b) => {
@@ -105,7 +107,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
             payedQuantity = history.reduce((a, b) => {
                 return b.type === "payed" ? a + b.quantity : a
             }, 0)
-
+            console.log("key",key)
             data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * key.quantity })
         }
         data = data.filter((i) => i.quantity > 0)
