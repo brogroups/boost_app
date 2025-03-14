@@ -6,6 +6,7 @@ const CreateTypeOfBreadSchema = Joi.object({
     price2: Joi.number().required(),
     price3: Joi.number().required(),
     price4: Joi.number().required(),
+    status: Joi.boolean().required()
 })
 
 const UpdateTypeOfBreadSchema = Joi.object({
@@ -14,6 +15,7 @@ const UpdateTypeOfBreadSchema = Joi.object({
     price2: Joi.number().required(),
     price3: Joi.number().required(),
     price4: Joi.number().required(),
+    status: Joi.boolean().required()
 })
 
 module.exports = { CreateTypeOfBreadSchema, UpdateTypeOfBreadSchema }

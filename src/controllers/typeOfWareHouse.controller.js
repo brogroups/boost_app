@@ -26,13 +26,14 @@ exports.createTypeOfWareHouse = async (req, res) => {
 
 exports.getTypeOfWareHouse = async (req, res) => {
     try {
-        const typeOfWareHousesCache = null
-        // await getCache("typeOfWareHouse")
+        const typeOfWareHousesCache = await getCache("typeOfWareHouse")
         if (typeOfWareHousesCache) {
             return res.status(200).json({
                 success: true,
                 message: "list of type of ware houses",
-                typeOfWareHouses: typeOfWareHousesCache.reverse()
+                typeOfWareHouses: req.use.role !== "superAdmin" ? typeOfWareHousesCache.reverse() : typeOfWareHousesCache.reverse().filter((i) => {
+                    return i.quantity > 0 && i?.status === true
+                })
             })
         }
         const typeOfWareHouses = await TypeOfWareHouse.find({})
@@ -91,7 +92,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
                 return { ...item, totalPrice: item.omborxonaProId.price * item.quantity, type: "debt" }
             }))
 
-            
+
 
             const warehouse = history[history.length - 1]
             // let allPrice = warehouses.reduce((a, b) => {
@@ -107,10 +108,13 @@ exports.getTypeOfWareHouse = async (req, res) => {
             payedQuantity = history.reduce((a, b) => {
                 return b.type === "payed" ? a + b.quantity : a
             }, 0)
-            console.log("key",key)
             data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * key.quantity })
         }
-        data = data.filter((i) => i.quantity > 0)
+        if (req.use.role !== "superAdmin") {
+            data = data.filter((i) => {
+                return i.quantity > 0 && i?.status === true
+            })
+        }
         await setCache("typeOfWareHouse", data)
         return res.status(200).json({
             success: true,

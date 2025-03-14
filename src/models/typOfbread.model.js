@@ -6,6 +6,7 @@ const TypeOfBreadSchema = new Schema({
     price2: { type: Number, required: true },
     price3: { type: Number, required: true },
     price4: { type: Number, required: true },
+    status: { type: Boolean, required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })
