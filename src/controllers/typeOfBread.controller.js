@@ -23,24 +23,22 @@ exports.createTypeOfBread = async (req, res) => {
 
 exports.getTypeOfBread = async (req, res) => {
     try {
-        const cache =null
+        const cache = null
         // await getCache(`typeOfbread`)
         if (cache) {
             return res.status(200).json({
                 success: true,
                 message: "list of type of breads",
-                typeOfBreads: req.use.role !== "superAdmin" ? cache?.reverse() : cache?.reverse()?.filter((i)=>{
-                    return i.status === true
-                })
+                typeOfBreads: req.use.role !== "superAdmin" ? cache?.reverse() : cache?.reverse().filter((i) => i.status == true)
             })
         }
         let typeOfBreads = await TypeOfBreadModel.find({})
-        if (req.use.role !== "superAdmin") {
-            typeOfBreads = typeOfBreads.filter((item) => {
-                return item?.status === true
-            })
-        }
         await setCache(`typeOfbread`, typeOfBreads)
+        if (req.use.role !== "superAdmin") {
+            console.log(typeOfBreads.filter((i) => i.status == true))
+            console.log(typeOfBreads)
+            typeOfBreads = typeOfBreads.filter((i) => i.status == true);
+        }
         return res.status(200).json({
             success: true,
             message: "list of type of breads",

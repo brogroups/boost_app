@@ -31,9 +31,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "list of type of ware houses",
-                typeOfWareHouses: req.use.role !== "superAdmin" ? typeOfWareHousesCache.reverse() : typeOfWareHousesCache.reverse().filter((i) => {
-                    return i.quantity > 0 && i?.status === true
-                })
+                typeOfWareHouses: req.use.role !== "superAdmin" ? typeOfWareHousesCache?.reverse().filter((i) => i.quantity > 0).filter((i) => i.status == true) : typeOfWareHousesCache.reverse()
             })
         }
         const typeOfWareHouses = await TypeOfWareHouse.find({})
@@ -95,12 +93,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
 
 
             const warehouse = history[history.length - 1]
-            // let allPrice = warehouses.reduce((a, b) => {
-            //     return b.price + a'
-            // }, 0)
-            // let debtQuantity = null;
-            // let payedQuantity = null;
-            // let quantity = null;
+
             debtQuantity = history.reduce((a, b) => {
                 return b.type === "debt" ? b.quantity - a : a
             }, 0)
@@ -110,12 +103,11 @@ exports.getTypeOfWareHouse = async (req, res) => {
             }, 0)
             data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * key.quantity })
         }
-        if (req.use.role !== "superAdmin") {
-            data = data.filter((i) => {
-                return i.quantity > 0 && i?.status === true
-            })
-        }
         await setCache("typeOfWareHouse", data)
+        if (req.use.role !== "superAdmin") {
+            data = data.filter((i) => i.quantity > 0).filter((i) => i.status == true);
+        }
+
         return res.status(200).json({
             success: true,
             message: "list of type of ware houses",

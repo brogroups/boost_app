@@ -237,7 +237,7 @@ exports.getStatics = async (req, res) => {
                 return res.status(200).json({
                     statics: {
                         debt: {
-                            totalPrice: [...debt1s, ...debt2s, ...deliveryDebt].reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0),
+                            totalPrice: [...debt1s, ...debt2s, ...deliveryDebt].reduce((a, b) => a + (b.price ? b.price : b?.omborxonaProId?.price ? b?.omborxonaProId?.price : 0), 0),
                             history: [...debt1s, ...debt2s, ...deliveryDebt]
                         },
                         prixod: {
