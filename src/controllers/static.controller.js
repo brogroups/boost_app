@@ -553,8 +553,6 @@ exports.getStatics = async (req, res) => {
                 ])
 
 
-                // console.log(selerBreads.reduce((a, b) => a + b.typeOfBreadId.reduce((c, d) => c + d?.breadId.price, 0), 0))
-                // console.log(debt1.reduce((a, b) => a + b.price, 0))
 
                 return res.status(200).json({
                     prixod: {
@@ -566,6 +564,198 @@ exports.getStatics = async (req, res) => {
                         history: [...debt1, ...debt2]
                     },
                     benefit: 0
+                })
+                break;
+            case "delivery":
+                let DeliveryDebts = await DeliveryDebtModel.aggregate([
+                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } } },
+                    {
+                        $lookup: {
+                            from: "deliveries",
+                            localField: "deliveryId",
+                            foreignField: "_id",
+                            as: "delivery"
+                        }
+                    },
+                    {
+                        $unwind: "$delivery"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            title: 1,
+                            price: 1,
+                            deliveryId: {
+                                _id: "$delivery.id",
+                                username: "$delivery.username",
+                            },
+                            description: 1,
+                            createdAt: 1
+                        }
+                    }
+                ])
+                let pendingDelivery = []
+                let soldBread = await SellingBreadModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "sellerbreads",
+                            localField: "typeOfBreadIds.breadId",
+                            foreignField: "_id",
+                            as: "breadDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadDetails",
+                    },
+                    {
+                        $match: {
+                            "deliveryId": new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "breadDetails.typeOfBreadId.breadId",
+                            foreignField: "_id",
+                            as: "breadIdDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadIdDetails",
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            typeOfBreadIds: {
+                                $map: {
+                                    input: "$typeOfBreadIds",
+                                    as: "breadItem",
+                                    in: {
+                                        bread: {
+                                            _id: "$breadDetails._id",
+                                            typeOfBreadId: {
+                                                $map: {
+                                                    input: "$breadDetails.typeOfBreadId",
+                                                    as: "breadIdItem",
+                                                    in: {
+                                                        breadId: {
+                                                            _id: "$breadIdDetails._id",
+                                                            title: "$breadIdDetails.title",
+                                                            price: "$breadIdDetails.price",
+                                                            price2: "$breadIdDetails.price2",
+                                                            price3: "$breadIdDetails.price3",
+                                                            price4: "$breadIdDetails.price4",
+                                                            createdAt: "$breadIdDetails.createdAt",
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            createdAt: "$breadDetails.createdAt",
+                                        },
+                                        quantity: "$$breadItem.quantity"
+                                    }
+                                }
+                            },
+                            paymentMethod: 1,
+                            delivertId: 1,
+                            magazineId: 1,
+                            money: 1,
+                            createdAt: 1
+                        }
+                    },
+                ])
+                let deliverySellingBread = await SellingBreadModel.aggregate([
+                    {
+                        $lookup: {
+                            from: "sellerbreads",
+                            localField: "typeOfBreadIds.breadId",
+                            foreignField: "_id",
+                            as: "breadDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadDetails",
+                    },
+                    {
+                        $match: {
+                            "deliveryId": new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "breadDetails.typeOfBreadId.breadId",
+                            foreignField: "_id",
+                            as: "breadIdDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadIdDetails",
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            typeOfBreadIds: {
+                                $map: {
+                                    input: "$typeOfBreadIds",
+                                    as: "breadItem",
+                                    in: {
+                                        bread: {
+                                            _id: "$breadDetails._id",
+                                            typeOfBreadId: {
+                                                $map: {
+                                                    input: "$breadDetails.typeOfBreadId",
+                                                    as: "breadIdItem",
+                                                    in: {
+                                                        breadId: {
+                                                            _id: "$breadIdDetails._id",
+                                                            title: "$breadIdDetails.title",
+                                                            price: "$breadIdDetails.price",
+                                                            price2: "$breadIdDetails.price2",
+                                                            price3: "$breadIdDetails.price3",
+                                                            price4: "$breadIdDetails.price4",
+                                                            createdAt: "$breadIdDetails.createdAt",
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            createdAt: "$breadDetails.createdAt",
+                                        },
+                                        quantity: "$$breadItem.quantity"
+                                    }
+                                }
+                            },
+                            paymentMethod: 1,
+                            delivertId: 1,
+                            magazineId: 1,
+                            money: 1,
+                            createdAt: 1
+                        }
+                    },
+                ])
+
+                for (const key of deliverySellingBread) {
+                    let totalPrice = key.typeOfBreadIds.reduce((a, b) => {
+                        return a + b?.bread?.typeOfBreadId.reduce((a, b) => a + b?.breadId?.price, 0)
+                    }, 0)
+                    if (totalPrice - key.money > 0) {
+                        pendingDelivery.push({ ...key })
+                    }
+                }
+
+                return res.status(200).json({
+                    debt: {
+                        totalPrice: DeliveryDebts.reduce((a, b) => a + b.price, 0),
+                        history: DeliveryDebts
+                    },
+                    pending: {
+                        totalPrice: pendingDelivery.reduce((a, b) => a + b.typeOfBreadIds.reduce((a, b) => a + b.bread.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0), 0),
+                        history: pendingDelivery
+                    },
+                    soldBread: {
+                        totalPrice: soldBread.reduce((a, b) => a + b.typeOfBreadIds.reduce((a, b) => a + b.bread.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0), 0),
+                        history: soldBread
+                    }
                 })
                 break;
             default:
