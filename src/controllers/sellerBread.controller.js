@@ -30,7 +30,8 @@ exports.createSellerBread = async (req, res) => {
 
 exports.getSellerBread = async (req, res) => {
     try {
-        const cache = await getCache(`sellerBread`)
+        const cache = null
+        await getCache(`sellerBread`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -48,7 +49,9 @@ exports.getSellerBread = async (req, res) => {
         const data = []
         for (const key of populatedSellerBreads) {
             const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
-            data.push({ ...key, price: price * key.quantity })
+            const totalQuantity = key.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
+            const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
+            data.push({ ...key, price, totalQuantity, totalQopQuantity })
         }
         await setCache(`sellerBread`, data)
         return res.status(200).json({
@@ -101,7 +104,7 @@ exports.updateSellerById = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "seller bread updated",
-            sellerBread:sellerBread
+            sellerBread: sellerBread
         })
     }
     catch (error) {
