@@ -18,8 +18,8 @@ exports.getStatics = async (req, res) => {
         switch (req.use.role) {
             case "superAdmin":
                 let debt1s = await Debt1Model.find({}).populate("sellerId", 'username')
-                let debt2s = await Debt2Model.find({ createdAt: { $gte: startDay, $lte: endDay } }).populate("sellerId", 'username').populate('omborxonaProId', "name price")
-                let deliveryDebt = await DeliveryDebtModel.find({ createdAt: { $gte: startDay, $lte: endDay } }).populate("deliveryId", 'username')
+                let debt2s = await Debt2Model.find({}).populate("sellerId", 'username').populate('omborxonaProId', "name price")
+                let deliveryDebt = await DeliveryDebtModel.find({ }).populate("deliveryId", 'username')
 
                 debt1s = debt1s.map((item) => {
                     return { ...item._doc, role: "seller" }
@@ -33,7 +33,7 @@ exports.getStatics = async (req, res) => {
                     return { ...item._doc, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({ createdAt: { $gte: startDay, $lte: endDay } }).populate("deliveryId", 'username').populate({
+                let deliveryPrixod = await SellingBreadModel.find({ }).populate("deliveryId", 'username').populate({
                     path: "typeOfBreadIds.breadId",
                     populate: {
                         path: "typeOfBreadId.breadId",
