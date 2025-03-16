@@ -46,8 +46,8 @@ exports.getStatics = async (req, res) => {
 
                 const pending = []
                 for (const key of deliveryPrixod) {
-                    let allPrice = key.typeOfBreadIds.reduce((a, b) => {
-                        return a + b.breadId?.typeOfBreadId.reduce((a, b) => {
+                    let allPrice = key.typeOfBreadIds?.reduce((a, b) => {
+                        return a + b?.breadId?.typeOfBreadId?.reduce((a, b) => {
                             return a + b.breadId.price
                         }, 0)
                     }, 0) * key.quantity

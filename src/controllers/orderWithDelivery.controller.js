@@ -30,7 +30,7 @@ exports.createOrderWithDelivery = async (req, res) => {
                     }
 
                     let typeOfBreadIndex = bread.typeOfBreadId.findIndex(i => i.breadId._id.equals(key.typeOfBread));
-
+ 
                     if (typeOfBreadIndex === -1) {
                         return res.status(400).json({
                             success: false,
@@ -67,6 +67,7 @@ exports.createOrderWithDelivery = async (req, res) => {
 
 
         await deleteCache(`orderWithDelivery`)
+        await deleteCache(`sellerBread`)
         return res.status(201).json({
             success: true,
             message: "order with delivery created",
@@ -83,7 +84,8 @@ exports.createOrderWithDelivery = async (req, res) => {
 
 exports.getOrderWithDeliveries = async (req, res) => {
     try {
-        const cache = await getCache(`orderWithDelisvery`)
+        const cache = null
+        // await getCache(`orderWithDelisvery`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -210,12 +212,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                         }
                     }
                 ])
-                orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, typeOfBreadIdss: item.typeOfBreadIds.map((item) => item.bread.typeOfBreadId).flat(Infinity) }
-                })
-                orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIdss.reduce((a, b) => a + b.breadId.price, 0) }
-                })
+
                 break;
             case "delivery":
                 orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
@@ -313,12 +310,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                         }
                     }
                 ])
-                orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, typeOfBreadIdss: item.typeOfBreadIds.map((item) => item.bread.typeOfBreadId).flat(Infinity) }
-                })
-                orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIdss.reduce((a, b) => a + b.breadId.price, 0) }
-                })
                 break;
 
             default:
@@ -341,7 +332,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
 exports.getOrderWithDeliveryById = async (req, res) => {
     try {
-        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id).populate("typeOfBreadIds sellerId deliveryId magazineId")
+        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id).populate("typeOfBreadIds sellerId deliveryId")
         if (!orderWithDelivery) {
             return res.status(404).json({
                 success: false,

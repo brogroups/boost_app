@@ -5,7 +5,7 @@ const MagazineModel = require("./magazine.model");
 const SellingBreadSchema = new Schema({
     typeOfBreadIds: [
         {
-            breadId: { type: Schema.Types.ObjectId, ref: "SellerBread", required: true },
+            breadId: { type: Schema.Types.ObjectId, required: true },
             quantity: { type: Number, required: true }
         }
     ],
