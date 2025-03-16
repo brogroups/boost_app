@@ -72,11 +72,16 @@ exports.getDeliveries = async (req, res) => {
         deliveries: cashe.reverse(),
       });
     }
+
+    const today = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(today.getMonth() - 1);
+
     let deliveries = await DeliveryModel.find({});
     const data = [];
     for (const key of deliveries) {
       const deliveryPayedes = await DeliveryPayedModel.aggregate([
-        { $match: { deliveryId: key._id } },
+        { $match: { deliveryId: key._id, createdAt: { $gte: oneMonthAgo, $lt: today } } },
       ]);
       let totalPrice = deliveryPayedes.reduce((a, b) => {
         switch (b.type) {

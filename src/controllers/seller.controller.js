@@ -71,12 +71,16 @@ exports.getSellers = async (req, res) => {
         sellers: cashedSeller?.reverse(),
       });
     }
+    const today = new Date();
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(today.getMonth() - 1);
+
     let sellers = null;
     if (req.use.role === "superAdmin") {
       sellers = await SellerModel.find({});
     } else {
       sellers = await SellerModel.aggregate([
-        { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } },
+        { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: oneMonthAgo, $lt: today } } },
       ]);
     }
     const data = [];
@@ -163,12 +167,12 @@ exports.updateSeller = async (req, res) => {
       req.params.id,
       password
         ? {
-            username,
-            password: hashPassword,
-            phone,
-            price,
-            updateAt: new Date(),
-          }
+          username,
+          password: hashPassword,
+          phone,
+          price,
+          updateAt: new Date(),
+        }
         : { username, phone, price, updateAt: new Date() },
       { new: true }
     );

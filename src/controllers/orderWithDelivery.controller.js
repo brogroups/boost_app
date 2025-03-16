@@ -1,32 +1,67 @@
 const OrderWithDeliveryModel = require("../models/orderWithDelivery.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { default: mongoose } = require("mongoose")
+const SellerBreadModel = require("../models/sellerBread.model")
+const TypeOfBreadModel = require("../models/typOfbread.model")
 
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
-        const { typeOfBreadIds, quantity, description, sellerId, deliveryId} = req.body
+        const { typeOfBreadIds, description, sellerId, deliveryId } = req.body
         let order = null
         switch (req.use.role) {
             case "superAdmin":
                 order = await OrderWithDeliveryModel.create({
                     typeOfBreadIds,
-                    quantity,
                     description,
                     sellerId,
                     deliveryId,
                 })
                 break;
             case "seller":
+                for (const key of typeOfBreadIds) {
+                    let bread = await SellerBreadModel.findById(key.bread).populate("typeOfBreadId.breadId");
+        
+                    if (!bread) {
+                        return res.status(404).json({
+                            success: false,
+                            message: `Non topilmadi (ID: ${key.bread})`
+                        });
+                    }
+        
+                    let typeOfBreadIndex = bread.typeOfBreadId.findIndex(i => i.breadId._id.equals(key.typeOfBread));
+        
+                    if (typeOfBreadIndex === -1) {
+                        return res.status(400).json({
+                            success: false,
+                            message: "Bunday mahsulot mavjud emas"
+                        });
+                    }
+        
+                    let selectedBread = bread.typeOfBreadId[typeOfBreadIndex];
+        
+                    if (key.quantity > selectedBread.quantity) {
+                        return res.status(400).json({
+                            success: false,
+                            message: `Yetarli non mavjud emas. Ombordagi miqdor: ${selectedBread.quantity}`
+                        });
+                    }
+        
+                    // Non miqdorini yangilash
+                    selectedBread.quantity -= key.quantity;
+                    await SellerBreadModel.findByIdAndUpdate(
+                        bread._id,
+                        { typeOfBreadId: bread.typeOfBreadId },
+                        { new: true }
+                    );
+                }
                 order = await OrderWithDeliveryModel.create({
                     typeOfBreadIds,
-                    quantity,
                     description,
                     sellerId: new mongoose.Types.ObjectId(req.use.id),
                     deliveryId,
-                })
+                });
                 break;
-
             default:
                 break;
         }
@@ -254,13 +289,17 @@ exports.updateOrderWithDelivery = async (req, res) => {
 
 exports.deleteOrderWithDelivery = async (req, res) => {
     try {
-        const orderWithDelivery = await OrderWithDeliveryModel.findByIdAndDelete(req.params.id)
+        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id).populate("typeOfBreadIds.bread typeOfBreadIds.bread.typeOfBreadId.breadId")
         if (!orderWithDelivery) {
             return res.status(404).json({
                 success: false,
                 message: "order with delivery not found"
             })
         }
+        for (const key of orderWithDelivery.typeOfBreadIds) {
+            console.log("key bread",key.bread)
+        }
+        console.log(orderWithDelivery)
         await deleteCache(`orderWithDelivery`)
         return res.status(200).json({
             success: true,

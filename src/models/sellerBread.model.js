@@ -1,7 +1,4 @@
 const { Schema, model } = require("mongoose");
-const TypeOfBread = require("../models/typOfbread.model")
-const SellerModel = require("../models/sellingBread.model")
-
 const SellerBreadSchema = new Schema({
     typeOfBreadId: [
         {

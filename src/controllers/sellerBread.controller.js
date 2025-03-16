@@ -50,7 +50,7 @@ exports.getSellerBread = async (req, res) => {
         for (const key of populatedSellerBreads) {
             const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
             const totalQuantity = key.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
-            const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
+            const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0)
             data.push({ ...key, price, totalQuantity, totalQopQuantity })
         }
         await setCache(`sellerBread`, data)
