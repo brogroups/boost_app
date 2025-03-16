@@ -2,6 +2,7 @@ const SellerBreadModel = require("../models/sellerBread.model")
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
 const { createSelleryPayed } = require("./sellerPayed.controller")
+const { listenerCount } = require("../models/warehouse.model")
 
 
 exports.createSellerBread = async (req, res) => {
@@ -39,19 +40,35 @@ exports.getSellerBread = async (req, res) => {
                 sellerBreads: cache?.reverse()
             })
         }
-        const sellerBreads = await SellerBreadModel.aggregate([
-            { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
-        ])
-        const populatedSellerBreads = await SellerBreadModel.populate(sellerBreads, {
-            path: 'typeOfBreadId.breadId',
-            model: 'TypeOfBread'
-        });
-        const data = []
-        for (const key of populatedSellerBreads) {
-            const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
-            const totalQuantity = key.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
-            const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0)
-            data.push({ ...key, price, totalQuantity, totalQopQuantity })
+        let data = []
+        let sellerBreads = []
+        switch (req.use.role) {
+            case "seller":
+                sellerBreads = await SellerBreadModel.aggregate([
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
+                ])
+                let populatedSellerBreads = await SellerBreadModel.populate(sellerBreads, {
+                    path: 'typeOfBreadId.breadId',
+                    model: 'TypeOfBread'
+                });
+                for (const key of populatedSellerBreads) {
+                    const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
+                    const totalQuantity = key.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
+                    const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0)
+                    data.push({ ...key, price, totalQuantity, totalQopQuantity })
+                }
+                break;
+            case "superAdmin":
+                sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId.breadId")
+                for (const key of sellerBreads) {
+                    const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
+                    const totalQuantity = key.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
+                    const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0)
+                    data.push({ ...key._doc, price, totalQuantity, totalQopQuantity })
+                }
+                break;
+            default:
+                break;
         }
         await setCache(`sellerBread`, data)
         return res.status(200).json({

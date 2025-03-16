@@ -78,7 +78,7 @@ exports.getDeliveryHistory = async (req, res) => {
             case "superAdmin":
                 debt = await DeliveryDebtModel.find({})
 
-                sellingbread = await SellingBreadModel.find({})
+                sellingbread = await SellingBreadModel.find({}).populate("typeOfBreadIds.breadId")
                 break;
             case "delivery":
                 debt = await DeliveryDebtModel.aggregate([
@@ -86,8 +86,96 @@ exports.getDeliveryHistory = async (req, res) => {
                 ])
 
                 sellingbread = await SellingBreadModel.aggregate([
-                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id) } }
-                ])
+                    {
+                        $match: {
+                            deliveryId: new mongoose.Types.ObjectId(req.use.id)
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "orderwithdeliveries", 
+                            localField: "typeOfBreadIds.breadId", 
+                            foreignField: "_id", 
+                            as: "breadDetails"
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$breadDetails",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "sellerbreads",
+                            localField: "breadDetails.typeOfBreadIds.bread",
+                            foreignField: "_id",
+                            as: "sellerBreadDetails"
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$sellerBreadDetails",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "sellerBreadDetails.typeOfBreadId.breadId",
+                            foreignField: "_id",
+                            as: "breadIdDetails"
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$breadIdDetails",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            typeOfBreadIds: {
+                                $map: {
+                                    input: "$typeOfBreadIds",
+                                    as: "breadItem",
+                                    in: {
+                                        breadId: {
+                                            _id: "$breadItem._id",
+                                            typeOfBreadId: {
+                                                $map: {
+                                                    input: "$sellerBreadDetails.typeOfBreadId",
+                                                    as: "breadIdItem",
+                                                    in: {
+                                                        bread: {
+                                                            _id: "$breadIdDetails._id",
+                                                            title: "$breadIdDetails.title",
+                                                            price: "$breadIdDetails.price",
+                                                            price2: "$breadIdDetails.price2",
+                                                            price3: "$breadIdDetails.price3",
+                                                            price4: "$breadIdDetails.price4",
+                                                            createdAt: "$breadIdDetails.createdAt"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            createdAt: "$sellerBreadDetails.createdAt"
+                                        },
+                                        quantity: "$$breadItem.quantity"
+                                    }
+                                }
+                            },
+                            paymentMethod: 1,
+                            deliveryId: 1,
+                            magazineId: 1,
+                            money: 1,
+                            createdAt: 1
+                        }
+                    }
+                ]);
+                
+
                 break;
             default:
                 break;
@@ -96,9 +184,9 @@ exports.getDeliveryHistory = async (req, res) => {
         return res.status(200).json({
             success: true,
             data: [...debt.map((item) => {
-                return { ...item._doc ? item._doc : item, type: "debt" }
+                return { ...item._doc ? item._doc : item, type: "Chiqim" }
             }), ...sellingbread.map((item) => {
-                return { ...item._doc ? item._doc : item, type: "selling shop" }
+                return { ...item._doc ? item._doc : item, type: "sotilgan" }
             })]
         })
     }
