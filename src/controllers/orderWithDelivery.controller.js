@@ -7,63 +7,52 @@ const TypeOfBreadModel = require("../models/typOfbread.model")
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
-        const { typeOfBreadIds, description, sellerId, deliveryId } = req.body
         let order = null
+        for (const key of req.body.typeOfBreadIds) {
+            let typeOfWareHouse = await TypeOfBreadModel.findById(key.typeOfBread);
+            console.log(key)
+            console.log(typeOfWareHouse)
+            if (!typeOfWareHouse) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Mahsulot topilmadi (ID: ${key.omborxonaProId})`
+                });
+            }
+
+            if (key.quantity > typeOfWareHouse.quantity) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.quantity}`
+                });
+            }
+
+            typeOfWareHouse.quantity -= key.quantity;
+            await TypeOfBreadModel.findByIdAndUpdate(
+                key.omborxonaProId,
+                { quantity: typeOfWareHouse.quantity },
+                { new: true }
+            );
+        }
         switch (req.use.role) {
-            case "superAdmin":
-                order = await OrderWithDeliveryModel.create({
-                    typeOfBreadIds,
-                    description,
-                    sellerId,
-                    deliveryId,
-                })
-                break;
             case "seller":
-                for (const key of typeOfBreadIds) {
-                    let bread = await SellerBreadModel.findById(key.bread).populate("typeOfBreadId.breadId");
-
-                    if (!bread) {
-                        return res.status(404).json({
-                            success: false,
-                            message: `Non topilmadi (ID: ${key.bread})`
-                        });
-                    }
-
-                    let typeOfBreadIndex = bread.typeOfBreadId.findIndex(i => i.breadId._id.equals(key.typeOfBread));
- 
-                    if (typeOfBreadIndex === -1) {
-                        return res.status(400).json({
-                            success: false,
-                            message: "Bunday mahsulot mavjud emas"
-                        });
-                    }
-
-                    let selectedBread = bread.typeOfBreadId[typeOfBreadIndex];
-
-                    if (key.quantity > selectedBread.quantity) {
-                        return res.status(400).json({
-                            success: false,
-                            message: `Yetarli non mavjud emas. Ombordagi miqdor: ${selectedBread.quantity}`
-                        });
-                    }
-
-                    selectedBread.quantity -= key.quantity;
-                    await SellerBreadModel.findByIdAndUpdate(
-                        bread._id,
-                        { typeOfBreadId: bread.typeOfBreadId },
-                        { new: true }
-                    );
-                }
                 order = await OrderWithDeliveryModel.create({
-                    typeOfBreadIds,
-                    description,
+                    ...req.body,
                     sellerId: new mongoose.Types.ObjectId(req.use.id),
-                    deliveryId,
                 });
                 break;
-            default:
+
+            case "superAdmin":
+            case "manager":
+                order = await OrderWithDeliveryModel.create(req.body);
                 break;
+
+            default:
+                return res.status(403).json({
+                    success: false,
+                    message: "Ruxsat yo'q"
+                });
         }
+
 
 
         await deleteCache(`orderWithDelivery`)
@@ -99,7 +88,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
             case "superAdmin":
                 orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("sellerId", 'username').populate("deliveryId", "username").populate("typeOfBreadIds.bread")
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item._doc, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.bread?.price, 0) }
+                    return { ...item._doc, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.breadId?.price, 0) }
                 })
                 break;
             case "seller":
@@ -181,38 +170,27 @@ exports.getOrderWithDeliveries = async (req, res) => {
                             createdAt: 1,
                             typeOfBreadIds: {
                                 $map: {
-                                    input: "$typeOfBreadIds",
-                                    as: "breadItem",
+                                    input: "$breadDetails.typeOfBreadId",
+                                    as: "breadIdItem",
                                     in: {
-                                        bread: {
-                                            _id: "$breadDetails._id",
-                                            typeOfBreadId: {
-                                                $map: {
-                                                    input: "$breadDetails.typeOfBreadId",
-                                                    as: "breadIdItem",
-                                                    in: {
-                                                        breadId: {
-                                                            _id: "$breadIdDetails._id",
-                                                            title: "$breadIdDetails.title",
-                                                            price: "$breadIdDetails.price",
-                                                            price2: "$breadIdDetails.price2",
-                                                            price3: "$breadIdDetails.price3",
-                                                            price4: "$breadIdDetails.price4",
-                                                            createdAt: "$breadIdDetails.createdAt",
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            createdAt: "$breadDetails.createdAt",
-                                        },
-                                        quantity: "$$breadItem.quantity"
+                                        breadId: {
+                                            _id: "$breadIdDetails._id",
+                                            title: "$breadIdDetails.title",
+                                            price: "$breadIdDetails.price",
+                                            price2: "$breadIdDetails.price2",
+                                            price3: "$breadIdDetails.price3",
+                                            price4: "$breadIdDetails.price4",
+                                            createdAt: "$breadIdDetails.createdAt",
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 ])
-
+                orderWithDeliveries = orderWithDeliveries.map((item) => {
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.breadId?.price, 0) }
+                })
                 break;
             case "delivery":
                 orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
@@ -310,6 +288,9 @@ exports.getOrderWithDeliveries = async (req, res) => {
                         }
                     }
                 ])
+                orderWithDeliveries = orderWithDeliveries.map((item) => {
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.breadId?.price, 0) }
+                })
                 break;
 
             default:
