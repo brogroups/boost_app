@@ -22,7 +22,8 @@ exports.createSellingBread = async (req, res) => {
         let delivery = await DeliveryModel.findById(sellingBread.deliveryId)
         if (delivery) {
             await createdeliveryPayed({ body: { deliveryId: delivery._id, price: sellingBread.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) * delivery.price, status: "To`landi", type: "Kunlik" }, res: {} })
-            await sellingBread.save()
+            console.log(sellingBread)
+            // await sellingBread.save()
         } else {
             return res.status(404).json({
                 success: false,
@@ -47,8 +48,7 @@ exports.createSellingBread = async (req, res) => {
 
 exports.getSellingBread = async (req, res) => {
     try {
-        const cache = null
-        await getCache(`sellingBread`)
+        const cache = await getCache(`sellingBread`)
         if (cache) {
             return res.status(200).json({
                 success: true,

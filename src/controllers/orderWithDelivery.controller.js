@@ -86,7 +86,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
         switch (req.use.role) {
             case "superAdmin":
-                orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("sellerId", 'username').populate("deliveryId", "username").populate("typeOfBreadIds.bread")
+                orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("sellerId", 'username').populate("deliveryId", "username")
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
                     return { ...item._doc, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.breadId?.price, 0) }
                 })
@@ -163,10 +163,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                 _id: "$deliveryDetails._id",
                                 username: "$deliveryDetails.username"
                             },
-                            // magazineId: {
-                            //     _id: "$magazineDetails._id",
-                            //     title: "$magazineDetails.title"
-                            // },
                             createdAt: 1,
                             typeOfBreadIds: {
                                 $map: {
@@ -253,35 +249,21 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                 _id: "$deliveryDetails._id",
                                 username: "$deliveryDetails.username"
                             },
-
                             createdAt: 1,
                             typeOfBreadIds: {
                                 $map: {
-                                    input: "$typeOfBreadIds",
-                                    as: "breadItem",
+                                    input: "$breadDetails.typeOfBreadId",
+                                    as: "breadIdItem",
                                     in: {
-                                        bread: {
-                                            _id: "$breadDetails._id",
-                                            typeOfBreadId: {
-                                                $map: {
-                                                    input: "$breadDetails.typeOfBreadId",
-                                                    as: "breadIdItem",
-                                                    in: {
-                                                        breadId: {
-                                                            _id: "$breadIdDetails._id",
-                                                            title: "$breadIdDetails.title",
-                                                            price: "$breadIdDetails.price",
-                                                            price2: "$breadIdDetails.price2",
-                                                            price3: "$breadIdDetails.price3",
-                                                            price4: "$breadIdDetails.price4",
-                                                            createdAt: "$breadIdDetails.createdAt",
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            createdAt: "$breadDetails.createdAt",
-                                        },
-                                        quantity: "$$breadItem.quantity"
+                                        breadId: {
+                                            _id: "$breadIdDetails._id",
+                                            title: "$breadIdDetails.title",
+                                            price: "$breadIdDetails.price",
+                                            price2: "$breadIdDetails.price2",
+                                            price3: "$breadIdDetails.price3",
+                                            price4: "$breadIdDetails.price4",
+                                            createdAt: "$breadIdDetails.createdAt",
+                                        }
                                     }
                                 }
                             }

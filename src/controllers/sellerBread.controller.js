@@ -32,7 +32,8 @@ exports.createSellerBread = async (req, res) => {
 
 exports.getSellerBread = async (req, res) => {
     try {
-        const cache = await getCache(`sellerBread`)
+        const cache = null
+         await getCache(`sellerBread`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -107,29 +108,15 @@ exports.getSellerBread = async (req, res) => {
                     }
                 },
                 {
-                    $lookup: {
-                        from: "typeofbreads",
-                        localField: "breadDetails.typeOfBreadId.breadId",
-                        foreignField: "_id",
-                        as: "breadIdDetails"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$breadIdDetails",
-                    }
-                },
-                {
                     $project: {
                         _id: 1,
                         typeOfBreadIds: {
                             $map: {
-                                input: "$breadDetails.typeOfBreadId",
+                                input: "$typeOfBreadIds",
                                 as: "typeOfBreadItem",
                                 in: {
-                                    bread: "$breadIdDetails",
+                                    breadId: "$breadIdDetails",
                                     quantity: "$$typeOfBreadItem.quantity",
-                                    qopQuantity: "$$typeOfBreadItem.qopQuantity"
                                 }
                             }
                         },
