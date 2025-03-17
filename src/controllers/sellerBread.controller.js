@@ -32,8 +32,7 @@ exports.createSellerBread = async (req, res) => {
 
 exports.getSellerBread = async (req, res) => {
     try {
-        const cache = null
-         await getCache(`sellerBread`)
+        const cache =  await getCache(`sellerBread`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -124,7 +123,7 @@ exports.getSellerBread = async (req, res) => {
                     }
                 }
             ]);
-            return { ...key, history: sellingBread.map((i)=>i.typeOfBreadIds.map((it)=>it)).flat(Infinity) };
+            return { ...key, history: sellingBread.map((i)=>i.typeOfBreadIds).flat(Infinity) };
         }));
         await setCache(`sellerBread`, updatedData)
         return res.status(200).json({

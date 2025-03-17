@@ -36,8 +36,7 @@ exports.createDebt1 = async (req, res) => {
 
 exports.getDebt1s = async (req, res) => {
     try {
-        const cashe = null
-        // await getCache(`debt1`)
+        const cashe = await getCache(`debt1`)
         if (cashe) {
             return res.status(200).json({
                 success: true,

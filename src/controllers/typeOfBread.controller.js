@@ -23,8 +23,7 @@ exports.createTypeOfBread = async (req, res) => {
 
 exports.getTypeOfBread = async (req, res) => {
     try {
-        const cache = null
-        // await getCache(`typeOfbread`)
+        const cache = await getCache(`typeOfbread`)
         if (cache) {
             return res.status(200).json({
                 success: true,

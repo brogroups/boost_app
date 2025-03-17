@@ -766,3 +766,4 @@ exports.getStatics = async (req, res) => {
         console.error(error)
     }
 }
+

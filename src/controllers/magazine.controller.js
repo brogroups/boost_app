@@ -23,7 +23,8 @@ exports.createMagazine = async (req, res) => {
 
 exports.getMagazines = async (req, res) => {
     try {
-        const cache = await getCache(`magazine`)
+        const cache = null
+        await getCache(`magazine`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -39,6 +40,28 @@ exports.getMagazines = async (req, res) => {
                 { $match: { magazineId: key._id } },
                 {
                     $lookup: {
+                        from: "sellerbreads",
+                        localField: "typeOfBreadIds.breadId",
+                        foreignField: "_id",
+                        as: "breadDetails"
+                    }
+                },
+                {
+                    $unwind: "$breadDetails",
+                },
+                {
+                    $lookup: {
+                        from: "typeofbreads",
+                        localField: "breadDetails.typeOfBreadId.breadId",
+                        foreignField: "_id",
+                        as: "breadIdDetails"
+                    }
+                },
+                {
+                    $unwind: "$breadIdDetails",
+                },
+                {
+                    $lookup: {
                         from: "deliveries",
                         localField: "deliveryId",
                         foreignField: "_id",
@@ -49,50 +72,43 @@ exports.getMagazines = async (req, res) => {
                     $unwind: "$delivery"
                 },
                 {
-                    $lookup: {
-                        from: "typeofbreads",
-                        localField: "typeOfBreadIds",
-                        foreignField: "_id",
-                        as: "typeOfBreads"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "magazines",
-                        localField: "magazineId",
-                        foreignField: "_id",
-                        as: "magazine"
-                    }
-                },
-                {
-                    $unwind: "$magazine"
-                },
-                {
                     $project: {
                         _id: 1,
-                        quantity: 1,
-                        typeOfBreads: 1,
-                        quantity: 1,
+                        typeOfBreadIds: {
+                            $map: {
+                                input: "$typeOfBreadIds",
+                                as: "breadItem",
+                                in: {
+                                    breadId: {
+                                        _id: "$breadIdDetails._id",
+                                        title: "$breadIdDetails.title",
+                                        price: "$breadIdDetails.price",
+                                        price2: "$breadIdDetails.price2",
+                                        price3: "$breadIdDetails.price3",
+                                        price4: "$breadIdDetails.price4",
+                                        createdAt: "$breadIdDetails.createdAt",
+                                    },
+                                    quantity: "$$breadItem.quantity"
+                                }
+                            }
+                        },
                         paymentMethod: 1,
-                        money: 1,
-                        createdAt: 1,
-                        delivery: {
-                            _id: 1,
+                        deliveryId: {
+                            _id: "$delivery._id",
                             username: "$delivery.username"
                         },
-                        magazine: {
-                            _id: 1,
-                            title: "$magazine.title"
-                        }
+                        magazineId: 1,
+                        money: 1,
+                        createdAt: 1
                     }
-                }
+                },
             ])
-            sellingBreadToMagazines = sellingBreadToMagazines.map((item) => {
-                let totalPrice = item.typeOfBreads.reduce((a, b) => a + b.price, 0) * item.quantity
-                let pending = item.typeOfBreads.reduce((a, b) => a + b.price, 0)
+            sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
+                let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
+                let pending = item?.typeOfBreadIds?.reduce((a, b) => a + b?.breadId?.price, 0) - item.money
                 return { ...item, totalPrice, pending }
             })
-            data.push({ ...key._doc, history: sellingBreadToMagazines, totalPrice: 0 })
+            data.push({ ...key._doc, history: sellingBreadToMagazines, pending: sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) })
         }
 
 

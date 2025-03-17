@@ -73,8 +73,7 @@ exports.createOrderWithDelivery = async (req, res) => {
 
 exports.getOrderWithDeliveries = async (req, res) => {
     try {
-        const cache = null
-        // await getCache(`orderWithDelisvery`)
+        const cache = await getCache(`orderWithDelisvery`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -263,7 +262,8 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                             price3: "$breadIdDetails.price3",
                                             price4: "$breadIdDetails.price4",
                                             createdAt: "$breadIdDetails.createdAt",
-                                        }
+                                        },
+                                        _id: "$breadDetails._id"
                                     }
                                 }
                             }
