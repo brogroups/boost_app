@@ -3,6 +3,7 @@ const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
 const { createSelleryPayed } = require("./sellerPayed.controller")
 const { listenerCount } = require("../models/warehouse.model")
+const SellingBreadModel = require("../models/sellingBread.model")
 
 
 exports.createSellerBread = async (req, res) => {
@@ -31,8 +32,7 @@ exports.createSellerBread = async (req, res) => {
 
 exports.getSellerBread = async (req, res) => {
     try {
-        const cache = null
-        await getCache(`sellerBread`)
+        const cache = await getCache(`sellerBread`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -51,12 +51,13 @@ exports.getSellerBread = async (req, res) => {
                     path: 'typeOfBreadId.breadId',
                     model: 'TypeOfBread'
                 });
-                for (const key of populatedSellerBreads) {
-                    const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
-                    const totalQuantity = key.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
-                    const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0)
-                    data.push({ ...key, price, totalQuantity, totalQopQuantity })
-                }
+                data = populatedSellerBreads.map((key) => {
+                    const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
+                    const totalQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.quantity || 0), 0);
+                    const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
+
+                    return { ...key, price, totalQuantity, totalQopQuantity };
+                });
                 break;
             case "superAdmin":
                 sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId.breadId")
@@ -70,11 +71,79 @@ exports.getSellerBread = async (req, res) => {
             default:
                 break;
         }
-        await setCache(`sellerBread`, data)
+        let updatedData = await Promise.all(data.map(async (key) => {
+            let sellingBread = await SellingBreadModel.aggregate([
+                {
+                    $lookup: {
+                        from: "sellerbreads",
+                        localField: "typeOfBreadIds.breadId",
+                        foreignField: "_id",
+                        as: "breadDetails"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$breadDetails",
+                        preserveNullAndEmptyArrays: true
+
+                    }
+                },
+                {
+                    $match: {
+                        "breadDetails._id": key._id
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "typeofbreads",
+                        localField: "breadDetails.typeOfBreadId.breadId",
+                        foreignField: "_id",
+                        as: "breadIdDetails"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$breadIdDetails",
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "typeofbreads",
+                        localField: "breadDetails.typeOfBreadId.breadId",
+                        foreignField: "_id",
+                        as: "breadIdDetails"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$breadIdDetails",
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        typeOfBreadIds: {
+                            $map: {
+                                input: "$breadDetails.typeOfBreadId",
+                                as: "typeOfBreadItem",
+                                in: {
+                                    bread: "$breadIdDetails",
+                                    quantity: "$$typeOfBreadItem.quantity",
+                                    qopQuantity: "$$typeOfBreadItem.qopQuantity"
+                                }
+                            }
+                        },
+                        createdAt: 1
+                    }
+                }
+            ]);
+            return { ...key, history: sellingBread.map((i)=>i.typeOfBreadIds.map((it)=>it)).flat(Infinity) };
+        }));
+        await setCache(`sellerBread`, updatedData)
         return res.status(200).json({
             success: true,
             message: "list of seller breads",
-            sellerBreads: data.reverse()
+            sellerBreads: updatedData.reverse()
         })
     }
     catch (error) {
