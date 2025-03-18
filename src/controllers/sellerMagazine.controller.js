@@ -7,8 +7,8 @@ exports.create = async (req, res) => {
         let sellerMagazine;
         if (req.use.role === "superAdmin") {
             sellerMagazine = await SellerMagazineModel.create(req.body)
-        } else if (req.use.role === "seller") {
-            sellerMagazine = await SellerMagazineModel.create({ ...req.body, sellerId: req.use.id })
+        } else if (req.use.role === "manager") {
+            sellerMagazine = await SellerMagazineModel.create({ ...req.body, managerId: new mongoose.Types.ObjectId(req.use.id) })
         } else {
             return;
         }
@@ -35,14 +35,17 @@ exports.findAll = async (req, res) => {
                         path: "breadId"
                     }
                 }
-            }).populate("sellerId", 'username')
+            })
             sellerMagazines = sellerMagazines.map((item) => {
                 let totalPrice = item.price * item.quantity
                 return { ...item?._doc, totalPrice }
             })
         }
-        else if (req.use.role === "seller") {
+        else if (req.use.role === "manager") {
             sellerMagazines = await SellerMagazineModel.aggregate([
+                {
+                    $match: { managerId: new mongoose.Types.ObjectId(req.use.id) }
+                },
                 {
                     $lookup: {
                         from: 'sellerbreads',
@@ -76,21 +79,10 @@ exports.findAll = async (req, res) => {
                 {
                     $unwind: '$breadDetails'
                 },
-                {
-                    $lookup: {
-                        from: 'sellers',
-                        localField: 'sellerId',
-                        foreignField: '_id',
-                        as: 'sellerDetails'
-                    }
-                },
-                {
-                    $unwind: '$sellerDetails'
-                },
+
                 {
                     $project: {
                         sellerBreadId: 1,
-                        sellerId: 1,
                         quantity: 1,
                         price: 1,
                         totalPrice: { $multiply: ['$quantity', '$price'] },
@@ -106,7 +98,7 @@ exports.findAll = async (req, res) => {
                 return { ...item, totalPrice }
             }).reverse()
         }
-        await setCache('sellerMagazine',sellerMagazines)
+        await setCache('sellerMagazine', sellerMagazines)
         return res.status(200).json(sellerMagazines.reverse())
     }
     catch (error) {

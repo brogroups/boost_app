@@ -26,7 +26,8 @@ exports.createTypeOfWareHouse = async (req, res) => {
 
 exports.getTypeOfWareHouse = async (req, res) => {
     try {
-        const typeOfWareHousesCache = await getCache("typeOfWareHouse")
+        const typeOfWareHousesCache = null
+        await getCache("typeOfWareHouse")
         if (typeOfWareHousesCache) {
             return res.status(200).json({
                 success: true,
@@ -50,17 +51,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
                 {
                     $unwind: "$omborxona"
                 },
-                {
-                    $lookup: {
-                        from: "sellers",
-                        localField: "sellerId",
-                        foreignField: "_id",
-                        as: "seller"
-                    }
-                },
-                {
-                    $unwind: "$seller"
-                },
+
                 {
                     $project: {
                         _id: 1,
@@ -71,10 +62,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
                             name: "$omborxona.name",
                             price: "$omborxona.price",
                         },
-                        seller: {
-                            _id: "$seller._id",
-                            username: "$seller.username"
-                        },
+
                         createdAt: 1,
                     }
                 }
@@ -94,19 +82,19 @@ exports.getTypeOfWareHouse = async (req, res) => {
 
             const warehouse = history[history.length - 1]
 
-            debtQuantity = history.reduce((a, b) => {
-                return b.type === "Qarz" ? b.quantity - a : a
-            }, 0)
+            // debtQuantity = history.reduce((a, b) => {
+            //     return b.type === "Qarz" ? b.quantity - a : a
+            // }, 0)
 
-            payedQuantity = history.reduce((a, b) => {
-                return b.type === "to'landi" ? a + b.quantity : a
-            }, 0)
-            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * key.quantity })
+            // payedQuantity = history.reduce((a, b) => {
+            //     return b.type === "to'landi" ? a + b.quantity : a
+            // }, 0)
+            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: history.reduce((a, b) => b.type === "to`landi" ? a + (b.price * b.quantity) : b.type == "Qarz" ? a - (b.price * b.quantity) : a + (b.price * b.quantity), 0), totalQuantity: history.reduce((a, b) => b.type === "to`landi" ? a + b.quantity : b.type == "Qarz" ? a - b.quantity:a + b.quantity, 0) })
         }
         await setCache("typeOfWareHouse", data)
-        if (req.use.role !== "superAdmin") {
-            data = data.filter((i) => i.quantity > 0).filter((i) => i.status == true);
-        }
+        // if (req.use.role !== "superAdmin") {
+        //     data = data.filter((i) => i.quantity > 0).filter((i) => i.status == true);
+        // }
 
         return res.status(200).json({
             success: true,
@@ -147,13 +135,15 @@ exports.getTypeOfWareHouseById = async (req, res) => {
 
 exports.updateTypeOfWareHouse = async (req, res) => {
     try {
-        const typeOfWareHouse = await TypeOfWareHouse.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true })
+        const typeOfWareHouse = await TypeOfWareHouse.findById(req.params.id)
         if (!typeOfWareHouse) {
             return res.status(404).json({
                 success: false,
                 message: "type of ware house not found"
             })
         }
+        // , { ...req.body, updateAt: new Date() }, { new: true }
+        typeOfWareHouse.price += req.body.price
         await deleteCache(`typeOfWareHouse`)
         return res.status(200).json({
             success: true,

@@ -9,9 +9,9 @@ const DeliveryDebtModel = require("../models/deliveryDebt.model");
 exports.createDebt2 = async (req, res) => {
     try {
         let newDebt2;
-        if (req.use.role === "seller") {
-            newDebt2 = await Debt2Model.create({ ...req.body, sellerId: req.use.id })
-        } else if (req.use.role === "superAdmin" || req.use.role === "manager") {
+        if (req.use.role === "manager") {
+            newDebt2 = await Debt2Model.create({ ...req.body, managerId: new mongoose.Types.ObjectId(req.use.id )})
+        } else if (req.use.role === "superAdmin") {
             newDebt2 = await Debt2Model.create(req.body)
         }
         let typeOfWareHouse = await TypeOfWareHouseModel.findById(newDebt2.omborxonaProId)
@@ -57,11 +57,11 @@ exports.getDebt2s = async (req, res) => {
         let deliveryDebts = []
         let debts = []
         switch (req.use.role) {
-            case "seller":
+            case "manager":
                 debt2s = await Debt2Model.aggregate([
                     {
                         $match: {
-                            sellerId: new mongoose.Types.ObjectId(req.use.id)
+                            managerId: new mongoose.Types.ObjectId(req.use.id)
                         }
                     },
                     {
@@ -76,17 +76,6 @@ exports.getDebt2s = async (req, res) => {
                         $unwind: "$omborxona"
                     },
                     {
-                        $lookup: {
-                            from: "sellers",
-                            localField: "sellerId",
-                            foreignField: "_id",
-                            as: "seller"
-                        }
-                    },
-                    {
-                        $unwind: "$seller"
-                    },
-                    {
                         $project: {
                             _id: 1,
                             quantity: 1,
@@ -97,10 +86,7 @@ exports.getDebt2s = async (req, res) => {
                                 name: "$omborxona.name",
                                 price: "$omborxona.price",
                             },
-                            seller: {
-                                _id: "$seller._id",
-                                username: "$seller.username"
-                            }
+                           
                         }
                     }
                 ]);
@@ -138,21 +124,9 @@ exports.getDebt2s = async (req, res) => {
                 // ])
                 debts = [...debt2s]
                 break;
-            case "manager":
-                debt2s = await Debt2Model.find({}).populate("omborxonaProId sellerId")
-                debt1s = await Debt1Model.find({}).populate("sellerId")
-                deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
-                debts = [...debt2s.map((item) => {
-                    return { ...item._doc, role: "seller" }
-                }), ...debt1s.map((item) => {
-                    return { ...item._doc, role: "seller" }
-                }), ...deliveryDebts.map((item) => {
-                    return { ...item._doc, role: "delivery" }
-                })]
-                break;
             case "superAdmin":
-                debt2s = await Debt2Model.find({}).populate("omborxonaProId sellerId")
-                debt1s = await Debt1Model.find({}).populate("sellerId")
+                debt2s = await Debt2Model.find({}).populate("omborxonaProId")
+                debt1s = await Debt1Model.find({})
                 deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
                 debts = [...debt2s.map((item) => {
                     return { ...item._doc, role: "seller" }
