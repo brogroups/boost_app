@@ -85,9 +85,9 @@ exports.getTypeOfWareHouse = async (req, res) => {
             ])
 
             const history = warehouses.map((item) => {
-                return { ...item, totalPrice: item.price * item.quantity, type: "payed" }
+                return { ...item, totalPrice: item.price * item.quantity, type: "to'landi" }
             }).concat(debt.map((item) => {
-                return { ...item, totalPrice: item.omborxonaProId.price * item.quantity, type: "debt" }
+                return { ...item, totalPrice: item.omborxonaProId.price * item.quantity, type: "Qarz" }
             }))
 
 
@@ -95,11 +95,11 @@ exports.getTypeOfWareHouse = async (req, res) => {
             const warehouse = history[history.length - 1]
 
             debtQuantity = history.reduce((a, b) => {
-                return b.type === "debt" ? b.quantity - a : a
+                return b.type === "Qarz" ? b.quantity - a : a
             }, 0)
 
             payedQuantity = history.reduce((a, b) => {
-                return b.type === "payed" ? a + b.quantity : a
+                return b.type === "to'landi" ? a + b.quantity : a
             }, 0)
             data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: (warehouse?.price ? warehouse?.price : key.price) * key.quantity })
         }

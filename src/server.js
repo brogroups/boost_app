@@ -139,7 +139,7 @@ const StartServer = async () => {
       await SuperAdminModel.create({
         username: "admin",
         password: hashPassword,
-        login: "Sanjarbek",
+        login: "admin",
         refreshToken,
       });
       console.log("super admin created");

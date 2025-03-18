@@ -176,7 +176,8 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                             price3: "$breadIdDetails.price3",
                                             price4: "$breadIdDetails.price4",
                                             createdAt: "$breadIdDetails.createdAt",
-                                        }
+                                        },
+                                        quantity: '$$breadIdItem.quantity'
                                     }
                                 }
                             }
@@ -364,7 +365,6 @@ exports.deleteOrderWithDelivery = async (req, res) => {
                 });
             }
 
-            // **to‘g‘ri typeOfBreadId elementini topamiz**
             let typeOfBreadIndex = bread.typeOfBreadId.findIndex(i => i.breadId._id.equals(key.bread.typeOfBreadId[0].breadId._id));
 
             if (typeOfBreadIndex === -1) {
@@ -376,8 +376,6 @@ exports.deleteOrderWithDelivery = async (req, res) => {
 
             let selectedBread = bread.typeOfBreadId[typeOfBreadIndex];
 
-            // **O‘chirilgan buyurtmadagi non miqdorini yana qo‘shamiz**
-            selectedBread.quantity += key.quantity;
 
             await SellerBreadModel.findByIdAndUpdate(
                 bread._id,
@@ -386,7 +384,6 @@ exports.deleteOrderWithDelivery = async (req, res) => {
             );
         }
 
-        // **Orderni bazadan o‘chiramiz**
         await OrderWithDeliveryModel.findByIdAndDelete(req.params.id);
 
         await deleteCache(`orderWithDelivery`);

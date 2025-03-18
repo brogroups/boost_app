@@ -24,7 +24,7 @@ exports.createMagazine = async (req, res) => {
 exports.getMagazines = async (req, res) => {
     try {
         const cache = null
-        await getCache(`magazine`)
+         await getCache(`magazine`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -108,7 +108,7 @@ exports.getMagazines = async (req, res) => {
                 let pending = item?.typeOfBreadIds?.reduce((a, b) => a + b?.breadId?.price, 0) - item.money
                 return { ...item, totalPrice, pending }
             })
-            data.push({ ...key._doc, history: sellingBreadToMagazines, pending: sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) })
+            data.push({ ...key._doc, history: sellingBreadToMagazines, pending: sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) - key.pending })
         }
 
 
@@ -201,3 +201,31 @@ exports.deleteMagazine = async (req, res) => {
         })
     }
 }
+
+exports.updateMagazinePending = async (req, res) => {
+    try {
+        const { pending } = req.body;
+        const magazine = await MagazineModel.findById(req.params.id);
+        if (!magazine) {
+            return res.status(404).json({
+                success: false,
+                message: "Magazine not found"
+            });
+        }
+        magazine.pending -= pending;
+        await magazine.save();
+        await deleteCache(`magazine`);
+
+        return res.status(200).json({
+            success: true,
+            message: "Magazine's pending status updated successfully",
+            magazine
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
