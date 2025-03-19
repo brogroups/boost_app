@@ -1,7 +1,8 @@
 const Joi = require("joi");
 
 const CreateSellingBreadSchema = Joi.object({
-    typeOfBreadIds: Joi.array().required(),
+    breadId: Joi.string().required(),
+    quantity: Joi.number().required(),
     paymentMethod: Joi.string().required(),
     deliveryId: Joi.string().optional(),
     magazineId: Joi.string().required(),
@@ -9,7 +10,8 @@ const CreateSellingBreadSchema = Joi.object({
 })
 
 const UpdateSellingBreadSchema = Joi.object({
-    typeOfBreadIds: Joi.array().required(),
+    breadId: Joi.string().required(),
+    quantity: Joi.number().required(),
     paymentMethod: Joi.string().required(),
     deliveryId: Joi.string().optional(),
     magazineId: Joi.string().required(),

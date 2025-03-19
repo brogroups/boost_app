@@ -41,7 +41,7 @@ exports.getMagazines = async (req, res) => {
                 {
                     $lookup: {
                         from: "sellerbreads",
-                        localField: "typeOfBreadIds.breadId",
+                        localField: "breadId",
                         foreignField: "_id",
                         as: "breadDetails"
                     }
@@ -76,7 +76,7 @@ exports.getMagazines = async (req, res) => {
                         _id: 1,
                         typeOfBreadIds: {
                             $map: {
-                                input: "$typeOfBreadIds",
+                                input: "$breadDetails.typeOfBreadId",
                                 as: "breadItem",
                                 in: {
                                     breadId: {

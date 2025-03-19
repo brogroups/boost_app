@@ -101,8 +101,6 @@ app.use("/api/refreshToken", async (req, res) => {
 
   try {
     jwt.verify(refreshToken, process.env.JWT_TOKEN_REFRESH, (err, user) => {
-      console.log(err);
-      console.log(user);
 
       if (err) return res.status(403).json({ success: false, message: err.message });
 

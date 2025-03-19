@@ -2,13 +2,12 @@ const OrderWithDeliveryModel = require("../models/orderWithDelivery.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { default: mongoose } = require("mongoose")
 const SellerBreadModel = require("../models/sellerBread.model")
-const TypeOfBreadModel = require("../models/typOfbread.model")
 
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
         for (const key of req.body.typeOfBreadIds) {
-            let typeOfWareHouse = await TypeOfBreadModel.findById(key.typeOfBread);
+            let typeOfWareHouse = await SellerBreadModel.findById(key.bread);
             if (!typeOfWareHouse) {
                 return res.status(404).json({
                     success: false,
@@ -16,17 +15,17 @@ exports.createOrderWithDelivery = async (req, res) => {
                 });
             }
 
-            if (key.quantity > typeOfWareHouse.quantity) {
+            if (key.quantity > typeOfWareHouse.totalQuantity) {
                 return res.status(400).json({
                     success: false,
                     message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.quantity}`
                 });
             }
 
-            typeOfWareHouse.quantity -= key.quantity;
-            await TypeOfBreadModel.findByIdAndUpdate(
-                key.omborxonaProId,
-                { quantity: typeOfWareHouse.quantity },
+            typeOfWareHouse.totalQuantity -= key.quantity;
+            await SellerBreadModel.findByIdAndUpdate(
+                key.bread,
+                { totalQuantity: typeOfWareHouse.totalQuantity },
                 { new: true }
             );
         }
@@ -183,7 +182,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     },
                     {
                         $unwind: "$deliveryDetails",
-                        preserveNullAndEmptyArrays: true
                     },
                     {
                         $lookup: {
@@ -206,8 +204,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     },
                     {
                         $unwind: "$breadIdDetails",
-                        preserveNullAndEmptyArrays: true
-
                     },
                     {
                         $project: {
@@ -260,7 +256,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     },
                     {
                         $unwind: "$deliveryDetails",
-
                     },
                     {
                         $lookup: {
@@ -288,7 +283,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                         $project: {
                             description: 1,
                             quantity: 1,
-
                             deliveryId: {
                                 _id: "$deliveryDetails._id",
                                 username: "$deliveryDetails.username"
@@ -308,11 +302,12 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                             price4: "$breadIdDetails.price4",
                                             createdAt: "$breadIdDetails.createdAt",
                                         },
+                                        quantity: "$$breadIdItem.quantity",
                                         _id: "$breadDetails._id"
                                     }
                                 }
                             },
-                            totalQuantity: { $sum: "$breadDetails.typeOfBreadId.quantity" }
+                            totalQuantity: { $sum: "$typeOfBreadIds.quantity" }
                         }
                     },
 
@@ -402,29 +397,10 @@ exports.deleteOrderWithDelivery = async (req, res) => {
 
         for (const key of orderWithDelivery.typeOfBreadIds) {
             let bread = await SellerBreadModel.findById(key.bread).populate("typeOfBreadId.breadId");
-
-            if (!bread) {
-                return res.status(404).json({
-                    success: false,
-                    message: `Non topilmadi (ID: ${key.bread})`
-                });
-            }
-
-            let typeOfBreadIndex = bread.typeOfBreadId.findIndex(i => i.breadId._id.equals(key.bread.typeOfBreadId[0].breadId._id));
-
-            if (typeOfBreadIndex === -1) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Bunday mahsulot mavjud emas"
-                });
-            }
-
-            let selectedBread = bread.typeOfBreadId[typeOfBreadIndex];
-
-
+            bread.totalQuantity += key.quantity
             await SellerBreadModel.findByIdAndUpdate(
-                bread._id,
-                { typeOfBreadId: bread.typeOfBreadId },
+                bread?._id,
+                { totalQuantity: bread?.totalQuantity },
                 { new: true }
             );
         }
@@ -435,7 +411,7 @@ exports.deleteOrderWithDelivery = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Order with delivery deleted and bread quantities restored",
+            message: "Order with delivery deleted",
             orderWithDelivery
         });
     }

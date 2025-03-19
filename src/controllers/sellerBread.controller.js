@@ -10,7 +10,8 @@ exports.createSellerBread = async (req, res) => {
     try {
         const sellerBread = await SellerBreadModel.create({
             ...req.body,
-            sellerId: req.use.id
+            sellerId: req.use.id,
+            totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity,0)
         })
         await deleteCache(`sellerBread`)
         let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId typeOfBreadId.breadId.breadId")
@@ -56,10 +57,9 @@ exports.getSellerBread = async (req, res) => {
                 });
                 data = populatedSellerBreads.map((key) => {
                     const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
-                    const totalQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.quantity || 0), 0);
                     const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
 
-                    return { ...key, price, totalQuantity, totalQopQuantity };
+                    return { ...key, price, totalQopQuantity };
                 });
                 updatedData = await Promise.all(data.map(async (key) => {
                     let sellingBread = await SellingBreadModel.aggregate([
@@ -109,7 +109,7 @@ exports.getSellerBread = async (req, res) => {
                                         }
                                     }
                                 },
-                                createdAt: 1
+                                createdAt: 1,
                             }
                         }
                     ]);
@@ -148,6 +148,7 @@ exports.getSellerBread = async (req, res) => {
                                     }
                                 },
                                 price: 1,
+                                title: 1,
                                 description: 1,
                                 sellerId: {
                                     _id: "$SELLER._id",
@@ -164,9 +165,8 @@ exports.getSellerBread = async (req, res) => {
                     populatedSellerBreads.forEach((key) => {
                         const price = key.typeOfBreadId.reduce((sum, item) => sum + (item.breadId.price || 0), 0)
                         const totalPrice = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
-                        const totalQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.quantity || 0), 0);
                         const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
-                        data.push({ ...key, totalPrice, totalQuantity, totalQopQuantity,price })
+                        data.push({ ...key, totalPrice, totalQopQuantity, price })
                     });
                 }
 
@@ -199,6 +199,7 @@ exports.getSellerBread = async (req, res) => {
                                             }
                                         }
                                     },
+                                    title: 1,
                                     price: 1,
                                     description: 1,
                                     sellerId: {
@@ -222,9 +223,8 @@ exports.getSellerBread = async (req, res) => {
                 sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId.breadId")
                 for (const key of sellerBreads) {
                     const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
-                    const totalQuantity = key.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
                     const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0)
-                    data.push({ ...key._doc, price, totalQuantity, totalQopQuantity })
+                    data.push({ ...key._doc, price, totalQopQuantity })
                 }
                 updatedData = await Promise.all(data.map(async (key) => {
                     let sellingBread = await SellingBreadModel.aggregate([
