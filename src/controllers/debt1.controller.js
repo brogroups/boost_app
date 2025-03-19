@@ -6,13 +6,10 @@ exports.createDebt1 = async (req, res) => {
     try {
         let newDebt1;
         switch (req.use.role) {
-            case "seller":
-                newDebt1 = await Debt1Model.create({ ...req.body, sellerId: req.use.id })
+            case "manager":
+                newDebt1 = await Debt1Model.create({ ...req.body, managerId: new mongoose.Types.ObjectId(req.use.id) })
                 break;
             case "superAdmin":
-                newDebt1 = await Debt1Model.create(req.body)
-                break;
-            case "manager":
                 newDebt1 = await Debt1Model.create(req.body)
                 break;
             default:
@@ -20,6 +17,7 @@ exports.createDebt1 = async (req, res) => {
         }
         await deleteCache(`debt1`)
         await deleteCache(`debt2`)
+        await deleteCache(`typeOfWareHouse`)
         return res.status(201).json({
             success: true,
             message: "debt created",
@@ -36,7 +34,8 @@ exports.createDebt1 = async (req, res) => {
 
 exports.getDebt1s = async (req, res) => {
     try {
-        const cashe = await getCache(`debt1`)
+        const cashe = null
+         await getCache(`debt1`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
@@ -46,20 +45,9 @@ exports.getDebt1s = async (req, res) => {
         }
         let debt1s = []
         switch (req.use.role) {
-            case "seller":
+            case "manager":
                 debt1s = await Debt1Model.aggregate([
-                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
-                    {
-                        $lookup: {
-                            from: "sellers",
-                            localField: "sellerId",
-                            foreignField: "_id",
-                            as: "seller"
-                        }
-                    },
-                    {
-                        $unwind: "$seller"
-                    },
+                    { $match: { managerId: new mongoose.Types.ObjectId(req.use.id) } },
                     {
                         $project: {
                             _id: 1,
@@ -67,18 +55,13 @@ exports.getDebt1s = async (req, res) => {
                             quantity: 1,
                             reason: 1,
                             createdAt: 1,
-                            seller: {
-                                _id: "$seller._id",
-                                username: "$seller.username"
-                            }
                         }
                     }
                 ])
                 break;
             case "superAdmin":
-                debt1s = (await Debt1Model.find({}).populate("sellerId"))
-            case "manager":
-                debt1s = (await Debt1Model.find({}).populate("sellerId"))
+                debt1s = await Debt1Model.find({})
+                break;
             default:
                 break;
         }
@@ -99,7 +82,7 @@ exports.getDebt1s = async (req, res) => {
 
 exports.getDebt1ById = async (req, res) => {
     try {
-        const debt1 = await Debt1Model.findById(req.params.id).populate("sellerId")
+        const debt1 = await Debt1Model.findById(req.params.id)
         if (!debt1) {
             return res.status(404).json({
                 success: false,

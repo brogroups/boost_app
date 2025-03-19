@@ -17,9 +17,9 @@ exports.getStatics = async (req, res) => {
 
         switch (req.use.role) {
             case "superAdmin":
-                let debt1s = await Debt1Model.find({}).populate("sellerId", 'username')
-                let debt2s = await Debt2Model.find({}).populate("sellerId", 'username').populate('omborxonaProId', "name price")
-                let deliveryDebt = await DeliveryDebtModel.find({ }).populate("deliveryId", 'username')
+                let debt1s = await Debt1Model.find({})
+                let debt2s = await Debt2Model.find({}).populate('omborxonaProId', "name price")
+                let deliveryDebt = await DeliveryDebtModel.find({}).populate("deliveryId", 'username')
 
                 debt1s = debt1s.map((item) => {
                     return { ...item._doc, role: "seller" }
@@ -33,7 +33,7 @@ exports.getStatics = async (req, res) => {
                     return { ...item._doc, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({ }).populate("deliveryId", 'username').populate({
+                let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate({
                     path: "typeOfBreadIds.breadId",
                     populate: {
                         path: "typeOfBreadId.breadId",
@@ -262,77 +262,50 @@ exports.getStatics = async (req, res) => {
                     const sellers = await SellerModel.aggregate([
                         { $match: { superAdminId: new mongoose.Types.ObjectId(item._id) } }
                     ])
+                    debt.push(await Debt1Model.aggregate([
+                        { $match: { managerId: item._id } },
 
+                        {
+                            $project: {
+                                title: 1,
+                                quantity: 1,
+                                reason: 1,
+                                price: 1,
+                                createdAt: 1,
+                            }
+                        }
+                    ]))
+                    debt.push(await Debt2Model.aggregate([
+                        { $match: { managerId: item._id, createdAt: { $gte: startDay, $lte: endDay } } },
+                        {
+                            $lookup: {
+                                from: "typeofwarehouses",
+                                localField: "omborxonaProId",
+                                foreignField: "_id",
+                                as: "omborxona"
+                            }
+                        },
+                        {
+                            $unwind: "$omborxona"
+                        },
+                     
+                        {
+                            $project: {
+                                _id: 1,
+                                quantity: 1,
+                                description: 1,
+                                omborxonaProId: {
+                                    _id: "$omborxona._id",
+                                    name: "$omborxona.name",
+                                    price: "$omborxona.price",
+                                },
+
+                                createdAt: 1,
+                            }
+                        }
+                    ]))
                     for (const seller of sellers) {
-                        debt.push(await Debt1Model.aggregate([
-                            { $match: { sellerId: seller._id } },
-                            {
-                                $lookup: {
-                                    from: "sellers",
-                                    localField: "sellerId",
-                                    foreignField: "_id",
-                                    as: "seller"
-                                }
-                            },
-                            {
-                                $unwind: "$seller"
-                            },
-                            {
-                                $project: {
-                                    title: 1,
-                                    quantity: 1,
-                                    sellerId: {
-                                        _id: "$seller._id",
-                                        username: "$seller.username"
-                                    },
-                                    reason: 1,
-                                    price: 1,
-                                    createdAt: 1,
-                                }
-                            }
-                        ]))
-                        debt.push(await Debt2Model.aggregate([
-                            { $match: { sellerId: seller._id, createdAt: { $gte: startDay, $lte: endDay } } },
-                            {
-                                $lookup: {
-                                    from: "typeofwarehouses",
-                                    localField: "omborxonaProId",
-                                    foreignField: "_id",
-                                    as: "omborxona"
-                                }
-                            },
-                            {
-                                $unwind: "$omborxona"
-                            },
-                            {
-                                $lookup: {
-                                    from: "sellers",
-                                    localField: "sellerId",
-                                    foreignField: "_id",
-                                    as: "seller"
-                                }
-                            },
-                            {
-                                $unwind: "$seller"
-                            },
-                            {
-                                $project: {
-                                    _id: 1,
-                                    quantity: 1,
-                                    description: 1,
-                                    omborxonaProId: {
-                                        _id: "$omborxona._id",
-                                        name: "$omborxona.name",
-                                        price: "$omborxona.price",
-                                    },
-                                    seller: {
-                                        _id: "$seller._id",
-                                        username: "$seller.username"
-                                    },
-                                    createdAt: 1,
-                                }
-                            }
-                        ]))
+
                         managerPrixod = await SellingBreadModel.aggregate([
                             {
                                 $lookup: {
@@ -766,4 +739,3 @@ exports.getStatics = async (req, res) => {
         console.error(error)
     }
 }
-

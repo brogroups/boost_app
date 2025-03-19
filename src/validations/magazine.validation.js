@@ -14,4 +14,8 @@ const UpdateMagazineSchema = Joi.object({
     pending: Joi.number().required(),
 })
 
-module.exports = {CreateMagazineSchema,UpdateMagazineSchema}
+const UpdateMagazinePendingSchema = Joi.object({
+    pending: Joi.number().required(),
+})
+
+module.exports = {CreateMagazineSchema,UpdateMagazineSchema,UpdateMagazinePendingSchema}

@@ -64,6 +64,7 @@ exports.createSellingBread = async (req, res) => {
                                     as: "breadItem",
                                     in: {
                                         breadId: "$BREADID",
+                                        sellerBread:"$$breadItem._id",
                                         quantity: "$$breadItem.quantity",
                                         qopQuantity: "$$breadItem.qopQuantity",
                                     }
@@ -74,11 +75,17 @@ exports.createSellingBread = async (req, res) => {
                 ])
                 breadIds = breadIds.map((i) => i.typeOfBreadId).flat(Infinity)
                 for (const bread of breadIds) {
-                    if(key.quantity > bread.quantity){
+                    if (key.quantity > bread.quantity) {
                         return res.status(400).json({
-                            succes:false,
-                            message:"Bunday mahsulot yo`q"
+                            succes: false,
+                            message: "Bunday mahsulot yo`q"
                         })
+                    } else {
+                        let br = await SellerBreadModel.findById(key.breadId).populate("typeOfBreadId");
+                        br.typeOfBreadId = br.typeOfBreadId.map(i => {
+                            return i._id.equals(bread.sellerBread) ? { ...i, quantity: bread.quantity - key.quantity } : i;
+                        });
+                        await br.save();
                     }
                 }
             }
@@ -91,6 +98,7 @@ exports.createSellingBread = async (req, res) => {
             })
         }
         await deleteCache(`sellingBread`)
+        await deleteCache(`sellerBread`)
         await deleteCache(`delivery`)
         return res.status(201).json({
             success: true,
@@ -108,7 +116,7 @@ exports.createSellingBread = async (req, res) => {
 
 exports.getSellingBread = async (req, res) => {
     try {
-        const cache =  await getCache(`sellingBread`)
+        const cache = await getCache(`sellingBread`)
         if (cache) {
             return res.status(200).json({
                 success: true,

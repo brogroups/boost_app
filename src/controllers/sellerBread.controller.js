@@ -4,6 +4,7 @@ const { default: mongoose } = require("mongoose")
 const { createSelleryPayed } = require("./sellerPayed.controller")
 const { listenerCount } = require("../models/warehouse.model")
 const SellingBreadModel = require("../models/sellingBread.model")
+const SellerModel = require("../models/seller.model")
 
 
 exports.createSellerBread = async (req, res) => {
@@ -32,7 +33,8 @@ exports.createSellerBread = async (req, res) => {
 
 exports.getSellerBread = async (req, res) => {
     try {
-        const cache =  await getCache(`sellerBread`)
+        const cache = null
+        await getCache(`sellerBread${req.use.id}`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -58,6 +60,26 @@ exports.getSellerBread = async (req, res) => {
 
                     return { ...key, price, totalQuantity, totalQopQuantity };
                 });
+                break;
+            case "manager":
+                let sellers = await SellerModel.aggregate([
+                    { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }
+                ])
+                for (const key of sellers) {
+                    let sellerBread = await SellerBreadModel.aggregate([
+                        { $match: { sellerId: new mongoose.Types.ObjectId(key._id) } },
+                    ])
+                    let populatedSellerBreads = await SellerBreadModel.populate(sellerBread, {
+                        path: 'typeOfBreadId.breadId',
+                        model: 'TypeOfBread'
+                    });
+                    populatedSellerBreads.forEach((key) => {
+                        const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
+                        const totalQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.quantity || 0), 0);
+                        const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
+                        data.push({ ...key, price, totalQuantity, totalQopQuantity })
+                    });
+                }
                 break;
             case "superAdmin":
                 sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId.breadId")
@@ -123,14 +145,14 @@ exports.getSellerBread = async (req, res) => {
                     }
                 }
             ]);
-            return { ...key, history: sellingBread.map((i)=>i.typeOfBreadIds).flat(Infinity) };
+            return { ...key, history: sellingBread.map((i) => i.typeOfBreadIds).flat(Infinity) };
         }));
-        await setCache(`sellerBread`, updatedData)
+        await setCache(`sellerBread${req.use.id}`, updatedData)
         return res.status(200).json({
             success: true,
             message: "list of seller breads",
             sellerBreads: updatedData.reverse()
-        })
+        })  
     }
     catch (error) {
         return res.status(500).json({

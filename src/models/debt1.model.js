@@ -1,10 +1,10 @@
 const { Schema, model } = require("mongoose");
-const SellerModel = require("./seller.model");
+const ManagerModel = require("./manager.model");
 
 const Debt1Schema = new Schema({
     title: { type: String, required: true },
     quantity: { type: Number, required: true },
-    sellerId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
+    managerId: { type: Schema.Types.ObjectId, ref: ManagerModel, required: true },
     reason: { type: String, required: true },
     price: {type:Number,required:true},
     createdAt: { type: Date, default: new Date() },
