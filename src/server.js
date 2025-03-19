@@ -13,14 +13,8 @@ app.use(express.json());
 
 app.use(
   cors({
-<<<<<<< HEAD
-    // origin:["https://alphae.uz","*","https://safonon.uz"],
+    // origin:["https://alphae.uz","*","https://safonon.uz"],    
      origin: ["http://localhost:8080","http://localhost:8081","http://192.168.1.12:8080", "http://localhost:5173", "https://safo-non.netlify.app","https://alphae.uz","*","https://safonon.uz"],
-=======
-    origin:["https://alphae.uz","*","https://safonon.uz"],
-    
-    //  origin: ["http://localhost:8080","http://localhost:8081","http://192.168.1.12:8080", "http://localhost:5173", "https://safo-non.netlify.app","https://alphae.uz","*","https://safonon.uz"],
->>>>>>> e1369b3231f1b8b658f6c53a04668d321c21f256
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -107,8 +101,6 @@ app.use("/api/refreshToken", async (req, res) => {
 
   try {
     jwt.verify(refreshToken, process.env.JWT_TOKEN_REFRESH, (err, user) => {
-      console.log(err);
-      console.log(user);
 
       if (err) return res.status(403).json({ success: false, message: err.message });
 

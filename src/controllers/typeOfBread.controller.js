@@ -34,8 +34,6 @@ exports.getTypeOfBread = async (req, res) => {
         let typeOfBreads = await TypeOfBreadModel.find({})
         await setCache(`typeOfbread`, typeOfBreads)
         if (req.use.role !== "superAdmin") {
-            console.log(typeOfBreads.filter((i) => i.status == true))
-            console.log(typeOfBreads)
             typeOfBreads = typeOfBreads.filter((i) => i.status == true);
         }
         return res.status(200).json({

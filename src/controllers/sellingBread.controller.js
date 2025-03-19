@@ -22,74 +22,28 @@ exports.createSellingBread = async (req, res) => {
         }
         let delivery = await DeliveryModel.findById(sellingBread.deliveryId)
         if (delivery) {
-            for (const key of sellingBread.typeOfBreadIds) {
-                let breadIds = await SellerBreadModel.aggregate([
-                    {
-                        $match: { _id: new mongoose.Types.ObjectId(key.breadId) }
-                    },
-                    {
-                        $lookup: {
-                            from: "typeofbreads",
-                            localField: "typeOfBreadId.breadId",
-                            foreignField: "_id",
-                            as: "BREADID"
-                        }
-                    },
-                    {
-                        $unwind: "$BREADID"
-                    },
-                    {
-                        $lookup: {
-                            from: "sellers",
-                            localField: "sellerId",
-                            foreignField: "_id",
-                            as: "seller"
-                        }
-                    },
-                    {
-                        $unwind: "$seller"
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            description: 1,
-                            sellerId: {
-                                _id: "$seller.id",
-                                username: "$seller.username"
-                            },
-                            createdAt: 1,
-                            typeOfBreadId: {
-                                $map: {
-                                    input: "$typeOfBreadId",
-                                    as: "breadItem",
-                                    in: {
-                                        breadId: "$BREADID",
-                                        sellerBread:"$$breadItem._id",
-                                        quantity: "$$breadItem.quantity",
-                                        qopQuantity: "$$breadItem.qopQuantity",
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ])
-                breadIds = breadIds.map((i) => i.typeOfBreadId).flat(Infinity)
-                for (const bread of breadIds) {
-                    if (key.quantity > bread.quantity) {
-                        return res.status(400).json({
-                            succes: false,
-                            message: "Bunday mahsulot yo`q"
-                        })
-                    } else {
-                        let br = await SellerBreadModel.findById(key.breadId).populate("typeOfBreadId");
-                        br.typeOfBreadId = br.typeOfBreadId.map(i => {
-                            return i._id.equals(bread.sellerBread) ? { ...i, quantity: bread.quantity - key.quantity } : i;
-                        });
-                        await br.save();
-                    }
-                }
+            let typeOfWareHouse = await SellerBreadModel.findById(req.body.breadId);
+            if (!typeOfWareHouse) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Mahsulot topilmadi`
+                });
             }
-            await createdeliveryPayed({ body: { deliveryId: delivery._id, price: sellingBread.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) * delivery.price, status: "To`landi", type: "Kunlik" }, res: {} })
+
+            if (req.body.quantity > typeOfWareHouse.totalQuantity) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
+                });
+            }
+
+            typeOfWareHouse.totalQuantity -= req.body.quantity;
+            await SellerBreadModel.findByIdAndUpdate(
+                req.body.breadId,
+                { totalQuantity: typeOfWareHouse.totalQuantity },
+                { new: true }
+            );
+            await createdeliveryPayed({ body: { deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik" }, res: {} })
             await sellingBread.save()
         } else {
             return res.status(404).json({
@@ -125,11 +79,11 @@ exports.getSellingBread = async (req, res) => {
             })
         }
         let sellingBreads = await SellingBreadModel.find({}).populate({
-            path: "typeOfBreadIds.breadId",
+            path: "breadId",
             model: "SellerBread"
         }).populate("deliveryId magazineId")
         sellingBreads = sellingBreads.map((item) => {
-            const price = item.typeOfBreadIds.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
+            const price = item.breadId.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
             return { ...item._doc, price: price }
         }).reverse()
         await setCache(`sellingBread`, sellingBreads)
@@ -197,7 +151,7 @@ exports.updateSellingBreadById = async (req, res) => {
 
 exports.deleteSellingBreadById = async (req, res) => {
     try {
-        const sellingBread = await SellingBreadModel.findByIdAndDelete(req.params.id).populate("typeOfBreadIds deliveryId")
+        const sellingBread = await SellingBreadModel.findByIdAndDelete(req.params.id)
         if (!sellingBread) {
             return res.status(404).json({
                 success: false,
@@ -208,7 +162,7 @@ exports.deleteSellingBreadById = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "selling bread deleted",
-            sellingBread: { ...sellingBread._doc, price: sellingBread.typeOfBreadIds.reduce((a, b) => a + b.price, 0) * sellingBread.quantity }
+            sellingBread
         })
     }
     catch (error) {
