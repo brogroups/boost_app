@@ -15,7 +15,7 @@ exports.createDelivery = async (req, res) => {
     const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel];
 
     for (const model of models) {
-      const item = await model.findOne({ username:username?.trim()  });
+      const item = await model.findOne({ username: username?.trim() });
       if (item) {
         return res.status(400).json({
           succes: false,
@@ -28,12 +28,12 @@ exports.createDelivery = async (req, res) => {
     // const superAdminId = req.use.id;
     const hashPassword = encrypt(password);
     const refreshToken = await jwt.sign(
-      { username:username?.trim(), password },
+      { username: username?.trim(), password },
       process.env.JWT_TOKEN_REFRESH
     );
 
     const newDelivery = await DeliveryModel.create({
-      username:username?.trim(),
+      username: username?.trim(),
       password: hashPassword,
       phone,
       price,
@@ -77,7 +77,7 @@ exports.getDeliveries = async (req, res) => {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(today.getMonth() - 1);
 
-    let deliveries = await DeliveryModel.find({});
+    let deliveries = await DeliveryModel.find({}).lean()
     const data = [];
     for (const key of deliveries) {
       const deliveryPayedes = await DeliveryPayedModel.aggregate([
@@ -94,13 +94,16 @@ exports.getDeliveries = async (req, res) => {
           case "Kunlik":
             return a + b?.price;
             break;
+          case "Avans":
+            return a - b?.price;
+            break;
           default:
             break;
         }
       }, 0);
 
       data.push({
-        ...key._doc,
+        ...key,
         deliveryPayed: deliveryPayedes,
         totalPrice,
       });

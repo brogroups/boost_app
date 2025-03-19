@@ -6,6 +6,7 @@ const DeliveryPayedSchema = new Schema({
     price: { type: Number, required: true },
     status: { type: String, required: true },
     type: { type: String, required: true },
+    comment: { type: String, required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })
