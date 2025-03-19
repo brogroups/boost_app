@@ -2,7 +2,6 @@ const SellerBreadModel = require("../models/sellerBread.model")
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
 const { createSelleryPayed } = require("./sellerPayed.controller")
-const { listenerCount } = require("../models/warehouse.model")
 const SellingBreadModel = require("../models/sellingBread.model")
 const SellerModel = require("../models/seller.model")
 
@@ -44,12 +43,14 @@ exports.getSellerBread = async (req, res) => {
         }
         let data = []
         let sellerBreads = []
+        let updatedData = []
+        let populatedSellerBreads = []
         switch (req.use.role) {
             case "seller":
                 sellerBreads = await SellerBreadModel.aggregate([
                     { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
                 ])
-                let populatedSellerBreads = await SellerBreadModel.populate(sellerBreads, {
+                populatedSellerBreads = await SellerBreadModel.populate(sellerBreads, {
                     path: 'typeOfBreadId.breadId',
                     model: 'TypeOfBread'
                 });
@@ -60,6 +61,60 @@ exports.getSellerBread = async (req, res) => {
 
                     return { ...key, price, totalQuantity, totalQopQuantity };
                 });
+                updatedData = await Promise.all(data.map(async (key) => {
+                    let sellingBread = await SellingBreadModel.aggregate([
+                        {
+                            $lookup: {
+                                from: "sellerbreads",
+                                localField: "typeOfBreadIds.breadId",
+                                foreignField: "_id",
+                                as: "breadDetails"
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$breadDetails",
+                                preserveNullAndEmptyArrays: true
+
+                            }
+                        },
+                        {
+                            $match: {
+                                "breadDetails._id": key._id
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "typeofbreads",
+                                localField: "breadDetails.typeOfBreadId.breadId",
+                                foreignField: "_id",
+                                as: "breadIdDetails"
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$breadIdDetails",
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                typeOfBreadIds: {
+                                    $map: {
+                                        input: "$typeOfBreadIds",
+                                        as: "typeOfBreadItem",
+                                        in: {
+                                            breadId: "$breadIdDetails",
+                                            quantity: "$$typeOfBreadItem.quantity",
+                                        }
+                                    }
+                                },
+                                createdAt: 1
+                            }
+                        }
+                    ]);
+                    return { ...key, history: sellingBread.map((i) => i.typeOfBreadIds).flat(Infinity) };
+                }));
                 break;
             case "manager":
                 let sellers = await SellerModel.aggregate([
@@ -68,11 +123,44 @@ exports.getSellerBread = async (req, res) => {
                 for (const key of sellers) {
                     let sellerBread = await SellerBreadModel.aggregate([
                         { $match: { sellerId: new mongoose.Types.ObjectId(key._id) } },
+                        {
+                            $lookup: {
+                                from: "sellers",
+                                localField: "sellerId",
+                                foreignField: "_id",
+                                as: "SELLER"
+                            }
+                        },
+                        {
+                            $unwind: "$SELLER",
+                        },
+                        {
+                            $project: {
+                                typeOfBreadId: {
+                                    $map: {
+                                        input: "$typeOfBreadId",
+                                        as: "item",
+                                        in: {
+                                            breadId: "$$item.breadId",
+                                            quantity: "$$item.quantity",
+                                            qopQuantity: "$$item.qopQuantity"
+                                        }
+                                    }
+                                },
+                                price: 1,
+                                description: 1,
+                                sellerId: {
+                                    _id: "$SELLER._id",
+                                    username: "$SELLER.username"
+                                },
+                                createdAt: 1,
+                            }
+                        }
                     ])
-                    let populatedSellerBreads = await SellerBreadModel.populate(sellerBread, {
+                    populatedSellerBreads = await SellerBreadModel.populate(sellerBread, {
                         path: 'typeOfBreadId.breadId',
                         model: 'TypeOfBread'
-                    });
+                    })
                     populatedSellerBreads.forEach((key) => {
                         const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
                         const totalQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.quantity || 0), 0);
@@ -80,6 +168,54 @@ exports.getSellerBread = async (req, res) => {
                         data.push({ ...key, price, totalQuantity, totalQopQuantity })
                     });
                 }
+
+                updatedData = await Promise.all(data.map(async (i) => {
+                    let sellerBread = []
+                    for (const k of sellers) {
+                        sellerBread.push(await SellerBreadModel.aggregate([
+                            { $match: { sellerId: new mongoose.Types.ObjectId(k._id) } },
+                            {
+                                $lookup: {
+                                    from: "sellers",
+                                    localField: "sellerId",
+                                    foreignField: "_id",
+                                    as: "SELLER"
+                                }
+                            },
+                            {
+                                $unwind: "$SELLER",
+                            },
+                            {
+                                $project: {
+                                    typeOfBreadId: {
+                                        $map: {
+                                            input: "$typeOfBreadId",
+                                            as: "item",
+                                            in: {
+                                                breadId: "$$item.breadId",
+                                                quantity: "$$item.quantity",
+                                                qopQuantity: "$$item.qopQuantity"
+                                            }
+                                        }
+                                    },
+                                    price: 1,
+                                    description: 1,
+                                    sellerId: {
+                                        _id: "$SELLER._id",
+                                        username: "$SELLER.username"
+                                    },
+                                    createdAt: 1,
+                                }
+                            }
+                        ]))
+                    }
+                    return {
+                        ...i, history: sellerBread.flat(Infinity).map((i) => {
+                            return { _id: i._id, createdAt:i.createdAt,sellerId: i.sellerId, totalQuantity: i.typeOfBreadId.reduce((a, b) => a + b.quantity, 0),totalqopQuantity: i.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0) }
+                        })
+                    }
+                }))
+
                 break;
             case "superAdmin":
                 sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId.breadId")
@@ -89,70 +225,70 @@ exports.getSellerBread = async (req, res) => {
                     const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0)
                     data.push({ ...key._doc, price, totalQuantity, totalQopQuantity })
                 }
+                updatedData = await Promise.all(data.map(async (key) => {
+                    let sellingBread = await SellingBreadModel.aggregate([
+                        {
+                            $lookup: {
+                                from: "sellerbreads",
+                                localField: "typeOfBreadIds.breadId",
+                                foreignField: "_id",
+                                as: "breadDetails"
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$breadDetails",
+                                preserveNullAndEmptyArrays: true
+
+                            }
+                        },
+                        {
+                            $match: {
+                                "breadDetails._id": key._id
+                            }
+                        },
+                        {
+                            $lookup: {
+                                from: "typeofbreads",
+                                localField: "breadDetails.typeOfBreadId.breadId",
+                                foreignField: "_id",
+                                as: "breadIdDetails"
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: "$breadIdDetails",
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                typeOfBreadIds: {
+                                    $map: {
+                                        input: "$typeOfBreadIds",
+                                        as: "typeOfBreadItem",
+                                        in: {
+                                            breadId: "$breadIdDetails",
+                                            quantity: "$$typeOfBreadItem.quantity",
+                                        }
+                                    }
+                                },
+                                createdAt: 1
+                            }
+                        }
+                    ]);
+                    return { ...key, history: sellingBread.map((i) => i.typeOfBreadIds).flat(Infinity) };
+                }));
                 break;
             default:
                 break;
         }
-        let updatedData = await Promise.all(data.map(async (key) => {
-            let sellingBread = await SellingBreadModel.aggregate([
-                {
-                    $lookup: {
-                        from: "sellerbreads",
-                        localField: "typeOfBreadIds.breadId",
-                        foreignField: "_id",
-                        as: "breadDetails"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$breadDetails",
-                        preserveNullAndEmptyArrays: true
-
-                    }
-                },
-                {
-                    $match: {
-                        "breadDetails._id": key._id
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "typeofbreads",
-                        localField: "breadDetails.typeOfBreadId.breadId",
-                        foreignField: "_id",
-                        as: "breadIdDetails"
-                    }
-                },
-                {
-                    $unwind: {
-                        path: "$breadIdDetails",
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        typeOfBreadIds: {
-                            $map: {
-                                input: "$typeOfBreadIds",
-                                as: "typeOfBreadItem",
-                                in: {
-                                    breadId: "$breadIdDetails",
-                                    quantity: "$$typeOfBreadItem.quantity",
-                                }
-                            }
-                        },
-                        createdAt: 1
-                    }
-                }
-            ]);
-            return { ...key, history: sellingBread.map((i) => i.typeOfBreadIds).flat(Infinity) };
-        }));
         await setCache(`sellerBread${req.use.id}`, updatedData)
         return res.status(200).json({
             success: true,
             message: "list of seller breads",
             sellerBreads: updatedData.reverse()
-        })  
+        })
     }
     catch (error) {
         return res.status(500).json({
