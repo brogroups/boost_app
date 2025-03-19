@@ -15,7 +15,7 @@ exports.createDelivery = async (req, res) => {
     const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel];
 
     for (const model of models) {
-      const item = await model.findOne({ username });
+      const item = await model.findOne({ username:username?.trim()  });
       if (item) {
         return res.status(400).json({
           succes: false,
@@ -28,12 +28,12 @@ exports.createDelivery = async (req, res) => {
     // const superAdminId = req.use.id;
     const hashPassword = encrypt(password);
     const refreshToken = await jwt.sign(
-      { username, password },
+      { username:username?.trim(), password },
       process.env.JWT_TOKEN_REFRESH
     );
 
     const newDelivery = await DeliveryModel.create({
-      username,
+      username:username?.trim(),
       password: hashPassword,
       phone,
       price,

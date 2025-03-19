@@ -162,10 +162,11 @@ exports.getSellerBread = async (req, res) => {
                         model: 'TypeOfBread'
                     })
                     populatedSellerBreads.forEach((key) => {
-                        const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
+                        const price = key.typeOfBreadId.reduce((sum, item) => sum + (item.breadId.price || 0), 0)
+                        const totalPrice = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
                         const totalQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.quantity || 0), 0);
                         const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
-                        data.push({ ...key, price, totalQuantity, totalQopQuantity })
+                        data.push({ ...key, totalPrice, totalQuantity, totalQopQuantity,price })
                     });
                 }
 
@@ -211,7 +212,7 @@ exports.getSellerBread = async (req, res) => {
                     }
                     return {
                         ...i, history: sellerBread.flat(Infinity).map((i) => {
-                            return { _id: i._id, createdAt:i.createdAt,sellerId: i.sellerId, totalQuantity: i.typeOfBreadId.reduce((a, b) => a + b.quantity, 0),totalqopQuantity: i.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0) }
+                            return { _id: i._id, createdAt: i.createdAt, sellerId: i.sellerId, totalQuantity: i.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalqopQuantity: i.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0) }
                         })
                     }
                 }))

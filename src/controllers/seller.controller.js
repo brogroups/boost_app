@@ -17,7 +17,7 @@ exports.createSeller = async (req, res) => {
     const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel];
 
     for (const model of models) {
-      const item = await model.findOne({ username });
+      const item = await model.findOne({ username:username?.trim() });
       if (item) {
         return res.status(400).json({
           succes: false,
@@ -27,7 +27,7 @@ exports.createSeller = async (req, res) => {
     }
 
     const newSeller = new SellerModel({
-      username,
+      username:username?.trim(),
       password: hashPassword,
       phone,
       // price,
@@ -35,7 +35,7 @@ exports.createSeller = async (req, res) => {
       ovenId,
     });
     const refreshToken = await jwt.sign(
-      { id: newSeller._id, username: newSeller.username },
+      { id: newSeller._id, username: newSeller.username?.trim() },
       process.env.JWT_TOKEN_REFRESH
     );
     newSeller.refreshToken = refreshToken;

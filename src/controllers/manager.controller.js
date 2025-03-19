@@ -14,7 +14,7 @@ exports.createManager = async (req, res) => {
     const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel];
 
     for (const model of models) {
-      const item = await model.findOne({ username });
+      const item = await model.findOne({ username:username?.trim() });
       if (item) {
         return res.status(400).json({
           succes: false,
@@ -30,14 +30,14 @@ exports.createManager = async (req, res) => {
     const hashPassword = encrypt(password);
 
     const newManager = await ManagerModel.create({
-      username,
+      username:username?.trim(),
       password: hashPassword,
       superAdminId,
       refreshToken,
     });
     await deleteCache(`manager`);
     const accessToken = await jwt.sign(
-      { id: newManager._id, username: newManager.username, role: "manager" },
+      { id: newManager._id, username: newManager.username?.trim(), role: "manager" },
       process.env.JWT_TOKEN_ACCESS,
       { expiresIn: "7d" }
     );
