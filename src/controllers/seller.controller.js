@@ -17,7 +17,7 @@ exports.createSeller = async (req, res) => {
     const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel];
 
     for (const model of models) {
-      const item = await model.findOne({ username:username?.trim() });
+      const item = await model.findOne({ username: username?.trim() });
       if (item) {
         return res.status(400).json({
           succes: false,
@@ -27,7 +27,7 @@ exports.createSeller = async (req, res) => {
     }
 
     const newSeller = new SellerModel({
-      username:username?.trim(),
+      username: username?.trim(),
       password: hashPassword,
       phone,
       // price,
@@ -77,7 +77,7 @@ exports.getSellers = async (req, res) => {
 
     let sellers = null;
     if (req.use.role === "superAdmin") {
-      sellers = await SellerModel.find({});
+      sellers = await SellerModel.find({}).lean()
     } else {
       sellers = await SellerModel.aggregate([
         { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: oneMonthAgo, $lt: today } } },
@@ -86,9 +86,9 @@ exports.getSellers = async (req, res) => {
     const data = [];
     if (sellers.length > 0) {
       for (const key of sellers) {
-        const sellerPayedes = await SellerPayedModel.find({
-          sellerId: key._id,
-        });
+        const sellerPayedes = await SellerPayedModel.aggregate([
+          { $match: { sellerId: key._id, } }
+        ])
         let totalPrice = sellerPayedes.reduce((a, b) => {
           switch (b.type) {
             case "Bonus":
@@ -103,13 +103,16 @@ exports.getSellers = async (req, res) => {
             case "Kunlik":
               return a + b?.price;
               break;
+            case "Avans":
+              return a - b?.price;
+              break;
             default:
               break;
           }
         }, 0);
         if (req.use.role === "superAdmin") {
           data.push({
-            ...key._doc,
+            ...key,
             totalPrice,
             history: sellerPayedes.reverse(),
           });

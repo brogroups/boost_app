@@ -15,11 +15,25 @@ exports.getStatics = async (req, res) => {
         const endDay = new Date();
         endDay.setHours(23, 59, 59, 999);
 
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+
+        const diffToMonday = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
+        const diffToSunday = 0 - dayOfWeek;
+
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() + diffToMonday);
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() + diffToSunday);
+        endOfWeek.setHours(23, 59, 59, 999);
+
         switch (req.use.role) {
             case "superAdmin":
-                let debt1s = await Debt1Model.find({})
-                let debt2s = await Debt2Model.find({}).populate('omborxonaProId', "name price")
-                let deliveryDebt = await DeliveryDebtModel.find({}).populate("deliveryId", 'username')
+                let debt1s = await Debt1Model.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).lean()
+                let debt2s = await Debt2Model.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate('omborxonaProId', "name price").lean()
+                let deliveryDebt = await DeliveryDebtModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate("deliveryId", 'username').lean()
 
                 debt1s = debt1s.map((item) => {
                     return { ...item._doc, role: "seller" }
@@ -33,15 +47,15 @@ exports.getStatics = async (req, res) => {
                     return { ...item._doc, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({}).populate("deliveryId", 'username').populate({
+                let deliveryPrixod = await SellingBreadModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate("deliveryId", 'username').populate({
                     path: "typeOfBreadIds.breadId",
                     populate: {
                         path: "typeOfBreadId.breadId",
                         model: "TypeOfBread"
                     }
-                }).populate("magazineId")
+                }).populate("magazineId").lean()
                 deliveryPrixod = deliveryPrixod.map((item) => {
-                    return { ...item._doc, price: item.typeOfBreadIds.reduce((a, b) => a + b?.breadId?.price, 0), quantity: item.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }
+                    return { ...item, price: item.typeOfBreadIds.reduce((a, b) => a + b?.breadId?.price, 0), quantity: item.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }
                 })
 
                 const pending = []
@@ -69,7 +83,7 @@ exports.getStatics = async (req, res) => {
                     let managerPending = []
                     for (const seller of sellers) {
                         debt.push(await Debt1Model.aggregate([
-                            { $match: { sellerId: seller._id } },
+                            { $match: { sellerId: seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek  } } },
                             {
                                 $lookup: {
                                     from: "sellers",
@@ -96,7 +110,7 @@ exports.getStatics = async (req, res) => {
                             }
                         ]))
                         debt.push(await Debt2Model.aggregate([
-                            { $match: { sellerId: seller._id, createdAt: { $gte: startDay, $lte: endDay } } },
+                            { $match: { sellerId: seller._id,createdAt: { $gte: startOfWeek, $lte: endOfWeek  } } },
                             {
                                 $lookup: {
                                     from: "typeofwarehouses",
@@ -151,7 +165,7 @@ exports.getStatics = async (req, res) => {
                             },
                             {
                                 $match: {
-                                    "breadDetails.sellerId": seller._id, createdAt: { $gte: startDay, $lte: endDay }
+                                    "breadDetails.sellerId": seller._id,createdAt: { $gte: startOfWeek, $lte: endOfWeek  }
                                 }
                             },
                             {
@@ -288,7 +302,7 @@ exports.getStatics = async (req, res) => {
                         {
                             $unwind: "$omborxona"
                         },
-                     
+
                         {
                             $project: {
                                 _id: 1,

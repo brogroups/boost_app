@@ -5,6 +5,7 @@ const createDeliverySchema = Joi.object({
     price: Joi.number().required(),
     status: Joi.string().required(),
     type: Joi.string().required(),
+    comment: Joi.string().required(),
 })
 
 const updateDeliverySchema = Joi.object({
@@ -12,6 +13,7 @@ const updateDeliverySchema = Joi.object({
     price: Joi.number().required(),
     status: Joi.string().required(),
     type: Joi.string().required(),
+    comment: Joi.string().required(),
 })
 
 module.exports = { createDeliverySchema, updateDeliverySchema }

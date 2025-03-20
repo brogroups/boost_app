@@ -5,6 +5,7 @@ const createSelleyPayedSchema = Joi.object({
     price: Joi.number().required(),
     status: Joi.string().required(),
     type: Joi.string().required(),
+    comment: Joi.string().required(),
 })
 
 const updateSelleyPayedSchema = Joi.object({
@@ -12,6 +13,7 @@ const updateSelleyPayedSchema = Joi.object({
     price: Joi.number().required(),
     status: Joi.string().required(),
     type: Joi.string().required(),
+    comment: Joi.string().required(),
 })
 
 module.exports  = {createSelleyPayedSchema,updateSelleyPayedSchema}
