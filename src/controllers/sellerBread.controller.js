@@ -11,7 +11,7 @@ exports.createSellerBread = async (req, res) => {
         const sellerBread = await SellerBreadModel.create({
             ...req.body,
             sellerId: req.use.id,
-            totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity,0)
+            totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
         })
         await deleteCache(`sellerBread`)
         let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId typeOfBreadId.breadId.breadId")
@@ -135,13 +135,24 @@ exports.getSellerBread = async (req, res) => {
                             $unwind: "$SELLER",
                         },
                         {
+                            $lookup: {
+                                from: "typeofbreads",
+                                localField: "typeOfBreadId.breadId",
+                                foreignField: "_id",
+                                as: 'bread'
+                            }
+                        },
+                        {
+                            $unwind:"$bread"
+                        },
+                        {
                             $project: {
                                 typeOfBreadId: {
                                     $map: {
                                         input: "$typeOfBreadId",
                                         as: "item",
                                         in: {
-                                            breadId: "$$item.breadId",
+                                            breadId: "$bread",
                                             quantity: "$$item.quantity",
                                             qopQuantity: "$$item.qopQuantity"
                                         }
@@ -158,15 +169,14 @@ exports.getSellerBread = async (req, res) => {
                             }
                         }
                     ])
-                    populatedSellerBreads = await SellerBreadModel.populate(sellerBread, {
-                        path: 'typeOfBreadId.breadId',
-                        model: 'TypeOfBread'
-                    })
-                    populatedSellerBreads.forEach((key) => {
+                    sellerBread.forEach((key) => {
                         const price = key.typeOfBreadId.reduce((sum, item) => sum + (item.breadId.price || 0), 0)
                         const totalPrice = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
                         const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
-                        data.push({ ...key, totalPrice, totalQopQuantity, price })
+                        const totalQuantity = key.typeOfBreadId.reduce((sum, item) => {
+                            return sum + item.quantity
+                        }, 0)
+                        data.push({ ...key, totalPrice, totalQopQuantity, totalQuantity, price })
                     });
                 }
 
@@ -187,13 +197,24 @@ exports.getSellerBread = async (req, res) => {
                                 $unwind: "$SELLER",
                             },
                             {
+                                $lookup: {
+                                    from: "typeofbreads",
+                                    localField: "typeOfBreadId.breadId",
+                                    foreignField: "_id",
+                                    as: 'bread'
+                                }
+                            },
+                            {
+                                $unwind:"$bread"
+                            },
+                            {
                                 $project: {
                                     typeOfBreadId: {
                                         $map: {
                                             input: "$typeOfBreadId",
                                             as: "item",
                                             in: {
-                                                breadId: "$$item.breadId",
+                                                breadId: "$bread",
                                                 quantity: "$$item.quantity",
                                                 qopQuantity: "$$item.qopQuantity"
                                             }
@@ -211,10 +232,29 @@ exports.getSellerBread = async (req, res) => {
                             }
                         ]))
                     }
+                    sellerBread = sellerBread.flat(Infinity).map((i) => {
+                        return { ...i, _id: i._id, createdAt: i.createdAt, sellerId: i.sellerId, totalQuantity: i.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalqopQuantity: i.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0) }
+                    })
+                    let historyMap = new Map();
+
+                    sellerBread.forEach(item => {
+                        let sellerId = item.sellerId._id;
+
+                        if (historyMap.has(sellerId)) {
+                            let existing = historyMap.get(sellerId);
+                            existing.totalQuantity += item.totalQuantity;
+                            existing.totalqopQuantity += item.totalqopQuantity;
+                        } else {
+                            historyMap.set(sellerId, {
+                                ...item,
+                                totalQuantity: item.totalQuantity,
+                                totalqopQuantity: item.totalqopQuantity
+                            });
+                        }
+                    });
+
                     return {
-                        ...i, history: sellerBread.flat(Infinity).map((i) => {
-                            return { _id: i._id, createdAt: i.createdAt, sellerId: i.sellerId, totalQuantity: i.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalqopQuantity: i.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0) }
-                        })
+                        ...i, history: Array.from(historyMap.values())
                     }
                 }))
 
@@ -231,7 +271,7 @@ exports.getSellerBread = async (req, res) => {
                         {
                             $lookup: {
                                 from: "sellerbreads",
-                                localField: "typeOfBreadIds.breadId",
+                                localField: "breadId",
                                 foreignField: "_id",
                                 as: "breadDetails"
                             }
@@ -264,16 +304,7 @@ exports.getSellerBread = async (req, res) => {
                         {
                             $project: {
                                 _id: 1,
-                                typeOfBreadIds: {
-                                    $map: {
-                                        input: "$typeOfBreadIds",
-                                        as: "typeOfBreadItem",
-                                        in: {
-                                            breadId: "$breadIdDetails",
-                                            quantity: "$$typeOfBreadItem.quantity",
-                                        }
-                                    }
-                                },
+                                breadDetails: "$breadDetails",
                                 createdAt: 1
                             }
                         }
@@ -284,6 +315,14 @@ exports.getSellerBread = async (req, res) => {
             default:
                 break;
         }
+
+        // const endDay = new Date();
+        // endDay.setHours(23, 59, 59, 999);
+        // for (const key of updatedData) {
+        //     if (new Date(key.createdAt).getDate() >= endDay.getDate()) {
+        //         await SellerBreadModel.findByIdAndDelete(key._id)
+        //     }
+        // }
         await setCache(`sellerBread${req.use.id}`, updatedData)
         return res.status(200).json({
             success: true,

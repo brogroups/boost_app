@@ -24,7 +24,7 @@ exports.createMagazine = async (req, res) => {
 exports.getMagazines = async (req, res) => {
     try {
         const cache = null
-         await getCache(`magazine`)
+        await getCache(`magazine`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -88,7 +88,6 @@ exports.getMagazines = async (req, res) => {
                                         price4: "$breadIdDetails.price4",
                                         createdAt: "$breadIdDetails.createdAt",
                                     },
-                                    quantity: "$$breadItem.quantity"
                                 }
                             }
                         },
@@ -99,16 +98,17 @@ exports.getMagazines = async (req, res) => {
                         },
                         magazineId: 1,
                         money: 1,
-                        createdAt: 1
+                        createdAt: 1,
+                        quantity: 1
                     }
                 },
             ])
             sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
-                let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
-                let pending = item?.typeOfBreadIds?.reduce((a, b) => a + b?.breadId?.price, 0) - item.money
+                let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (b?.breadId?.price2 * item.quantity), 0)
+                let pending = item?.typeOfBreadIds?.reduce((a, b) => a + (b?.breadId?.price2 * item.quantity), 0) - item.money
                 return { ...item, totalPrice, pending }
             })
-            data.push({ ...key._doc, history: sellingBreadToMagazines, pending: sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) - key.pending })
+            data.push({ ...key._doc, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending )})
         }
 
 

@@ -83,7 +83,7 @@ exports.getSellingBread = async (req, res) => {
             model: "SellerBread"
         }).populate("deliveryId magazineId")
         sellingBreads = sellingBreads.map((item) => {
-            const price = item.breadId.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
+            const price = item.breadId.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price2 * b.quantity), 0)
             return { ...item._doc, price: price }
         }).reverse()
         await setCache(`sellingBread`, sellingBreads)

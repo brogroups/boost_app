@@ -13,7 +13,7 @@ exports.createSelleryPayed = async (req, res) => {
         })
     }
     catch (error) {
-        return res.status(500).json({
+        return res?.status(500)?.json({
             success: false,
             message: error.message
         })

@@ -237,7 +237,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     }
                 ])
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.breadId?.price, 0) }
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b.breadId?.price2, 0) }
                 })
                 break;
             case "manager":

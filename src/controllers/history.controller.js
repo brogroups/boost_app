@@ -2,7 +2,8 @@
 
 const { default: mongoose } = require("mongoose")
 const DeliveryDebtModel = require("../models/deliveryDebt.model")
-const SellingBreadModel = require("../models/sellingBread.model")
+const SellingBreadModel = require("../models/sellingBread.model");
+const SellerPayedModel = require("../models/sellerPayed.model");
 
 // exports.getAllHistory = async (req, res) => {
 //     try {
@@ -93,9 +94,9 @@ exports.getDeliveryHistory = async (req, res) => {
                     },
                     {
                         $lookup: {
-                            from: "orderwithdeliveries", 
-                            localField: "typeOfBreadIds.breadId", 
-                            foreignField: "_id", 
+                            from: "orderwithdeliveries",
+                            localField: "typeOfBreadIds.breadId",
+                            foreignField: "_id",
                             as: "breadDetails"
                         }
                     },
@@ -174,7 +175,7 @@ exports.getDeliveryHistory = async (req, res) => {
                         }
                     }
                 ]);
-                
+
 
                 break;
             default:
@@ -188,6 +189,63 @@ exports.getDeliveryHistory = async (req, res) => {
             }), ...sellingbread.map((item) => {
                 return { ...item._doc ? item._doc : item, type: "sotilgan" }
             })]
+        })
+    }
+    catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+exports.getSellerHistory = async (req, res) => {
+    try {
+        const today = new Date();
+
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        endOfMonth.setHours(23, 59, 59, 999);
+        let sellerHistory = await SellerPayedModel.aggregate([
+            {
+                $match: {
+                    sellerId: new mongoose.Types.ObjectId(req.use.id),
+                    createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+                }
+            },
+            {
+                $lookup: {
+                    from: "sellers",
+                    localField: "sellerId",
+                    foreignField: "_id",
+                    as: "seller"
+                }
+            },
+            { $unwind: "$seller" },
+            {
+                $group: {
+                    _id: { createdAt: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, type: "$type",comment: "$comment" },
+                    price: { $sum: "$price" },
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    createdAt: "$_id.createdAt",
+                    type: "$_id.type",
+                    price: "$price",
+                    comment: "$_id.comment",
+                }
+            },
+            { $sort: { createdAt: 1 } }
+        ]);
+
+        return res.status(200).json({
+            success: true,
+            message: "list of history",
+            history: sellerHistory
         })
     }
     catch (error) {
