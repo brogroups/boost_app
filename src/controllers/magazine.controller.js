@@ -1,6 +1,8 @@
 const MagazineModel = require("../models/magazine.model")
 const SellingBreadToMagazineModel = require("../models/sellingBread.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
+const MagazinePayedModel = require("../models/magazinePayed.model")
+const { default: mongoose } = require("mongoose")
 
 
 exports.createMagazine = async (req, res) => {
@@ -32,7 +34,7 @@ exports.getMagazines = async (req, res) => {
                 magazines: cache?.reverse()
             })
         }
-        const magazines = await MagazineModel.find({})
+        const magazines = await MagazineModel.find({}).lean()
         const data = []
 
         for (const key of magazines) {
@@ -103,12 +105,18 @@ exports.getMagazines = async (req, res) => {
                     }
                 },
             ])
+            let magazinePayed = await MagazinePayedModel.aggregate([
+                {
+                    $match: { magazineId: new mongoose.Types.ObjectId(key._id) }
+                }
+            ])
+            magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
             sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
                 let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (b?.breadId?.price2 * item.quantity), 0)
                 let pending = item?.typeOfBreadIds?.reduce((a, b) => a + (b?.breadId?.price2 * item.quantity), 0) - item.money
                 return { ...item, totalPrice, pending }
             })
-            data.push({ ...key._doc, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending )})
+            data.push({ ...key, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
         }
 
 
@@ -204,21 +212,10 @@ exports.deleteMagazine = async (req, res) => {
 
 exports.updateMagazinePending = async (req, res) => {
     try {
-        const { pending } = req.body;
-        const magazine = await MagazineModel.findById(req.params.id);
-        if (!magazine) {
-            return res.status(404).json({
-                success: false,
-                message: "Magazine not found"
-            });
-        }
-        magazine.pending -= pending;
-        await magazine.save();
-        await deleteCache(`magazine`);
-
+        const magazine = await MagazinePayedModel.create(req.body)
         return res.status(200).json({
             success: true,
-            message: "Magazine's pending status updated successfully",
+            message: "Ok",
             magazine
         });
     }

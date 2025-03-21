@@ -584,65 +584,70 @@ exports.getStatics = async (req, res) => {
                 let pendingDelivery = []
                 let soldBread = await SellingBreadModel.aggregate([
                     {
-                        $lookup: {
-                            from: "sellerbreads",
-                            localField: "typeOfBreadIds.breadId",
-                            foreignField: "_id",
-                            as: "breadDetails"
-                        }
+                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } }
                     },
+                    // {
+                    //     $lookup: {
+                    //         from: "sellerbreads",
+                    //         localField: "typeOfBreadIds.breadId",
+                    //         foreignField: "_id",
+                    //         as: "breadDetails"
+                    //     }
+                    // },
+                    // {
+                    //     $unwind: "$breadDetails",
+                    // },
+
+                    // {
+                    //     $lookup: {
+                    //         from: "typeofbreads",
+                    //         localField: "breadDetails.typeOfBreadId.breadId",
+                    //         foreignField: "_id",
+                    //         as: "breadIdDetails"
+                    //     }
+                    // },
+                    // {
+                    //     $unwind: "$breadIdDetails",
+                    // },
                     {
-                        $unwind: "$breadDetails",
-                    },
-                    {
-                        $match: {
-                            "deliveryId": new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }
-                        }
-                    },
-                    {
-                        $lookup: {
-                            from: "typeofbreads",
-                            localField: "breadDetails.typeOfBreadId.breadId",
-                            foreignField: "_id",
-                            as: "breadIdDetails"
-                        }
-                    },
-                    {
-                        $unwind: "$breadIdDetails",
+                      $lookup: {
+                        from:"magazines",
+                        localField:"magazineId"
+                      }
                     },
                     {
                         $project: {
                             _id: 1,
-                            typeOfBreadIds: {
-                                $map: {
-                                    input: "$typeOfBreadIds",
-                                    as: "breadItem",
-                                    in: {
-                                        bread: {
-                                            _id: "$breadDetails._id",
-                                            typeOfBreadId: {
-                                                $map: {
-                                                    input: "$breadDetails.typeOfBreadId",
-                                                    as: "breadIdItem",
-                                                    in: {
-                                                        breadId: {
-                                                            _id: "$breadIdDetails._id",
-                                                            title: "$breadIdDetails.title",
-                                                            price: "$breadIdDetails.price",
-                                                            price2: "$breadIdDetails.price2",
-                                                            price3: "$breadIdDetails.price3",
-                                                            price4: "$breadIdDetails.price4",
-                                                            createdAt: "$breadIdDetails.createdAt",
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            createdAt: "$breadDetails.createdAt",
-                                        },
-                                        quantity: "$$breadItem.quantity"
-                                    }
-                                }
-                            },
+                            // typeOfBreadIds: {
+                            //     $map: {
+                            //         input: "$typeOfBreadIds",
+                            //         as: "breadItem",
+                            //         in: {
+                            //             bread: {
+                            //                 _id: "$breadDetails._id",
+                            //                 typeOfBreadId: {
+                            //                     $map: {
+                            //                         input: "$breadDetails.typeOfBreadId",
+                            //                         as: "breadIdItem",
+                            //                         in: {
+                            //                             breadId: {
+                            //                                 _id: "$breadIdDetails._id",
+                            //                                 title: "$breadIdDetails.title",
+                            //                                 price: "$breadIdDetails.price",
+                            //                                 price2: "$breadIdDetails.price2",
+                            //                                 price3: "$breadIdDetails.price3",
+                            //                                 price4: "$breadIdDetails.price4",
+                            //                                 createdAt: "$breadIdDetails.createdAt",
+                            //                             }
+                            //                         }
+                            //                     }
+                            //                 },
+                            //                 createdAt: "$breadDetails.createdAt",
+                            //             },
+                            //             quantity: "$$breadItem.quantity"
+                            //         }
+                            //     }
+                            // },
                             paymentMethod: 1,
                             delivertId: 1,
                             magazineId: 1,
@@ -740,7 +745,8 @@ exports.getStatics = async (req, res) => {
                         history: pendingDelivery
                     },
                     soldBread: {
-                        totalPrice: soldBread.reduce((a, b) => a + b.typeOfBreadIds.reduce((a, b) => a + b.bread.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0), 0),
+                        totalPrice: 0,
+                        // soldBread?.reduce((a, b) => a + b?.typeOfBreadIds?.reduce((a, b) => a + b?.bread?.typeOfBreadId?.reduce((a, b) => a + b?.breadId?.price, 0), 0), 0)
                         history: soldBread
                     }
                 })

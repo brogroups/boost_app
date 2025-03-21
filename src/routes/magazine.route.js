@@ -11,10 +11,10 @@ const SellerModel = require("../models/seller.model")
 const DeliveryModel = require("../models/delivery.model")
 
 router.post("/magazine", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, SellerModel, DeliveryModel]), Middleware.verifyValidation(CreateMagazineSchema), Controller.createMagazine)
+router.post("/magazine/pending", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, SellerModel, DeliveryModel]), Middleware.verifyValidation(UpdateMagazinePendingSchema), Controller.updateMagazinePending)
 router.get("/magazines", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, SellerModel, DeliveryModel]), Controller.getMagazines)
 router.get("/magazine/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, SellerModel, DeliveryModel]), Controller.getMagazineById)
 router.put("/magazine/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, SellerModel, DeliveryModel]), Middleware.verifyValidation(UpdateMagazineSchema), Controller.updateMagazine)
-router.put("/magazinePending/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, SellerModel, DeliveryModel]), Middleware.verifyValidation(UpdateMagazinePendingSchema), Controller.updateMagazinePending)
 router.delete("/magazine/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, SellerModel, DeliveryModel]), Controller.deleteMagazine)
 
 module.exports = router

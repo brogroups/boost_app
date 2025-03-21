@@ -44,7 +44,7 @@ exports.createSellingBread = async (req, res) => {
                 { totalQuantity: typeOfWareHouse.totalQuantity },
                 { new: true }
             );
-            await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik" })
+            await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik",comment:"----" })
             await sellingBread.save()
         } else {D
             return res.status(404).json({
