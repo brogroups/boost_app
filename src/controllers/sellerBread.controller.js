@@ -58,7 +58,6 @@ exports.getSellerBread = async (req, res) => {
                 data = populatedSellerBreads.map((key) => {
                     const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
                     const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
-
                     return { ...key, price, totalQopQuantity };
                 });
                 updatedData = await Promise.all(data.map(async (key) => {
@@ -166,6 +165,7 @@ exports.getSellerBread = async (req, res) => {
                                     username: "$SELLER.username"
                                 },
                                 createdAt: 1,
+                                totalQuantity:1
                             }
                         }
                     ])
@@ -173,10 +173,10 @@ exports.getSellerBread = async (req, res) => {
                         const price = key.typeOfBreadId.reduce((sum, item) => sum + (item.breadId.price || 0), 0)
                         const totalPrice = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
                         const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
-                        const totalQuantity = key.typeOfBreadId.reduce((sum, item) => {
-                            return sum + item.quantity
-                        }, 0)
-                        data.push({ ...key, totalPrice, totalQopQuantity, totalQuantity, price })
+                        // const totalQuantity = key.typeOfBreadId.reduce((sum, item) => {
+                        //     return sum + item.quantity
+                        // }, 0)
+                        data.push({ ...key, totalPrice, totalQopQuantity, price })
                     });
                 }
 

@@ -18,7 +18,7 @@ exports.createOrderWithDelivery = async (req, res) => {
             if (key.quantity > typeOfWareHouse.totalQuantity) {
                 return res.status(400).json({
                     success: false,
-                    message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.quantity}`
+                    message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
                 });
             }
 
@@ -232,7 +232,8 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                         _id: "$breadDetails._id"
                                     }
                                 }
-                            }
+                            },
+                            title:"$breadDetails.title"
                         }
                     }
                 ])
