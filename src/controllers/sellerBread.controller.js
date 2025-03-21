@@ -37,7 +37,7 @@ exports.getSellerBread = async (req, res) => {
         const cache = null
         await getCache(`sellerBread${req.use.id}`)
         if (cache) {
-            return res.status(200).json({
+            return res?.status(200)?.json({
                 success: true,
                 message: "list of seller breads",
                 sellerBreads: cache?.reverse()
@@ -57,7 +57,7 @@ exports.getSellerBread = async (req, res) => {
                     model: 'TypeOfBread'
                 });
                 data = populatedSellerBreads.map((key) => {
-                    const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
+                    const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price4 || 0) * (item.qopQuantity || 0)), 0);
                     const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
                     return { ...key, price, totalQopQuantity };
                 });
@@ -325,14 +325,14 @@ exports.getSellerBread = async (req, res) => {
         //     }
         // }
         await setCache(`sellerBread${req.use.id}`, updatedData)
-        return res.status(200).json({
+        return res ? res?.status(200)?.json({
             success: true,
             message: "list of seller breads",
             sellerBreads: updatedData.reverse()
-        })
+        }) : updatedData.reverse()
     }
     catch (error) {
-        return res.status(500).json({
+        return res?.status(500)?.json({
             success: false,
             message: error.message
         })

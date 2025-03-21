@@ -7,6 +7,8 @@ const SellerModel = require("../models/seller.model")
 const DeliveryModel = require("../models/delivery.model")
 const ManagerModel = require("../models/manager.model")
 const SellerBreadModel = require("../models/sellerBread.model")
+const SellerPayedModel = require("../models/sellerPayed.model")
+const { getSellerBread } = require("./sellerBread.controller")
 
 exports.getStatics = async (req, res) => {
     try {
@@ -31,39 +33,39 @@ exports.getStatics = async (req, res) => {
 
         switch (req.use.role) {
             case "superAdmin":
-                let debt1s = await Debt1Model.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).lean()
-                let debt2s = await Debt2Model.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate('omborxonaProId', "name price").lean()
-                let deliveryDebt = await DeliveryDebtModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate("deliveryId", 'username').lean()
+                let debt1s = await Debt1Model.find({  }).lean()
+                let debt2s = await Debt2Model.find({  }).populate('omborxonaProId', "name price").lean()
+                let deliveryDebt = await DeliveryDebtModel.find({  }).populate("deliveryId", 'username').lean()
 
                 debt1s = debt1s.map((item) => {
-                    return { ...item._doc, role: "seller" }
+                    return { ...item, role: "seller" }
                 })
 
                 debt2s = debt2s.map((item) => {
-                    return { ...item._doc, role: "seller" }
+                    return { ...item, role: "seller" }
                 })
 
                 deliveryDebt = deliveryDebt.map((item) => {
-                    return { ...item._doc, role: "delivery" }
+                    return { ...item, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate("deliveryId", 'username').populate({
-                    path: "typeOfBreadIds.breadId",
+                let deliveryPrixod = await SellingBreadModel.find({  }).populate("deliveryId", 'username').populate({
+                    path: "breadId",
+                    model:"SellerBread",
                     populate: {
                         path: "typeOfBreadId.breadId",
                         model: "TypeOfBread"
                     }
                 }).populate("magazineId").lean()
                 deliveryPrixod = deliveryPrixod.map((item) => {
-                    return { ...item, price: item.typeOfBreadIds.reduce((a, b) => a + b?.breadId?.price, 0), quantity: item.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }
+                    return { ...item, price: item.breadId.typeOfBreadId.reduce((a,b)=>a+b.breadId.price2,0),
+                        quantity:item.breadId.typeOfBreadId.reduce((a,b)=>a+b.quantity,0) }
                 })
 
                 const pending = []
                 for (const key of deliveryPrixod) {
-                    let allPrice = key.typeOfBreadIds?.reduce((a, b) => {
-                        return a + b?.breadId?.typeOfBreadId?.reduce((a, b) => {
-                            return a + b.breadId.price
-                        }, 0)
+                    let allPrice = key?.breadId?.typeOfBreadId?.reduce((a, b) => {
+                        return a + b.breadId.price
                     }, 0) * key.quantity
                     if (allPrice - key.money > 0) {
                         pending.push({ ...key })
@@ -82,80 +84,11 @@ exports.getStatics = async (req, res) => {
                     let managerPrixod = []
                     let managerPending = []
                     for (const seller of sellers) {
-                        debt.push(await Debt1Model.aggregate([
-                            { $match: { sellerId: seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
-                            {
-                                $lookup: {
-                                    from: "sellers",
-                                    localField: "sellerId",
-                                    foreignField: "_id",
-                                    as: "seller"
-                                }
-                            },
-                            {
-                                $unwind: "$seller"
-                            },
-                            {
-                                $project: {
-                                    title: 1,
-                                    quantity: 1,
-                                    sellerId: {
-                                        _id: "$seller._id",
-                                        username: "$seller.username"
-                                    },
-                                    reason: 1,
-                                    price: 1,
-                                    createdAt: 1,
-                                }
-                            }
-                        ]))
-                        debt.push(await Debt2Model.aggregate([
-                            { $match: { sellerId: seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
-                            {
-                                $lookup: {
-                                    from: "typeofwarehouses",
-                                    localField: "omborxonaProId",
-                                    foreignField: "_id",
-                                    as: "omborxona"
-                                }
-                            },
-                            {
-                                $unwind: "$omborxona"
-                            },
-                            {
-                                $lookup: {
-                                    from: "sellers",
-                                    localField: "sellerId",
-                                    foreignField: "_id",
-                                    as: "seller"
-                                }
-                            },
-                            {
-                                $unwind: "$seller"
-                            },
-                            {
-                                $project: {
-                                    _id: 1,
-                                    quantity: 1,
-                                    description: 1,
-                                    omborxonaProId: {
-                                        _id: "$omborxona._id",
-                                        name: "$omborxona.name",
-                                        price: "$omborxona.price",
-                                    },
-                                    seller: {
-                                        _id: "$seller._id",
-                                        username: "$seller.username"
-                                    },
-                                    createdAt: 1,
-                                }
-                            }
-                        ]))
                         managerPrixod = await SellingBreadModel.aggregate([
                             {
                                 $lookup: {
                                     from: "sellerbreads",
-                                    localField: "typeOfBreadIds.breadId",
+                                    localField: "breadId",
                                     foreignField: "_id",
                                     as: "breadDetails"
                                 }
@@ -165,68 +98,93 @@ exports.getStatics = async (req, res) => {
                             },
                             {
                                 $match: {
-                                    "breadDetails.sellerId": seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek }
+                                    "breadDetails.sellerId": seller._id
                                 }
                             },
                             {
-                                $lookup: {
-                                    from: "typeofbreads",
-                                    localField: "breadDetails.typeOfBreadId.breadId",
-                                    foreignField: "_id",
-                                    as: "breadIdDetails"
+                                $lookup:{
+                                    from:"typeofbreads",
+                                    localField:"breadDetails.typeOfBreadId.breadId",
+                                    foreignField:"_id",
+                                    as:"breadIdDetails"
                                 }
                             },
                             {
-                                $unwind: "$breadIdDetails",
+                                $unwind:"$breadIdDetails"
                             },
-                            {
-                                $project: {
-                                    _id: 1,
-                                    typeOfBreadIds: {
-                                        $map: {
-                                            input: "$typeOfBreadIds",
-                                            as: "breadItem",
-                                            in: {
-                                                bread: {
-                                                    _id: "$breadDetails._id",
-                                                    typeOfBreadId: {
-                                                        $map: {
-                                                            input: "$breadDetails.typeOfBreadId",
-                                                            as: "breadIdItem",
-                                                            in: {
-                                                                breadId: {
-                                                                    _id: "$breadIdDetails._id",
-                                                                    title: "$breadIdDetails.title",
-                                                                    price: "$breadIdDetails.price",
-                                                                    price2: "$breadIdDetails.price2",
-                                                                    price3: "$breadIdDetails.price3",
-                                                                    price4: "$breadIdDetails.price4",
-                                                                    createdAt: "$breadIdDetails.createdAt",
-                                                                }
-                                                            }
-                                                        }
-                                                    },
-                                                    createdAt: "$breadDetails.createdAt",
-                                                },
-                                                quantity: "$$breadItem.quantity"
+                           {
+                            $project:{
+                                typeOfBreadId: {
+                                    $map: {
+                                        input: "$breadDetails.typeOfBreadId",
+                                        as: "breadIdItem",
+                                        in: {
+                                            breadId: {
+                                                _id: "$breadIdDetails._id",
+                                                title: "$breadIdDetails.title",
+                                                price: "$breadIdDetails.price",
+                                                price2: "$breadIdDetails.price2",
+                                                price3: "$breadIdDetails.price3",
+                                                price4: "$breadIdDetails.price4",
+                                                createdAt: "$breadIdDetails.createdAt",
                                             }
                                         }
-                                    },
-                                    paymentMethod: 1,
-                                    delivertId: 1,
-                                    magazineId: 1,
-                                    money: 1,
-                                    createdAt: 1
-                                }
-                            },
+                                    }
+                                },
+                                quantity: 1,
+                                paymentMethod: 1,
+                                deliveryId: 1,
+                                magazineId: 1,
+                                money: 1,
+                                createdAt: 1
+                            }
+                           }
                         ])
                     }
+                    debt.push(await Debt1Model.aggregate([
+                        { $match: { managerId: item._id } },
+
+                        {
+                            $project: {
+                                title: 1,
+                                quantity: 1,
+                                reason: 1,
+                                price: 1,
+                                createdAt: 1,
+                            }
+                        }
+                    ]))
+                    debt.push(await Debt2Model.aggregate([
+                        { $match: { managerId: item._id, createdAt: { $gte: startDay, $lte: endDay } } },
+                        {
+                            $lookup: {
+                                from: "typeofwarehouses",
+                                localField: "omborxonaProId",
+                                foreignField: "_id",
+                                as: "omborxona"
+                            }
+                        },
+                        {
+                            $unwind: "$omborxona"
+                        },
+
+                        {
+                            $project: {
+                                _id: 1,
+                                quantity: 1,
+                                description: 1,
+                                omborxonaProId: {
+                                    _id: "$omborxona._id",
+                                    name: "$omborxona.name",
+                                    price: "$omborxona.price",
+                                },
+
+                                createdAt: 1,
+                            }
+                        }
+                    ]))
                     for (const key of managerPrixod) {
-                        let allPrice = key.typeOfBreadIds.reduce((a, b) => {
-                            return a + b.breadId?.typeOfBreadId.reduce((a, b) => {
-                                return a + b.breadId.price
-                            }, 0)
-                        }, 0) * key.quantity
+                        let allPrice = key.typeOfBreadId.reduce((a,b)=>a+b.breadId.price2,0) * key.quantity
                         if (allPrice - key.money >= 0) {
                             managerPending.push({ ...key })
                         }
@@ -237,9 +195,9 @@ exports.getStatics = async (req, res) => {
                         _id: item._id,
                         username: item.username,
                         createdAt: item.createdAt,
-                        debt: { totalPrice: debt.length > 0 ? debt.reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0) : 0, history: debt },
+                        debt: { totalPrice: debt.length > 0 ? debt.reduce((a, b) => a + ((b?.price ? b?.price : b?.omborxonaProId?.price ? b.omborxonaProId?.price : 0) * b.quantity), 0) : 0, history: debt },
                         pending: {
-                            totalPrice: managerPending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.breadId.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0) * b.quantity - b.money), 0),
+                            totalPrice: managerPending.reduce((a,b)=>a + b.typeOfBreadId.reduce((c,d)=>c+(d.breadId.price2 * b.quantity),0),0),
                             history: managerPending
                         },
                         prixod: {
@@ -259,7 +217,7 @@ exports.getStatics = async (req, res) => {
                             history: deliveryPrixod
                         },
                         pending: {
-                            totalPrice: pending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.breadId.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0) * b.quantity - b.money), 0),
+                            totalPrice: pending.reduce((a, b) =>a + b.breadId.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0) * b.quantity - b.money,0),
                             history: pending
                         }
                     },
@@ -419,140 +377,6 @@ exports.getStatics = async (req, res) => {
                     },
                 })
                 break;
-            case "seller":
-                let selerBreads = await SellerBreadModel.aggregate([
-                    {
-                        $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) }
-                    },
-                    {
-                        $lookup: {
-                            from: "typeofbreads",
-                            localField: "typeOfBreadId.breadId",
-                            foreignField: "_id",
-                            as: "BREADID"
-                        }
-                    },
-                    {
-                        $unwind: "$BREADID"
-                    },
-                    {
-                        $lookup: {
-                            from: "sellers",
-                            localField: "sellerId",
-                            foreignField: "_id",
-                            as: "seller"
-                        }
-                    },
-                    {
-                        $unwind: "$seller"
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            description: 1,
-                            sellerId: {
-                                _id: "$seller.id",
-                                username: "$seller.username"
-                            },
-                            createdAt: 1,
-                            typeOfBreadId: {
-                                $map: {
-                                    input: "$typeOfBreadId",
-                                    as: "breadItem",
-                                    in: {
-                                        breadId: "$BREADID",
-                                        quantity: "$$breadItem.quantity",
-                                        qopQuantity: "$$breadItem.qopQuantity",
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ])
-                let debt1 = await Debt1Model.aggregate([
-                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
-                    {
-                        $lookup: {
-                            from: "sellers",
-                            localField: "sellerId",
-                            foreignField: "_id",
-                            as: "seller"
-                        }
-                    },
-                    {
-                        $unwind: "$seller"
-                    },
-                    {
-                        $project: {
-                            title: 1,
-                            quantity: 1,
-                            sellerId: {
-                                _id: "$seller._id",
-                                username: "$seller.username"
-                            },
-                            reason: 1,
-                            price: 1,
-                            createdAt: 1,
-                        }
-                    }
-                ])
-                let debt2 = await Debt2Model.aggregate([
-                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } } },
-                    {
-                        $lookup: {
-                            from: "typeofwarehouses",
-                            localField: "omborxonaProId",
-                            foreignField: "_id",
-                            as: "omborxona"
-                        }
-                    },
-                    {
-                        $unwind: "$omborxona"
-                    },
-                    {
-                        $lookup: {
-                            from: "sellers",
-                            localField: "sellerId",
-                            foreignField: "_id",
-                            as: "seller"
-                        }
-                    },
-                    {
-                        $unwind: "$seller"
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            quantity: 1,
-                            description: 1,
-                            omborxonaProId: {
-                                _id: "$omborxona._id",
-                                name: "$omborxona.name",
-                                price: "$omborxona.price",
-                            },
-                            seller: {
-                                _id: "$seller._id",
-                                username: "$seller.username"
-                            },
-                            createdAt: 1,
-                        }
-                    }
-                ])
-
-
-
-                return res.status(200).json({
-                    prixod: {
-                        totalPrice: selerBreads.reduce((a, b) => a + b.typeOfBreadId.reduce((c, d) => c + d?.breadId.price, 0), 0),
-                        history: selerBreads
-                    },
-                    debt: {
-                        totalPrice: [...debt1, ...debt2].length > 0 ? [...debt1, ...debt2].reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0) : 0,
-                        history: [...debt1, ...debt2]
-                    },
-                    benefit: 0
-                })
-                break;
             case "delivery":
                 let DeliveryDebts = await DeliveryDebtModel.aggregate([
                     { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } } },
@@ -586,81 +410,10 @@ exports.getStatics = async (req, res) => {
                     {
                         $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } }
                     },
-                    // {
-                    //     $lookup: {
-                    //         from: "sellerbreads",
-                    //         localField: "typeOfBreadIds.breadId",
-                    //         foreignField: "_id",
-                    //         as: "breadDetails"
-                    //     }
-                    // },
-                    // {
-                    //     $unwind: "$breadDetails",
-                    // },
-
-                    // {
-                    //     $lookup: {
-                    //         from: "typeofbreads",
-                    //         localField: "breadDetails.typeOfBreadId.breadId",
-                    //         foreignField: "_id",
-                    //         as: "breadIdDetails"
-                    //     }
-                    // },
-                    // {
-                    //     $unwind: "$breadIdDetails",
-                    // },
-                    {
-                      $lookup: {
-                        from:"magazines",
-                        localField:"magazineId"
-                      }
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            // typeOfBreadIds: {
-                            //     $map: {
-                            //         input: "$typeOfBreadIds",
-                            //         as: "breadItem",
-                            //         in: {
-                            //             bread: {
-                            //                 _id: "$breadDetails._id",
-                            //                 typeOfBreadId: {
-                            //                     $map: {
-                            //                         input: "$breadDetails.typeOfBreadId",
-                            //                         as: "breadIdItem",
-                            //                         in: {
-                            //                             breadId: {
-                            //                                 _id: "$breadIdDetails._id",
-                            //                                 title: "$breadIdDetails.title",
-                            //                                 price: "$breadIdDetails.price",
-                            //                                 price2: "$breadIdDetails.price2",
-                            //                                 price3: "$breadIdDetails.price3",
-                            //                                 price4: "$breadIdDetails.price4",
-                            //                                 createdAt: "$breadIdDetails.createdAt",
-                            //                             }
-                            //                         }
-                            //                     }
-                            //                 },
-                            //                 createdAt: "$breadDetails.createdAt",
-                            //             },
-                            //             quantity: "$$breadItem.quantity"
-                            //         }
-                            //     }
-                            // },
-                            paymentMethod: 1,
-                            delivertId: 1,
-                            magazineId: 1,
-                            money: 1,
-                            createdAt: 1
-                        }
-                    },
-                ])
-                let deliverySellingBread = await SellingBreadModel.aggregate([
                     {
                         $lookup: {
                             from: "sellerbreads",
-                            localField: "typeOfBreadIds.breadId",
+                            localField: "breadId",
                             foreignField: "_id",
                             as: "breadDetails"
                         }
@@ -668,11 +421,7 @@ exports.getStatics = async (req, res) => {
                     {
                         $unwind: "$breadDetails",
                     },
-                    {
-                        $match: {
-                            "deliveryId": new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }
-                        }
-                    },
+
                     {
                         $lookup: {
                             from: "typeofbreads",
@@ -685,41 +434,115 @@ exports.getStatics = async (req, res) => {
                         $unwind: "$breadIdDetails",
                     },
                     {
+                        $lookup: {
+                            from: "magazines",
+                            localField: "magazineId",
+                            foreignField: "_id",
+                            as: "magazine"
+                        }
+                    },
+                    {
+                        $unwind: "$magazine"
+                    },
+                    {
                         $project: {
                             _id: 1,
                             typeOfBreadIds: {
                                 $map: {
-                                    input: "$typeOfBreadIds",
-                                    as: "breadItem",
+                                    input: "$breadDetails.typeOfBreadId",
+                                    as: "breadIdItem",
                                     in: {
-                                        bread: {
-                                            _id: "$breadDetails._id",
-                                            typeOfBreadId: {
-                                                $map: {
-                                                    input: "$breadDetails.typeOfBreadId",
-                                                    as: "breadIdItem",
-                                                    in: {
-                                                        breadId: {
-                                                            _id: "$breadIdDetails._id",
-                                                            title: "$breadIdDetails.title",
-                                                            price: "$breadIdDetails.price",
-                                                            price2: "$breadIdDetails.price2",
-                                                            price3: "$breadIdDetails.price3",
-                                                            price4: "$breadIdDetails.price4",
-                                                            createdAt: "$breadIdDetails.createdAt",
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            createdAt: "$breadDetails.createdAt",
+                                        breadId: {
+                                            _id: "$breadIdDetails._id",
+                                            title: "$breadIdDetails.title",
+                                            price: "$breadIdDetails.price",
+                                            price2: "$breadIdDetails.price2",
+                                            price3: "$breadIdDetails.price3",
+                                            price4: "$breadIdDetails.price4",
+                                            createdAt: "$breadIdDetails.createdAt",
                                         },
-                                        quantity: "$$breadItem.quantity"
+                                        quantity: "$$breadIdItem.quantity"
                                     }
                                 }
                             },
                             paymentMethod: 1,
                             delivertId: 1,
-                            magazineId: 1,
+                            quantity: 1,
+                            magazineId: {
+                                _id: "$magazine._id",
+                                title: "$magazine.title"
+                            },
+                            money: 1,
+                            createdAt: 1
+                        }
+                    },
+                ])
+                let deliverySellingBread = await SellingBreadModel.aggregate([
+                    {
+                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } }
+                    },
+                    {
+                        $lookup: {
+                            from: "sellerbreads",
+                            localField: "breadId",
+                            foreignField: "_id",
+                            as: "breadDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadDetails",
+                    },
+
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "breadDetails.typeOfBreadId.breadId",
+                            foreignField: "_id",
+                            as: "breadIdDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadIdDetails",
+                    },
+                    {
+                        $lookup: {
+                            from: "magazines",
+                            localField: "magazineId",
+                            foreignField: "_id",
+                            as: "magazine"
+                        }
+                    },
+                    {
+                        $unwind: "$magazine"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            typeOfBreadIds: {
+                                $map: {
+                                    input: "$breadDetails.typeOfBreadId",
+                                    as: "breadIdItem",
+                                    in: {
+                                        breadId: {
+                                            _id: "$breadIdDetails._id",
+                                            title: "$breadIdDetails.title",
+                                            price: "$breadIdDetails.price",
+                                            price2: "$breadIdDetails.price2",
+                                            price3: "$breadIdDetails.price3",
+                                            price4: "$breadIdDetails.price4",
+                                            createdAt: "$breadIdDetails.createdAt",
+                                        },
+                                        quantity: "$$breadIdItem.quantity"
+                                    }
+                                }
+                            },
+                            paymentMethod: 1,
+                            delivertId: 1,
+                            quantity: 1,
+                            magazineId: {
+                                _id: "$magazine._id",
+                                title: "$magazine.title"
+                            },
                             money: 1,
                             createdAt: 1
                         }
@@ -727,9 +550,7 @@ exports.getStatics = async (req, res) => {
                 ])
 
                 for (const key of deliverySellingBread) {
-                    let totalPrice = key.typeOfBreadIds.reduce((a, b) => {
-                        return a + b?.bread?.typeOfBreadId.reduce((a, b) => a + b?.breadId?.price, 0)
-                    }, 0)
+                    let totalPrice = key?.typeOfBreadIds.reduce((a, b) => a + b.breadId.price2, 0)
                     if (totalPrice - key.money > 0) {
                         pendingDelivery.push({ ...key })
                     }
@@ -741,17 +562,48 @@ exports.getStatics = async (req, res) => {
                         history: DeliveryDebts
                     },
                     pending: {
-                        totalPrice: pendingDelivery.reduce((a, b) => a + b.typeOfBreadIds.reduce((a, b) => a + b.bread.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0), 0),
+                        totalPrice: pendingDelivery.reduce((a, b) => a + b.typeOfBreadIds.reduce((c, d) => c + d.breadId.price2, 0), 0),
                         history: pendingDelivery
                     },
                     soldBread: {
-                        totalPrice: 0,
-                        // soldBread?.reduce((a, b) => a + b?.typeOfBreadIds?.reduce((a, b) => a + b?.bread?.typeOfBreadId?.reduce((a, b) => a + b?.breadId?.price, 0), 0), 0)
+                        totalPrice: soldBread?.reduce((a, i) => a + i.typeOfBreadIds.reduce((a, b) => a + (b.breadId.price2 * i.quantity), 0), 0),
                         history: soldBread
                     }
                 })
                 break;
-            default:
+            case "seller":
+                let sellerPayeds = await SellerPayedModel.aggregate([
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), } }
+                ])
+                sellerPayeds = sellerPayeds.reduce((a, b) => {
+                    switch (b.type) {
+                      case "Bonus":
+                        return a + b?.price;
+                        break;
+                      case "Ishhaqi":
+                        return a + b?.price;
+                        break;
+                      case "Shtraf":
+                        return a - b?.price;
+                        break;
+                      case "Kunlik":
+                        return a + b?.price;
+                        break;
+                      case "Avans":
+                        return a - b?.price;
+                        break;
+                      default:
+                        break;
+                    }
+                  }, 0);
+                const sellerBreads = await getSellerBread({use:{role:"seller",id:req.use.id}},undefined)
+                console.log(sellerBreads)
+                  return res.status(200).json({
+                    payeds: sellerPayeds,
+                    sellerBreads
+                  })
+                  break;
+                default:
                 break;
         }
     }
@@ -759,3 +611,115 @@ exports.getStatics = async (req, res) => {
         console.error(error)
     }
 }
+
+
+
+
+
+    // case "seller":
+            //     let selerBreads = await SellerBreadModel.aggregate([
+            //         {
+            //             $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) }
+            //         },
+            //         {
+            //             $lookup: {
+            //                 from: "typeofbreads",
+            //                 localField: "typeOfBreadId.breadId",
+            //                 foreignField: "_id",
+            //                 as: "BREADID"
+            //             }
+            //         },
+            //         {
+            //             $unwind: "$BREADID"
+            //         },
+            //         {
+            //             $lookup: {
+            //                 from: "sellers",
+            //                 localField: "sellerId",
+            //                 foreignField: "_id",
+            //                 as: "seller"
+            //             }
+            //         },
+            //         {
+            //             $unwind: "$seller"
+            //         },
+            //         {
+            //             $project: {
+            //                 _id: 1,
+            //                 description: 1,
+            //                 sellerId: {
+            //                     _id: "$seller.id",
+            //                     username: "$seller.username"
+            //                 },
+            //                 createdAt: 1,
+            //                 typeOfBreadId: {
+            //                     $map: {
+            //                         input: "$typeOfBreadId",
+            //                         as: "breadItem",
+            //                         in: {
+            //                             breadId: "$BREADID",
+            //                             quantity: "$$breadItem.quantity",
+            //                             qopQuantity: "$$breadItem.qopQuantity",
+            //                         }
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     ])
+            //     let debt1 = await Debt1Model.aggregate([
+            //         { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
+
+            //         {
+            //             $project: {
+            //                 title: 1,
+            //                 quantity: 1,
+            //                 reason: 1,
+            //                 price: 1,
+            //                 createdAt: 1,
+            //             }
+            //         }
+            //     ])
+            //     let debt2 = await Debt2Model.aggregate([
+            //         { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } } },
+            //         {
+            //             $lookup: {
+            //                 from: "typeofwarehouses",
+            //                 localField: "omborxonaProId",
+            //                 foreignField: "_id",
+            //                 as: "omborxona"
+            //             }
+            //         },
+            //         {
+            //             $unwind: "$omborxona"
+            //         },
+                    
+            //         {
+            //             $project: {
+            //                 _id: 1,
+            //                 quantity: 1,
+            //                 description: 1,
+            //                 omborxonaProId: {
+            //                     _id: "$omborxona._id",
+            //                     name: "$omborxona.name",
+            //                     price: "$omborxona.price",
+            //                 },
+                            
+            //                 createdAt: 1,
+            //             }
+            //         }
+            //     ])
+
+
+
+            //     return res.status(200).json({
+            //         prixod: {
+            //             totalPrice: selerBreads.reduce((a, b) => a + b.typeOfBreadId.reduce((c, d) => c + d?.breadId.price, 0), 0),
+            //             history: selerBreads
+            //         },
+            //         debt: {
+            //             totalPrice: [...debt1, ...debt2].length > 0 ? [...debt1, ...debt2].reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0) : 0,
+            //             history: [...debt1, ...debt2]
+            //         },
+            //         benefit: 0
+            //     })
+            //     break;
