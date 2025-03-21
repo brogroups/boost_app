@@ -53,6 +53,7 @@ exports.getDebt1s = async (req, res) => {
                             _id: 1,
                             title: 1,
                             quantity: 1,
+                            price: 1,
                             reason: 1,
                             createdAt: 1,
                         }

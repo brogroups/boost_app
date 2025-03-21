@@ -16,7 +16,7 @@ exports.createDebt2 = async (req, res) => {
         }
         let typeOfWareHouse = await TypeOfWareHouseModel.findById(newDebt2.omborxonaProId)
         if (typeOfWareHouse) {
-            if (typeOfWareHouse.quantity - newDebt2.quantity >= 0) {
+            if (typeOfWareHouse.quantity - newDebt2.quantity > 0) {
                 await TypeOfWareHouseModel.updateOne({ quantity: typeOfWareHouse.quantity }, { $set: { quantity: typeOfWareHouse.quantity - newDebt2.quantity } })
             } else {
                 return res.status(400).json({

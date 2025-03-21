@@ -5,6 +5,7 @@ const DeliveryModel = require("../models/delivery.model");
 const SellerBreadModel = require("../models/sellerBread.model");
 const OrderWithDeliveryModel = require("../models/orderWithDelivery.model");
 const { default: mongoose } = require("mongoose");
+const DeliveryPayedModel = require("../models/deliveryPayed.model");
 
 exports.createSellingBread = async (req, res) => {
     try {
@@ -43,9 +44,9 @@ exports.createSellingBread = async (req, res) => {
                 { totalQuantity: typeOfWareHouse.totalQuantity },
                 { new: true }
             );
-            await createdeliveryPayed({ body: { deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik" }, res: {} })
+            await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik" })
             await sellingBread.save()
-        } else {
+        } else {D
             return res.status(404).json({
                 success: false,
                 message: "delivery topilmadi"

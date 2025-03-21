@@ -83,7 +83,7 @@ exports.getStatics = async (req, res) => {
                     let managerPending = []
                     for (const seller of sellers) {
                         debt.push(await Debt1Model.aggregate([
-                            { $match: { sellerId: seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek  } } },
+                            { $match: { sellerId: seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
                             {
                                 $lookup: {
                                     from: "sellers",
@@ -110,7 +110,7 @@ exports.getStatics = async (req, res) => {
                             }
                         ]))
                         debt.push(await Debt2Model.aggregate([
-                            { $match: { sellerId: seller._id,createdAt: { $gte: startOfWeek, $lte: endOfWeek  } } },
+                            { $match: { sellerId: seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
                             {
                                 $lookup: {
                                     from: "typeofwarehouses",
@@ -165,7 +165,7 @@ exports.getStatics = async (req, res) => {
                             },
                             {
                                 $match: {
-                                    "breadDetails.sellerId": seller._id,createdAt: { $gte: startOfWeek, $lte: endOfWeek  }
+                                    "breadDetails.sellerId": seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek }
                                 }
                             },
                             {
@@ -405,7 +405,7 @@ exports.getStatics = async (req, res) => {
                 return res.status(200).json({
                     statics: {
                         debt: {
-                            totalPrice: debt.length > 0 ? debt.reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0) : 0,
+                            totalPrice: debt.length > 0 ? debt.reduce((a, b) => a + ((b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0) * b.quantity), 0) : 0,
                             history: debt
                         },
                         pending: {

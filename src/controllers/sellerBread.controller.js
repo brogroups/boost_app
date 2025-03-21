@@ -4,6 +4,7 @@ const { default: mongoose } = require("mongoose")
 const { createSelleryPayed } = require("./sellerPayed.controller")
 const SellingBreadModel = require("../models/sellingBread.model")
 const SellerModel = require("../models/seller.model")
+const SellerPayedModel = require("../models/sellerPayed.model")
 
 
 exports.createSellerBread = async (req, res) => {
@@ -16,7 +17,7 @@ exports.createSellerBread = async (req, res) => {
         await deleteCache(`sellerBread`)
         let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId typeOfBreadId.breadId.breadId")
         sellerPayedBread = sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
-        await createSelleryPayed({ body: { sellerId: req.use.id, price: sellerPayedBread, type: "Ishhaqi", status: "To`landi" } })
+        await SellerPayedModel.create({ sellerId: req.use.id, price: sellerPayedBread, type: "Ishhaqi", status: "To`landi", comment: "--------" })
         return res.status(201).json({
             success: true,
             message: "seller bread yaratildi",
@@ -142,7 +143,7 @@ exports.getSellerBread = async (req, res) => {
                             }
                         },
                         {
-                            $unwind:"$bread"
+                            $unwind: "$bread"
                         },
                         {
                             $project: {
@@ -165,7 +166,7 @@ exports.getSellerBread = async (req, res) => {
                                     username: "$SELLER.username"
                                 },
                                 createdAt: 1,
-                                totalQuantity:1
+                                totalQuantity: 1
                             }
                         }
                     ])
@@ -205,7 +206,7 @@ exports.getSellerBread = async (req, res) => {
                                 }
                             },
                             {
-                                $unwind:"$bread"
+                                $unwind: "$bread"
                             },
                             {
                                 $project: {

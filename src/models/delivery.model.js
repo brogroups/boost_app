@@ -1,8 +1,8 @@
 const { Schema, model } = require("mongoose");
 
 const DeliverySchema = new Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true, unique: true },
+    username: { type: String, required: true, unique: true, trim: true },
+    password: { type: String, required: true, unique: true, trim: true },
     phone: { type: String },
     price: { type: Number, required: true },
     // superAdminId: { type: Schema.Types.ObjectId, ref: SuperAdminModel, required: true },

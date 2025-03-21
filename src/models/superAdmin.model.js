@@ -1,8 +1,8 @@
 const { Schema, model } = require("mongoose");
 
 const SuperAdminSchema = new Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true, unique: true },
+    username: { type: String, required: true, unique: true,trim:true },
+    password: { type: String, required: true, unique: true,trim:true },
     login: { type: String, required: true },
     refreshToken: { type: String, required: true },
     createdAt: { type: Date, default: new Date() },
