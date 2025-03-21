@@ -106,6 +106,9 @@ exports.getSellers = async (req, res) => {
             case "Avans":
               return a - b?.price;
               break;
+            case "Oylik":
+              return a - b?.price;
+              break;
             default:
               break;
           }
@@ -226,3 +229,26 @@ exports.deleteSeller = async (req, res) => {
     });
   }
 };
+
+exports.deleteSellerHistory = async (req, res) => {
+  try {
+    const seller = await SellerModel.findById(req.params.id)
+    const sellerPayeds = await SellerPayedModel.find({})
+    sellerPayeds.forEach(async () => {
+      await SellerPayedModel.deleteOne({ sellerId: seller._id })
+    })
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "seller not found"
+      })
+    }
+
+  }
+  catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
