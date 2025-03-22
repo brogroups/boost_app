@@ -25,7 +25,7 @@ exports.createDebt2 = async (req, res) => {
                 })
             }
         }
-        await deleteCache(`debt2`)
+        await deleteCache(`debt2${req.use.id}`)
         await deleteCache(`typeOfWareHouse`)
         await deleteCache(`warehouse`)
         return res.status(201).json({
@@ -44,7 +44,8 @@ exports.createDebt2 = async (req, res) => {
 
 exports.getDebt2s = async (req, res) => {
     try {
-        const cashe = await getCache(`debt2`)
+        const cashe = null
+        await getCache(`debt2${req.use.id}`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
@@ -137,7 +138,7 @@ exports.getDebt2s = async (req, res) => {
                 })]
                 break;
         }
-        await setCache(`debt2`, debts)
+        await setCache(`debt2${req.use.id}`, debts)
         return res.status(200).json({
             success: true,
             message: "list of debt2s",
@@ -185,7 +186,7 @@ exports.updateDebt2ById = async (req, res) => {
                 message: "debt2 is not found"
             })
         }
-        await deleteCache(`debt2`)
+        await deleteCache(`debt2${req.use.id}`)
         return res.status(200).json({
             success: true,
             message: "debt2 updated",
@@ -213,7 +214,7 @@ exports.deleteDebt2ById = async (req, res) => {
         }
         let typeOfWareHouse = await TypeOfWareHouseModel.findById(debt2.omborxonaProId)
         await TypeOfWareHouseModel.updateOne({ quantity: typeOfWareHouse.quantity }, { $set: { quantity: typeOfWareHouse.quantity + debt2.quantity } })
-        await deleteCache(`debt2`)
+        await deleteCache(`debt2${req.use.id}`)
         await deleteCache(`typeOfWareHouse`)
         await deleteCache(`warehouse`)
         return res.status(200).json({

@@ -12,9 +12,10 @@ exports.createSellerBread = async (req, res) => {
         const sellerBread = await SellerBreadModel.create({
             ...req.body,
             sellerId: req.use.id,
-            totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0)
+            totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0),
+            status: true
         })
-        await deleteCache(`sellerBread`)
+        await deleteCache(`sellerBread${req.use.id}`)
         let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId typeOfBreadId.breadId.breadId")
         sellerPayedBread = sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
         await SellerPayedModel.create({ sellerId: req.use.id, price: sellerPayedBread, type: "Ishhaqi", status: "To`landi", comment: "--------" })
@@ -50,7 +51,7 @@ exports.getSellerBread = async (req, res) => {
         switch (req.use.role) {
             case "seller":
                 sellerBreads = await SellerBreadModel.aggregate([
-                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), status: true } },
                 ])
                 populatedSellerBreads = await SellerBreadModel.populate(sellerBreads, {
                     path: 'typeOfBreadId.breadId',
@@ -80,7 +81,7 @@ exports.getSellerBread = async (req, res) => {
                         },
                         {
                             $match: {
-                                "breadDetails._id": key._id
+                                "breadDetails._id": key._id, status: true
                             }
                         },
                         {
@@ -122,7 +123,7 @@ exports.getSellerBread = async (req, res) => {
                 ])
                 for (const key of sellers) {
                     let sellerBread = await SellerBreadModel.aggregate([
-                        { $match: { sellerId: new mongoose.Types.ObjectId(key._id) } },
+                        { $match: { sellerId: new mongoose.Types.ObjectId(key._id), status: true } },
                         {
                             $lookup: {
                                 from: "sellers",
@@ -185,7 +186,7 @@ exports.getSellerBread = async (req, res) => {
                     let sellerBread = []
                     for (const k of sellers) {
                         sellerBread.push(await SellerBreadModel.aggregate([
-                            { $match: { sellerId: new mongoose.Types.ObjectId(k._id) } },
+                            { $match: { sellerId: new mongoose.Types.ObjectId(k._id), status: true } },
                             {
                                 $lookup: {
                                     from: "sellers",
@@ -261,11 +262,58 @@ exports.getSellerBread = async (req, res) => {
 
                 break;
             case "superAdmin":
-                sellerBreads = await SellerBreadModel.find({}).populate("typeOfBreadId.breadId")
+                sellerBreads = await SellerBreadModel.aggregate([
+                    { $match: {  status: true } },
+                    {
+                        $lookup: {
+                            from: "sellers",
+                            localField: "sellerId",
+                            foreignField: "_id",
+                            as: "SELLER"
+                        }
+                    },
+                    {
+                        $unwind: "$SELLER",
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "typeOfBreadId.breadId",
+                            foreignField: "_id",
+                            as: 'bread'
+                        }
+                    },
+                    {
+                        $unwind: "$bread"
+                    },
+                    {
+                        $project: {
+                            typeOfBreadId: {
+                                $map: {
+                                    input: "$typeOfBreadId",
+                                    as: "item",
+                                    in: {
+                                        breadId: "$bread",
+                                        quantity: "$$item.quantity",
+                                        qopQuantity: "$$item.qopQuantity"
+                                    }
+                                }
+                            },
+                            title: 1,
+                            price: 1,
+                            description: 1,
+                            sellerId: {
+                                _id: "$SELLER._id",
+                                username: "$SELLER.username"
+                            },
+                            createdAt: 1,
+                        }
+                    }
+                ])
                 for (const key of sellerBreads) {
                     const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
                     const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0)
-                    data.push({ ...key._doc, price, totalQopQuantity })
+                    data.push({ ...key, price, totalQopQuantity })
                 }
                 updatedData = await Promise.all(data.map(async (key) => {
                     let sellingBread = await SellingBreadModel.aggregate([
@@ -286,7 +334,7 @@ exports.getSellerBread = async (req, res) => {
                         },
                         {
                             $match: {
-                                "breadDetails._id": key._id
+                                "breadDetails._id": key._id,
                             }
                         },
                         {
@@ -371,7 +419,7 @@ exports.updateSellerById = async (req, res) => {
                 message: "seller bread not found"
             })
         }
-        await deleteCache(`sellerBread`)
+        await deleteCache(`sellerBread${req.use.id}`)
         return res.status(200).json({
             success: true,
             message: "seller bread updated",
@@ -388,14 +436,14 @@ exports.updateSellerById = async (req, res) => {
 
 exports.deleteSellerById = async (req, res) => {
     try {
-        const sellerBread = await SellerBreadModel.findByIdAndDelete(req.params.id).populate("typeOfBreadId")
+        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true })
         if (!sellerBread) {
             return res.status(404).json({
                 success: false,
                 message: "seller bread not found"
             })
         }
-        await deleteCache(`sellerBread`)
+        await deleteCache(`sellerBread${req.use.id}`)
         return res.status(200).json({
             success: true,
             message: "seller bread deleted",

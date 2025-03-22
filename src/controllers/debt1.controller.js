@@ -15,8 +15,8 @@ exports.createDebt1 = async (req, res) => {
             default:
                 break;
         }
-        await deleteCache(`debt1`)
-        await deleteCache(`debt2`)
+        await deleteCache(`debt1${req.use.id}`)
+        await deleteCache(`debt2${req.use.id}`)
         await deleteCache(`typeOfWareHouse`)
         return res.status(201).json({
             success: true,
@@ -35,7 +35,7 @@ exports.createDebt1 = async (req, res) => {
 exports.getDebt1s = async (req, res) => {
     try {
         const cashe = null
-         await getCache(`debt1`)
+        await getCache(`debt1${req.use.id}`)
         if (cashe) {
             return res.status(200).json({
                 success: true,
@@ -66,7 +66,7 @@ exports.getDebt1s = async (req, res) => {
             default:
                 break;
         }
-        await setCache(`debt1`, debt1s)
+        await setCache(`debt1${req.use.id}`, debt1s)
         return res.status(200).json({
             success: true,
             message: "list of debt1s",
@@ -113,8 +113,8 @@ exports.updateDebt1ById = async (req, res) => {
                 message: "debts not found"
             })
         }
-        await deleteCache(`debt1`)
-        await deleteCache(`debt2`)
+        await deleteCache(`debt1${req.use.id}`)
+        await deleteCache(`debt2${req.use.id}`)
         return res.status(200).json({
             success: true,
             message: "debt1 updated",
@@ -139,8 +139,8 @@ exports.deleteDebt1ById = async (req, res) => {
                 message: "debts not found"
             })
         }
-        await deleteCache(`debt1`)
-        await deleteCache(`debt2`)
+        await deleteCache(`debt1${req.use.id}`)
+        await deleteCache(`debt2${req.use.id}`)
         return res.status(200).json({
             success: true,
             message: "debt1 deleted",

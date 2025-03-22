@@ -10,7 +10,7 @@ exports.AuthLogin = async (req, res) => {
     const { username, password } = req.body;
     let user = await ManagerModel.findOne({ username });
     let role = "manager";
-    if (!user) {
+    if (!user || !user?.status) {
       user = await SuperAdminModel.findOne({ username });
       role = "superAdmin";
     }

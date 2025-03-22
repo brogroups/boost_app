@@ -12,30 +12,36 @@ const { getSellerBread } = require("./sellerBread.controller")
 
 exports.getStatics = async (req, res) => {
     try {
-        const startDay = new Date();
-        startDay.setHours(0, 0, 0, 0);
-        const endDay = new Date();
-        endDay.setHours(23, 59, 59, 999);
-
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const startDay = new Date(today);
+        const endDay = new Date(today);
+        endDay.setHours(23, 59, 59, 999);
+        
         const dayOfWeek = today.getDay();
-
-        const diffToMonday = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
-        const diffToSunday = 0 - dayOfWeek;
-
+        const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; 
+        const diffToSunday = 7 - dayOfWeek;
+        
         const startOfWeek = new Date(today);
         startOfWeek.setDate(today.getDate() + diffToMonday);
         startOfWeek.setHours(0, 0, 0, 0);
-
+        
         const endOfWeek = new Date(today);
         endOfWeek.setDate(today.getDate() + diffToSunday);
         endOfWeek.setHours(23, 59, 59, 999);
 
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        startOfMonth.setHours(0, 0, 0, 0);
+
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        endOfMonth.setHours(23, 59, 59, 999);
+
         switch (req.use.role) {
             case "superAdmin":
-                let debt1s = await Debt1Model.find({  }).lean()
-                let debt2s = await Debt2Model.find({  }).populate('omborxonaProId', "name price").lean()
-                let deliveryDebt = await DeliveryDebtModel.find({  }).populate("deliveryId", 'username').lean()
+                let debt1s = await Debt1Model.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).lean()
+                let debt2s = await Debt2Model.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate('omborxonaProId', "name price").lean()
+                let deliveryDebt = await DeliveryDebtModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate("deliveryId", 'username').lean()
 
                 debt1s = debt1s.map((item) => {
                     return { ...item, role: "seller" }
@@ -49,7 +55,7 @@ exports.getStatics = async (req, res) => {
                     return { ...item, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({  }).populate("deliveryId", 'username').populate({
+                let deliveryPrixod = await SellingBreadModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate("deliveryId", 'username').populate({
                     path: "breadId",
                     model:"SellerBread",
                     populate: {
@@ -98,7 +104,7 @@ exports.getStatics = async (req, res) => {
                             },
                             {
                                 $match: {
-                                    "breadDetails.sellerId": seller._id
+                                    "breadDetails.sellerId": seller._id,createdAt: { $gte: startOfWeek, $lte: endOfWeek }
                                 }
                             },
                             {
@@ -142,7 +148,7 @@ exports.getStatics = async (req, res) => {
                         ])
                     }
                     debt.push(await Debt1Model.aggregate([
-                        { $match: { managerId: item._id } },
+                        { $match: { managerId: item._id,createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
 
                         {
                             $project: {
@@ -155,7 +161,7 @@ exports.getStatics = async (req, res) => {
                         }
                     ]))
                     debt.push(await Debt2Model.aggregate([
-                        { $match: { managerId: item._id, createdAt: { $gte: startDay, $lte: endDay } } },
+                        { $match: { managerId: item._id,createdAt: { $gte: startOfWeek, $lte: endOfWeek }} },
                         {
                             $lookup: {
                                 from: "typeofwarehouses",
@@ -225,7 +231,9 @@ exports.getStatics = async (req, res) => {
                 })
                 break;
             case "manager":
-                let managers2 = await ManagerModel.find({})
+                let managers2 = await ManagerModel.aggregate([
+                    {$match:{}}
+                ])
 
                 let debt = []
                 let managerPrixod = []
@@ -235,7 +243,7 @@ exports.getStatics = async (req, res) => {
                         { $match: { superAdminId: new mongoose.Types.ObjectId(item._id) } }
                     ])
                     debt.push(await Debt1Model.aggregate([
-                        { $match: { managerId: item._id } },
+                        { $match: { managerId: item._id,createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
 
                         {
                             $project: {
@@ -248,7 +256,7 @@ exports.getStatics = async (req, res) => {
                         }
                     ]))
                     debt.push(await Debt2Model.aggregate([
-                        { $match: { managerId: item._id, createdAt: { $gte: startDay, $lte: endDay } } },
+                        { $match: { managerId: item._id,createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
                         {
                             $lookup: {
                                 from: "typeofwarehouses",
@@ -573,7 +581,7 @@ exports.getStatics = async (req, res) => {
                 break;
             case "seller":
                 let sellerPayeds = await SellerPayedModel.aggregate([
-                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), } }
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } } }
                 ])
                 sellerPayeds = sellerPayeds.reduce((a, b) => {
                     switch (b.type) {
@@ -597,7 +605,6 @@ exports.getStatics = async (req, res) => {
                     }
                   }, 0);
                 const sellerBreads = await getSellerBread({use:{role:"seller",id:req.use.id}},undefined)
-                console.log(sellerBreads)
                   return res.status(200).json({
                     payeds: sellerPayeds,
                     sellerBreads
@@ -612,114 +619,3 @@ exports.getStatics = async (req, res) => {
     }
 }
 
-
-
-
-
-    // case "seller":
-            //     let selerBreads = await SellerBreadModel.aggregate([
-            //         {
-            //             $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) }
-            //         },
-            //         {
-            //             $lookup: {
-            //                 from: "typeofbreads",
-            //                 localField: "typeOfBreadId.breadId",
-            //                 foreignField: "_id",
-            //                 as: "BREADID"
-            //             }
-            //         },
-            //         {
-            //             $unwind: "$BREADID"
-            //         },
-            //         {
-            //             $lookup: {
-            //                 from: "sellers",
-            //                 localField: "sellerId",
-            //                 foreignField: "_id",
-            //                 as: "seller"
-            //             }
-            //         },
-            //         {
-            //             $unwind: "$seller"
-            //         },
-            //         {
-            //             $project: {
-            //                 _id: 1,
-            //                 description: 1,
-            //                 sellerId: {
-            //                     _id: "$seller.id",
-            //                     username: "$seller.username"
-            //                 },
-            //                 createdAt: 1,
-            //                 typeOfBreadId: {
-            //                     $map: {
-            //                         input: "$typeOfBreadId",
-            //                         as: "breadItem",
-            //                         in: {
-            //                             breadId: "$BREADID",
-            //                             quantity: "$$breadItem.quantity",
-            //                             qopQuantity: "$$breadItem.qopQuantity",
-            //                         }
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     ])
-            //     let debt1 = await Debt1Model.aggregate([
-            //         { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id) } },
-
-            //         {
-            //             $project: {
-            //                 title: 1,
-            //                 quantity: 1,
-            //                 reason: 1,
-            //                 price: 1,
-            //                 createdAt: 1,
-            //             }
-            //         }
-            //     ])
-            //     let debt2 = await Debt2Model.aggregate([
-            //         { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } } },
-            //         {
-            //             $lookup: {
-            //                 from: "typeofwarehouses",
-            //                 localField: "omborxonaProId",
-            //                 foreignField: "_id",
-            //                 as: "omborxona"
-            //             }
-            //         },
-            //         {
-            //             $unwind: "$omborxona"
-            //         },
-                    
-            //         {
-            //             $project: {
-            //                 _id: 1,
-            //                 quantity: 1,
-            //                 description: 1,
-            //                 omborxonaProId: {
-            //                     _id: "$omborxona._id",
-            //                     name: "$omborxona.name",
-            //                     price: "$omborxona.price",
-            //                 },
-                            
-            //                 createdAt: 1,
-            //             }
-            //         }
-            //     ])
-
-
-
-            //     return res.status(200).json({
-            //         prixod: {
-            //             totalPrice: selerBreads.reduce((a, b) => a + b.typeOfBreadId.reduce((c, d) => c + d?.breadId.price, 0), 0),
-            //             history: selerBreads
-            //         },
-            //         debt: {
-            //             totalPrice: [...debt1, ...debt2].length > 0 ? [...debt1, ...debt2].reduce((a, b) => a + (b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0), 0) : 0,
-            //             history: [...debt1, ...debt2]
-            //         },
-            //         benefit: 0
-            //     })
-            //     break;
