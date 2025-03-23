@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose")
 const SellerMagazineModel = require("../models/sellerMagazine.model");
-const { deleteCache, setCache } = require("../helpers/redis.helper");
+const { deleteCache, setCache, getCache } = require("../helpers/redis.helper");
 
 exports.create = async (req, res) => {
     try {
@@ -25,6 +25,10 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
     try {
+        const sellerMagazineCache = await getCache(`sellerMagazine`)
+        if(sellerMagazineCache){
+        return res.status(200).json(sellerMagazineCache?.reverse())
+        }
         let sellerMagazines = []
         if (req.use.role === "superAdmin") {
             sellerMagazines = await SellerMagazineModel.find({}).populate({

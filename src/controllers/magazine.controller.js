@@ -7,7 +7,7 @@ const { default: mongoose } = require("mongoose")
 
 exports.createMagazine = async (req, res) => {
     try {
-        const newMagazine = await MagazineModel.create(req.body)
+        const newMagazine = await MagazineModel.create({ ...req.body, status: true })
         await deleteCache(`magazine`)
         return res.status(201).json({
             success: true,
@@ -25,8 +25,7 @@ exports.createMagazine = async (req, res) => {
 
 exports.getMagazines = async (req, res) => {
     try {
-        const cache = null
-        await getCache(`magazine`)
+        const cache = await getCache(`magazine`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -34,12 +33,14 @@ exports.getMagazines = async (req, res) => {
                 magazines: cache?.reverse()
             })
         }
-        const magazines = await MagazineModel.find({}).lean()
+        const magazines = await MagazineModel.aggregate([
+            { $match: { status: true } }
+        ])
         const data = []
 
         for (const key of magazines) {
             let sellingBreadToMagazines = await SellingBreadToMagazineModel.aggregate([
-                { $match: { magazineId: key._id } },
+                { $match: { magazineId: key._id, status: true } },
                 {
                     $lookup: {
                         from: "sellerbreads",
@@ -184,11 +185,7 @@ exports.updateMagazine = async (req, res) => {
 
 exports.deleteMagazine = async (req, res) => {
     try {
-        const magazine = await MagazineModel.findByIdAndDelete(req.params.id)
-        const sellingBreadToMagazines = await SellingBreadToMagazineModel.find({ magazineId: magazine._id })
-        sellingBreadToMagazines.forEach(async () => {
-            await SellingBreadToMagazineModel.deleteOne({ magazineId: magazine._id })
-        })
+        const magazine = await MagazineModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true })
         if (!magazine) {
             return res.status(404).json({
                 success: false,
@@ -199,7 +196,6 @@ exports.deleteMagazine = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "magazine deleted",
-            magazine
         })
     }
     catch (error) {

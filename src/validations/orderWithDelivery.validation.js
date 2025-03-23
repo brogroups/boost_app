@@ -2,7 +2,9 @@ const Joi = require("joi");
 
 const CreateOrderWithDeliverySchema = Joi.object({
     typeOfBreadIds: Joi.array().required(),
+    pricetype: Joi.string().required(),
     // quantity: Joi.number().required(),
+    pricetype: Joi.string().required(),
     description: Joi.string().required(),
     sellerId: Joi.string().optional(),
     deliveryId: Joi.string().required(),
@@ -11,6 +13,7 @@ const CreateOrderWithDeliverySchema = Joi.object({
 
 const UpdateOrderWithDeliverySchema = Joi.object({
     typeOfBreadIds: Joi.array().required(),
+    pricetype: Joi.string().required(),
     // quantity: Joi.number().required(),
     description: Joi.string().required(),
     sellerId: Joi.string().optional(),

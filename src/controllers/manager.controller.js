@@ -14,7 +14,7 @@ exports.createManager = async (req, res) => {
     const models = [SuperAdminModel, SellerModel, ManagerModel, DeliveryModel];
 
     for (const model of models) {
-      const item = await model.findOne({ username:username?.trim() });
+      const item = await model.findOne({ username: username?.trim() });
       if (item) {
         return res.status(400).json({
           succes: false,
@@ -30,10 +30,11 @@ exports.createManager = async (req, res) => {
     const hashPassword = encrypt(password);
 
     const newManager = await ManagerModel.create({
-      username:username?.trim(),
+      username: username?.trim(),
       password: hashPassword,
       superAdminId,
       refreshToken,
+      status:true
     });
     await deleteCache(`manager`);
     const accessToken = await jwt.sign(
@@ -64,7 +65,9 @@ exports.getAllManagers = async (req, res) => {
         managers: cache?.reverse(),
       });
     }
-    const managers = await ManagerModel.find({});
+    const managers = await ManagerModel.aggregate([
+      {$match:{status:true}}
+    ]);
     await setCache(`manager`, managers);
     return res.status(200).json({
       success: true,
@@ -134,10 +137,8 @@ exports.updateManager = async (req, res) => {
 
 exports.deleteManager = async (req, res) => {
   try {
-    const manager = await ManagerModel.findByIdAndDelete(req.params.id);
-    const sellers = await SellerModel.aggregate([
-      { $match: { superAdminId: manager._id } },
-    ]);
+    const manager = await ManagerModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true });
+
     if (!manager) {
       return res.status(404).json({
         success: false,
@@ -145,9 +146,7 @@ exports.deleteManager = async (req, res) => {
       });
     }
 
-    sellers.forEach(async () => {
-      await SellerModel.deleteOne({ superAdminId: manager._id });
-    });
+ 
     await deleteCache(`manager`);
     await deleteCache("delivery");
     await deleteCache(`seller`);

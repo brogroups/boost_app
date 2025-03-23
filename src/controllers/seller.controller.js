@@ -63,7 +63,7 @@ exports.createSeller = async (req, res) => {
 
 exports.getSellers = async (req, res) => {
   try {
-    const cashedSeller = await getCache("seller");
+    const cashedSeller = await getCache("seller" + req.use.id);
     if (cashedSeller) {
       return res.status(200).json({
         success: true,
@@ -125,7 +125,7 @@ exports.getSellers = async (req, res) => {
       }
     }
 
-    await setCache("sellers", data);
+    await setCache("sellers" + req.use.id, data);
 
     return res.status(200).json({
       success: true,

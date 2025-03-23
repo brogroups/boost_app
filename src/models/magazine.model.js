@@ -2,9 +2,10 @@ const { Schema, model } = require("mongoose");
 
 const MagazineSchema = new Schema({
     title: { type: String, required: true },
-    phone: { type: String},
+    phone: { type: String },
     address: { type: String, required: true },
     pending: { type: Number, required: true },
+    status: { type: Boolean, required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })
