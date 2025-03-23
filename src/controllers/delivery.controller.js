@@ -97,6 +97,9 @@ exports.getDeliveries = async (req, res) => {
           case "Avans":
             return a - b?.price;
             break;
+          case "Oylik":
+            return a - b?.price;
+            break;
           default:
             break;
         }
