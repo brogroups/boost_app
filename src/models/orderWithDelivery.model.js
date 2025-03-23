@@ -17,6 +17,7 @@ const OrderWithDeliverySchema = new Schema({
     // sellerId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
     deliveryId: { type: Schema.Types.ObjectId, ref: DeliveryModel, required: true },
     // magazineId: { type: Schema.Types.ObjectId, ref: MagazineModel, required: true },
+    status: { type: Boolean, required: true, default: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })

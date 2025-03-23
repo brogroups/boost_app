@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(
   cors({
     // origin:["https://alphae.uz","*","https://safonon.uz","https://admin.safonon.uz"],
-    origin: ["http://localhost:8080","http://localhost:8081","http://192.168.1.12:8080", "http://localhost:5173", "https://safo-non.netlify.app","https://alphae.uz","*","https://safonon.uz"],
+    origin: ["http://localhost:8080", "http://localhost:8081", "http://192.168.1.12:8080", "http://localhost:5173", "https://safo-non.netlify.app", "https://alphae.uz", "*", "https://safonon.uz"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -94,6 +94,12 @@ app.use("/api", PayedStatusRoute)
 
 const SellerMagazineRoute = require("./routes/sellerMagazine.route")
 app.use("/api", SellerMagazineRoute)
+
+const ReturnedProRoute = require("./routes/returnedPro.route")
+app.use("/api", ReturnedProRoute)
+
+const SaleRoute = require("./routes/sale.route")
+app.use("/api", SaleRoute)
 
 app.use("/api/refreshToken", async (req, res) => {
   const { refreshToken } = req.body;

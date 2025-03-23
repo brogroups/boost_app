@@ -2,20 +2,14 @@ const { Schema, model } = require("mongoose");
 const SellerModel = require("./seller.model");
 const DeliveryModel = require("./delivery.model");
 const SellerBreadModel = require("./sellerBread.model");
+const OrderWithDeliveryModel = require("./orderWithDelivery.model");
 
 const ReturnedProSchema = new Schema({
-    typeOfBreadIds: [
-        {
-            bread: { type: Schema.Types.ObjectId, ref: SellerBreadModel },
-            quantity: { type: Number, required: true }
-        }
+    orderWithDelivery: [
+        { type: Schema.Types.ObjectId, ref: OrderWithDeliveryModel, required: true }
     ],
-    pricetype: { type: String, required: true },
-    description: { type: String, required: true },
-    adminId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
     deliveryId: { type: Schema.Types.ObjectId, ref: DeliveryModel, required: true },
-    createdAt: { type: Date, default: new Date() },
-    updateAt: { type: Date, default: new Date() }
+    status: { type: Boolean, required: true,default:true }
 })
 
 const ReturnedProModel = model("ReturnedPro", ReturnedProSchema)

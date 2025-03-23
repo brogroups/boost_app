@@ -73,7 +73,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
         switch (req.use.role) {
             case "superAdmin":
-                orderWithDeliveries = await OrderWithDeliveryModel.find({}).populate("deliveryId", "username").populate({
+                orderWithDeliveries = await OrderWithDeliveryModel.find({ status: true }).populate("deliveryId", "username").populate({
                     path: "typeOfBreadIds.bread",
                     model: "SellerBread",
                     populate: {
@@ -176,7 +176,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
             case "delivery":
                 orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
                     {
-                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id) }
+                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true }
                     },
 
                     {
@@ -236,6 +236,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                             price4: "$breadIdDetails.price4",
                                             createdAt: "$breadIdDetails.createdAt",
                                         },
+                                        quantity: "$$breadIdItem.quantity",
                                         _id: "$breadDetails._id"
                                     }
                                 }
@@ -245,13 +246,13 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     }
                 ])
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * b.quantity, 0) }
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
                 })
                 break;
             case "manager":
                 orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
                     {
-                        $match: { adminId: new mongoose.Types.ObjectId(req.use.id) }
+                        $match: { adminId: new mongoose.Types.ObjectId(req.use.id), status: true }
                     },
 
                     {
@@ -394,7 +395,7 @@ exports.updateOrderWithDelivery = async (req, res) => {
 
 exports.deleteOrderWithDelivery = async (req, res) => {
     try {
-        const orderWithDelivery = await OrderWithDeliveryModel.findById(req.params.id)
+        const orderWithDelivery = await OrderWithDeliveryModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true })
             .populate("typeOfBreadIds.bread typeOfBreadIds.bread.typeOfBreadId.breadId");
 
         if (!orderWithDelivery) {
@@ -414,7 +415,6 @@ exports.deleteOrderWithDelivery = async (req, res) => {
             );
         }
 
-        await OrderWithDeliveryModel.findByIdAndDelete(req.params.id);
 
         await deleteCache(`orderWithDelivery${req.use.id}`);
 
