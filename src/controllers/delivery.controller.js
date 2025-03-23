@@ -77,11 +77,11 @@ exports.getDeliveries = async (req, res) => {
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(today.getMonth() - 1);
 
-    let deliveries = await DeliveryModel.find({}).lean()
+    let deliveries = await DeliveryModel.aggregate([{ $match: { status: true } }])
     const data = [];
     for (const key of deliveries) {
       const deliveryPayedes = await DeliveryPayedModel.aggregate([
-        { $match: { deliveryId: key._id, createdAt: { $gte: oneMonthAgo, $lt: today } } },
+        { $match: { deliveryId: key._id, createdAt: { $gte: oneMonthAgo, $lt: today }, active: true } },
       ]);
       let totalPrice = deliveryPayedes.reduce((a, b) => {
         switch (b.type) {
@@ -178,10 +178,38 @@ exports.updateDelivery = async (req, res) => {
 
 exports.deleteDelivery = async (req, res) => {
   try {
-    const delivery = await DeliveryModel.findByIdAndDelete(req.params.id);
-    const deliveryPayeds = await DeliveryPayedModel.find({});
-    deliveryPayeds.forEach(async () => {
-      await DeliveryPayedModel.deleteOne({ deliveryId: delivery._id });
+    const delivery = await DeliveryModel.findByIdAndUpdate(req.params.id, { status: true }, { new: true });
+    const deliveryPayeds = await DeliveryPayedModel.aggregate([{ $match: { deliveryId: delivery._id } }]);
+    deliveryPayeds.forEach(async ({ _id }) => {
+      await DeliveryPayedModel.findByIdAndUpdate(_id, { active: false }, { new: true });
+    });
+    if (!delivery) {
+      return res.status(404).json({
+        success: false,
+        message: "Delivery not found",
+      });
+    }
+    await deleteCache(`delivery`);
+    return res.status(200).json({
+      success: true,
+      message: "delivery deleted",
+      delivery,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+exports.deleteDeliveryHistory = async (req, res) => {
+  try {
+    const delivery = await DeliveryModel.findById(req.params.id);
+    const deliveryPayeds = await DeliveryPayedModel.aggregate([{ $match: { deliveryId: delivery._id } }]);
+    deliveryPayeds.forEach(async (item) => {
+      await DeliveryPayedModel.findByIdAndUpdate(item._id, { active: false }, { new: true });
     });
     if (!delivery) {
       return res.status(404).json({

@@ -77,17 +77,17 @@ exports.getSellers = async (req, res) => {
 
     let sellers = null;
     if (req.use.role === "superAdmin") {
-      sellers = await SellerModel.find({}).lean()
+      sellers = await SellerModel.aggregate([{ $match: { status: true } }])
     } else {
       sellers = await SellerModel.aggregate([
-        { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: oneMonthAgo, $lt: today } } },
+        { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: oneMonthAgo, $lt: today }, status: true } },
       ]);
     }
     const data = [];
     if (sellers.length > 0) {
       for (const key of sellers) {
         const sellerPayedes = await SellerPayedModel.aggregate([
-          { $match: { sellerId: key._id, } }
+          { $match: { sellerId: key._id, active: true } }
         ])
         let totalPrice = sellerPayedes.reduce((a, b) => {
           switch (b.type) {
@@ -205,10 +205,10 @@ exports.updateSeller = async (req, res) => {
 exports.deleteSeller = async (req, res) => {
   try {
     const seller = await SellerModel.findByIdAndDelete(req.params.id);
-    const sellerPayeds = await SellerPayedModel.find({});
-    sellerPayeds.forEach(async () => {
-      await SellerPayedModel.deleteOne({ sellerId: seller._id });
-    });
+    const sellerPayeds = await SellerPayedModel.aggregate([{ $match: { selelrId: seller._id } }])
+    sellerPayeds.forEach(async ({ _id }) => {
+      await SellerPayedModel.findByIdAndUpdate(_id, { active: false }, { new: true })
+    })
     if (!seller) {
       return res.status(404).json({
         success: false,
@@ -233,9 +233,9 @@ exports.deleteSeller = async (req, res) => {
 exports.deleteSellerHistory = async (req, res) => {
   try {
     const seller = await SellerModel.findById(req.params.id)
-    const sellerPayeds = await SellerPayedModel.find({})
-    sellerPayeds.forEach(async () => {
-      await SellerPayedModel.deleteOne({ sellerId: seller._id })
+    const sellerPayeds = await SellerPayedModel.aggregate([{ $match: { sellerId: seller._id } }])
+    sellerPayeds.forEach(async (item) => {
+      await SellerPayedModel.findByIdAndUpdate(item._id, { active: false }, { new: true })
     })
     if (!seller) {
       return res.status(404).json({
@@ -243,7 +243,7 @@ exports.deleteSellerHistory = async (req, res) => {
         message: "seller not found"
       })
     }
-
+    return res.status(200).json("Seller history deleted")
   }
   catch (error) {
     return res.status(500).json({

@@ -13,6 +13,7 @@ router.post("/seller", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Mid
 router.get("/sellers", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel]), Controller.getSellers)
 router.get("/seller/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, SellerModel,ManagerModel]), Controller.getSellerById)
 router.put("/seller/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, SellerModel,ManagerModel]), Middleware.verifyValidation(UpdateSellerSchema), Controller.updateSeller)
+router.delete("/seller/history/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel]), Controller.deleteSellerHistory)
 router.delete("/seller/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel,ManagerModel]), Controller.deleteSeller)
 
 module.exports = router
