@@ -14,11 +14,7 @@ app.use(express.json());
 app.use(
   cors({
     // origin:["https://alphae.uz","*","https://safonon.uz","https://admin.safonon.uz"],
-<<<<<<< HEAD
     origin: ["http://localhost:8080","http://localhost:8081","http://192.168.1.12:8080", "http://localhost:5173", "https://safo-non.netlify.app","https://alphae.uz","*","https://safonon.uz"]||"*",
-=======
-    origin: ["http://localhost:8080", "http://localhost:8081", "http://192.168.1.12:8080", "http://localhost:5173", "https://safo-non.netlify.app", "https://alphae.uz", "*", "https://safonon.uz"],
->>>>>>> ef91f1d57a977079d7bbbc2bac313fe7e28ce1e3
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
