@@ -9,6 +9,8 @@ const SellingBreadSchema = new Schema({
     deliveryId: { type: Schema.Types.ObjectId, ref: DeliveryModel, required: true },
     magazineId: { type: Schema.Types.ObjectId, ref: MagazineModel, required: true },
     money: { type: Number, required: true },
+    status: { type: Boolean, required: true, default: true },
+    pricetype: { type: String, required: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })

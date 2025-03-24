@@ -5,7 +5,7 @@ const MagazinePayedSchema = new Schema({
     comment: { type: String, required: true },
     type: { type: String, required: true },
     magazineId: { type: Schema.Types.ObjectId, required: true }
-})
+},{timestamps:true})
 
 
 const MagazinePayedModel = model("MagazinePayed", MagazinePayedSchema)

@@ -17,7 +17,7 @@ exports.create = async (req, res) => {
                 });
         }
         for (const key of req.body.orderWithDelivery) {
-            await OrderWithDeliveryModel.findByIdAndUpdate(key,{status:false},{new:true})
+            await OrderWithDeliveryModel.findByIdAndUpdate(key, { status: false }, { new: true })
         }
         await deleteCache(`returnedPro${req.use.id}`)
         await deleteCache(`sellerBread`)
@@ -112,14 +112,89 @@ exports.findAll = async (req, res) => {
                                 quantity: "$order.quantity",
                                 pricetype: "$order.pricetype",
                                 createdAt: "$order.createdAt",
-                                title: "$breadDetails.title"
+                                title: "$breadDetails.title",
+                                totalQuantity: 1
                             }
                         }
                     }
                 ])
                 returnedPro = returnedPro.map((item) => {
-                    return { ...item, totalQuantity: item?.order?.typeOfBreadIds?.reduce((a, b) => a + b?.quantity, 0), totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
+                    return { ...item, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
                 })
+            case "superAdmin":
+            case "manager":
+                returnedPro = await ReturnedProModel.aggregate([
+                    { $match: {} },
+                    {
+                        $lookup: {
+                            from: "orderwithdeliveries",
+                            localField: "orderWithDelivery",
+                            foreignField: "_id",
+                            as: "order"
+                        }
+                    },
+                    {
+                        $unwind: "$order"
+                    },
+                    {
+                        $lookup: {
+                            from: "sellerbreads",
+                            localField: "order.typeOfBreadIds.bread",
+                            foreignField: "_id",
+                            as: "breadDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadDetails",
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "breadDetails.typeOfBreadId.breadId",
+                            foreignField: "_id",
+                            as: "breadIdDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadIdDetails",
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            order: {
+                                typeOfBreadIds: {
+                                    $map: {
+                                        input: "$breadDetails.typeOfBreadId",
+                                        as: "breadIdItem",
+                                        in: {
+                                            breadId: {
+                                                _id: "$breadIdDetails._id",
+                                                title: "$breadIdDetails.title",
+                                                price: "$breadIdDetails.price",
+                                                price2: "$breadIdDetails.price2",
+                                                price3: "$breadIdDetails.price3",
+                                                price4: "$breadIdDetails.price4",
+                                                createdAt: "$breadIdDetails.createdAt",
+                                            },
+                                            quantity: "$$breadIdItem.quantity",
+                                            _id: "$breadDetails._id"
+                                        }
+                                    }
+                                },
+                                description: "$order.description",
+                                quantity: "$order.quantity",
+                                pricetype: "$order.pricetype",
+                                createdAt: "$order.createdAt",
+                                title: "$breadDetails.title",
+                                totalQuantity: 1
+                            }
+                        }
+                    }
+                ])
+                returnedPro = returnedPro.map((item) => {
+                    return { ...item, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
+                })
+                break;
         }
         await setCache(`returnedPro${req.use.id}`, returnedPro)
         return res.status(200).json({
@@ -187,7 +262,7 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
     try {
-        const returnedPro = await ReturnedProModel.findByIdAndUpdate(req.params.id,{status:false},{new:true})
+        const returnedPro = await ReturnedProModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true })
 
         if (!returnedPro) {
             return res.status(404).json({
@@ -196,7 +271,7 @@ exports.remove = async (req, res) => {
             });
         }
 
-  
+
         await deleteCache(`returnedPro${req.use.id}`);
 
         return res.status(200).json({

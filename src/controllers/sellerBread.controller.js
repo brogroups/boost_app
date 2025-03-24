@@ -18,6 +18,7 @@ exports.createSellerBread = async (req, res) => {
         await deleteCache(`sellerBread${req.use.id}`)
         let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId typeOfBreadId.breadId.breadId")
         sellerPayedBread = sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
+        console.log(sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity), 0))
         await SellerPayedModel.create({ sellerId: req.use.id, price: sellerPayedBread, type: "Ishhaqi", status: "To`landi", comment: "--------" })
         return res.status(201).json({
             success: true,
@@ -263,7 +264,7 @@ exports.getSellerBread = async (req, res) => {
                 break;
             case "superAdmin":
                 sellerBreads = await SellerBreadModel.aggregate([
-                    { $match: {  status: true } },
+                    { $match: { status: true } },
                     {
                         $lookup: {
                             from: "sellers",
@@ -412,7 +413,7 @@ exports.getSellerById = async (req, res) => {
 
 exports.updateSellerById = async (req, res) => {
     try {
-        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true }).populate("typeOfBreadId")
+        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date(), totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), }, { new: true }).populate("typeOfBreadId")
         if (!sellerBread) {
             return res.status(404).json({
                 success: false,

@@ -10,6 +10,7 @@ const OrderWithDeliverySchema = new Schema({
             quantity: { type: Number, required: true }
         }
     ],
+    totalQuantity: { type: Number, required: true },
     pricetype: { type: String, required: true },
     // quantity: { type: Number, required: true },
     description: { type: String, required: true },

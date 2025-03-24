@@ -31,10 +31,10 @@ exports.createOrderWithDelivery = async (req, res) => {
         }
         switch (req.use.role) {
             case "manager":
-                await OrderWithDeliveryModel.create({ ...req.body, adminId: new mongoose.Types.ObjectId(req.use.id) })
+                await OrderWithDeliveryModel.create({ ...req.body, adminId: new mongoose.Types.ObjectId(req.use.id), totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) })
                 break;
             case "superAdmin":
-                await OrderWithDeliveryModel.create(req.body)
+                await OrderWithDeliveryModel.create({ ...req.body, totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) })
                 break;
             default:
                 return res.status(403).json({
@@ -217,6 +217,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                             description: 1,
                             quantity: 1,
                             pricetype: 1,
+                            totalQuantity: 1,
                             deliveryId: {
                                 _id: "$deliveryDetails._id",
                                 username: "$deliveryDetails.username"
@@ -316,7 +317,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                     }
                                 }
                             },
-                            totalQuantity: { $sum: "$typeOfBreadIds.quantity" },
+                            totalQuantity: 1,
                             pricetype: 1
                         }
                     },
@@ -370,7 +371,7 @@ exports.getOrderWithDeliveryById = async (req, res) => {
 exports.updateOrderWithDelivery = async (req, res) => {
     try {
         const { typeOfBreadIds, quantity, description, sellerBreadId, time } = req.body
-        const orderWithDelivery = await OrderWithDeliveryModel.findByIdAndUpdate(req.params.id, { typeOfBreadIds, quantity, description, sellerBreadId, time: time ? time : new Date(), updateAt: new Date() }, { new: true }).populate("typeOfBreadIds sellerId")
+        const orderWithDelivery = await OrderWithDeliveryModel.findByIdAndUpdate(req.params.id, { typeOfBreadIds, quantity, description, sellerBreadId, time: time ? time : new Date(), updateAt: new Date(), totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }, { new: true }).populate("typeOfBreadIds sellerId")
         if (!orderWithDelivery) {
             return res.status(404).json({
                 success: false,

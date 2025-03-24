@@ -12,11 +12,10 @@ exports.createSellingBread = async (req, res) => {
         let sellingBread;
         switch (req.use.role) {
             case "superAdmin":
+            case "manager": {
                 sellingBread = new SellingBreadModel(req.body)
                 break;
-            case "manager":
-                sellingBread = new SellingBreadModel(req.body)
-                break;
+            }
             case "delivery":
                 sellingBread = new SellingBreadModel({ ...req.body, deliveryId: req.use.id })
                 break;
@@ -44,9 +43,9 @@ exports.createSellingBread = async (req, res) => {
                 { totalQuantity: typeOfWareHouse.totalQuantity },
                 { new: true }
             );
-            await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik",comment:"----" })
+            await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik", comment: "----" })
             await sellingBread.save()
-        } else {D
+        } else {
             return res.status(404).json({
                 success: false,
                 message: "delivery topilmadi"
@@ -55,6 +54,7 @@ exports.createSellingBread = async (req, res) => {
         await deleteCache(`sellingBread`)
         await deleteCache(`sellerBread`)
         await deleteCache(`delivery`)
+        await deleteCache(`magazine`)
         return res.status(201).json({
             success: true,
             messahe: "selling bread created",
@@ -79,12 +79,9 @@ exports.getSellingBread = async (req, res) => {
                 sellingBreads: cache?.reverse()
             })
         }
-        let sellingBreads = await SellingBreadModel.find({}).populate({
-            path: "breadId",
-            model: "SellerBread"
-        }).populate("deliveryId magazineId")
+        let sellingBreads = await SellingBreadModel.find({}).populate("deliveryId magazineId")
         sellingBreads = sellingBreads.map((item) => {
-            const price = item.breadId.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price2 * b.quantity), 0)
+            const price = item?.breadId?.typeOfBreadId?.reduce((a, b) => a + (b?.breadId?.price2 * b.quantity), 0)
             return { ...item._doc, price: price }
         }).reverse()
         await setCache(`sellingBread`, sellingBreads)
