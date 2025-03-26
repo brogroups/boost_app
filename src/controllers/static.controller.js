@@ -4,9 +4,9 @@ const Debt2Model = require("../models/debt2.model")
 const DeliveryDebtModel = require("../models/deliveryDebt.model")
 const SellingBreadModel = require("../models/sellingBread.model")
 const SellerModel = require("../models/seller.model")
-const DeliveryModel = require("../models/delivery.model")
+// const DeliveryModel = require("../models/delivery.model")
 const ManagerModel = require("../models/manager.model")
-const SellerBreadModel = require("../models/sellerBread.model")
+// const SellerBreadModel = require("../models/sellerBread.model")
 const SellerPayedModel = require("../models/sellerPayed.model")
 const { getSellerBread } = require("./sellerBread.controller")
 const SaleModel = require("../models/sale.mode")
@@ -56,7 +56,7 @@ exports.getStatics = async (req, res) => {
                     return { ...item, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate("deliveryId", 'username').populate({
+                let deliveryPrixod = await SellingBreadModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek }, status: true }).populate("deliveryId", 'username').populate({
                     path: "breadId",
                     model: "SellerBread",
                     populate: {
@@ -65,7 +65,7 @@ exports.getStatics = async (req, res) => {
                     }
                 }).populate("magazineId").lean()
                 let Allsales = await SaleModel.aggregate([
-                    { $match: {} }
+                    { $match: { status: true } }
                 ])
                 deliveryPrixod = deliveryPrixod.map((item) => {
                     return {
@@ -84,12 +84,14 @@ exports.getStatics = async (req, res) => {
                     }
                 }
 
-                const managers = await ManagerModel.find({})
+                const managers = await ManagerModel.aggregate([
+                    { $match: { status: true } }
+                ])
                 const mamangersStatics = []
 
                 for (const item of managers) {
                     const sellers = await SellerModel.aggregate([
-                        { $match: { superAdminId: new mongoose.Types.ObjectId(item._id) } }
+                        { $match: { superAdminId: new mongoose.Types.ObjectId(item._id), status: true } }
                     ])
 
                     let debt = []
@@ -110,7 +112,7 @@ exports.getStatics = async (req, res) => {
                             },
                             {
                                 $match: {
-                                    "breadDetails.sellerId": seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek }
+                                    "breadDetails.sellerId": seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek }, status: true
                                 }
                             },
                             {
@@ -203,7 +205,7 @@ exports.getStatics = async (req, res) => {
                     }
                     debt = debt.filter((item) => item.length !== 0).flat(Infinity)
 
-                    const sale = await SaleModel.aggregate([{ $match: { managerId: new mongoose.Types.ObjectId(item._id) } }])
+                    const sale = await SaleModel.aggregate([{ $match: { managerId: new mongoose.Types.ObjectId(item._id), status: true } }])
 
                     mamangersStatics.push({
                         _id: item._id,
@@ -244,7 +246,7 @@ exports.getStatics = async (req, res) => {
                 let managerPending = []
                 let sales = []
                 const sellers = await SellerModel.aggregate([
-                    { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }
+                    { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), status: true } }
                 ])
                 debt.push(await Debt1Model.aggregate([
                     { $match: { managerId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
@@ -304,7 +306,7 @@ exports.getStatics = async (req, res) => {
                         },
                         {
                             $match: {
-                                "breadDetails.sellerId": seller._id, createdAt: { $gte: startDay, $lte: endDay }
+                                "breadDetails.sellerId": seller._id, createdAt: { $gte: startDay, $lte: endDay }, status: true
                             }
                         },
                         {
@@ -467,7 +469,7 @@ exports.getStatics = async (req, res) => {
                 let pendingDelivery = []
                 let soldBread = await SellingBreadModel.aggregate([
                     {
-                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } }
+                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }, status: true }
                     },
                     {
                         $lookup: {
@@ -541,7 +543,7 @@ exports.getStatics = async (req, res) => {
                 ])
                 let deliverySellingBread = await SellingBreadModel.aggregate([
                     {
-                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } }
+                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }, status: true }
                     },
                     {
                         $lookup: {
@@ -635,7 +637,7 @@ exports.getStatics = async (req, res) => {
                 break;
             case "seller":
                 let sellerPayeds = await SellerPayedModel.aggregate([
-                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay } } }
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }, active: true } }
                 ])
                 sellerPayeds = sellerPayeds.reduce((a, b) => {
                     switch (b.type) {
