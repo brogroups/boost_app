@@ -6,7 +6,7 @@ const ManagerSchema = new Schema({
     password: { type: String, required: true, unique: true, trim: true },
     superAdminId: { type: Schema.Types.ObjectId, ref: SuperAdminModel },
     refreshToken: { type: String, required: true },
-    status: { type: Boolean, required: true },
+    status: { type: Boolean, required: true, default: true },
     createdAt: { type: Date, default: new Date() },
     updateAt: { type: Date, default: new Date() }
 })

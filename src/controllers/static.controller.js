@@ -373,7 +373,51 @@ exports.getStatics = async (req, res) => {
 
                 debt = debt.filter((item) => item.length !== 0).flat(Infinity)
                 sales = await SaleModel.aggregate([
-                    { $match: { managerId: new mongoose.Types.ObjectId(req.use.id) } }
+                    { $match: { managerId: new mongoose.Types.ObjectId(req.use.id), status: true } },
+                    {
+                        $lookup: {
+                            from: "sellerbreads",
+                            localField: "breadId",
+                            foreignField: "_id",
+                            as: "bread"
+                        }
+                    }, {
+                        $unwind: "$bread"
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "bread.typeOfBreadId.breadId",
+                            foreignField: "_id",
+                            as: "breadId2"
+                        }
+                    },
+                    {
+                        $unwind: "$breadId2"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            typeOfBreadId: {
+                                $map: {
+                                    input: "$bread.typeOfBreadId",
+                                    as: "typeofbread",
+                                    in: {
+                                        breadId: "$breadId2",
+                                        quantity: "$$typeofbread.quantity",
+                                        qopQuantity: "$$typeofbread.qopQuantity"
+                                    }
+                                }
+                            },
+                            title: "$bread.title",
+                            money: 1,
+                            quantity: 1,
+                            description: 1,
+                            managerId: 1,
+                            createdAt: 1,
+                            pricetype: 1
+                        }
+                    }
                 ])
                 return res.status(200).json({
                     statics: {

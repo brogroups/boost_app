@@ -31,7 +31,7 @@ exports.isCorrectRole = (models) => async (req, res, next) => {
     try {
         for (const model of models) {
             const item = await model.findById(new mongoose.Types.ObjectId(req.use.id))                
-            if (item) {
+            if (item && item?.status) {
               return next()
             } 
         }

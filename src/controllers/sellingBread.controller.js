@@ -71,7 +71,8 @@ exports.createSellingBread = async (req, res) => {
 
 exports.getSellingBread = async (req, res) => {
     try {
-        const cache = await getCache(`sellingBread`)
+        const cache = null
+        await getCache(`sellingBread`)
         if (cache) {
             return res.status(200).json({
                 success: true,
@@ -79,7 +80,10 @@ exports.getSellingBread = async (req, res) => {
                 sellingBreads: cache?.reverse()
             })
         }
-        let sellingBreads = await SellingBreadModel.find({}).populate("deliveryId magazineId")
+        let sellingBreads = await SellingBreadModel.find({}).populate("deliveryId magazineId").populate({
+            path: "breadId",
+            populate: { path: "typeOfBreadId.breadId", model: "TypeOfBread" }
+        });
         sellingBreads = sellingBreads.map((item) => {
             const price = item?.breadId?.typeOfBreadId?.reduce((a, b) => a + (b?.breadId?.price2 * b.quantity), 0)
             return { ...item._doc, price: price }

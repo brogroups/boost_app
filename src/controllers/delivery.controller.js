@@ -181,7 +181,7 @@ exports.updateDelivery = async (req, res) => {
 
 exports.deleteDelivery = async (req, res) => {
   try {
-    const delivery = await DeliveryModel.findByIdAndUpdate(req.params.id, { status: true }, { new: true });
+    const delivery = await DeliveryModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true });
     const deliveryPayeds = await DeliveryPayedModel.aggregate([{ $match: { deliveryId: delivery._id } }]);
     deliveryPayeds.forEach(async ({ _id }) => {
       await DeliveryPayedModel.findByIdAndUpdate(_id, { active: false }, { new: true });
