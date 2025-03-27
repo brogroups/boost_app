@@ -8,6 +8,8 @@ const CreateOrderWithDeliverySchema = Joi.object({
     description: Joi.string().required(),
     sellerId: Joi.string().optional(),
     deliveryId: Joi.string().required(),
+    type: Joi.string().optional(),
+    totalQuantity: Joi.number().optional()
     // magazineId: Joi.string().required()
 })
 

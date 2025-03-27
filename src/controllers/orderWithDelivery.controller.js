@@ -6,32 +6,34 @@ const SellerBreadModel = require("../models/sellerBread.model")
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
-        for (const key of req.body.typeOfBreadIds) {
-            let typeOfWareHouse = await SellerBreadModel.findById(key.bread);
-            if (!typeOfWareHouse) {
-                return res.status(404).json({
-                    success: false,
-                    message: `Mahsulot topilmadi (ID: ${key.omborxonaProId})`
-                });
-            }
+        if (req.body?.type !== "returned") {
+            for (const key of req.body.typeOfBreadIds) {
+                let typeOfWareHouse = await SellerBreadModel.findById(key.bread);
+                if (!typeOfWareHouse) {
+                    return res.status(404).json({
+                        success: false,
+                        message: `Mahsulot topilmadi (ID: ${key.omborxonaProId})`
+                    });
+                }
 
-            if (key.quantity > typeOfWareHouse.totalQuantity) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
-                });
-            }
+                if (key.quantity >= typeOfWareHouse.totalQuantity) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
+                    });
+                }
 
-            typeOfWareHouse.totalQuantity -= key.quantity;
-            await SellerBreadModel.findByIdAndUpdate(
-                key.bread,
-                { totalQuantity: typeOfWareHouse.totalQuantity },
-                { new: true }
-            );
+                typeOfWareHouse.totalQuantity -= key.quantity;
+                await SellerBreadModel.findByIdAndUpdate(
+                    key.bread,
+                    { totalQuantity: typeOfWareHouse.totalQuantity },
+                    { new: true }
+                );
+            }
         }
         switch (req.use.role) {
             case "manager":
-                await OrderWithDeliveryModel.create({ ...req.body, adminId: new mongoose.Types.ObjectId(req.use.id), totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) })
+                await OrderWithDeliveryModel.create({ ...req.body, adminId: new mongoose.Types.ObjectId(req.use.id), totalQuantity: req.body?.type === "returned" ? req.body.totalQuantity : req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) })
                 break;
             case "superAdmin":
                 await OrderWithDeliveryModel.create({ ...req.body, totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) })
@@ -431,15 +433,6 @@ exports.deleteOrderWithDelivery = async (req, res) => {
             });
         }
 
-        // for (const key of orderWithDelivery.typeOfBreadIds) {
-        //     let bread = await SellerBreadModel.findById(key.bread).populate("typeOfBreadId.breadId");
-        //     bread.totalQuantity += key.quantity
-        //     await SellerBreadModel.findByIdAndUpdate(
-        //         bread?._id,
-        //         { totalQuantity: bread?.totalQuantity },
-        //         { new: true }
-        //     );
-        // }
 
 
         await deleteCache(`orderWithDelivery${req.use.id}`);

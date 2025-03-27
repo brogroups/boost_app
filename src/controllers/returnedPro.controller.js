@@ -51,7 +51,7 @@ exports.findAll = async (req, res) => {
         switch (req.use.role) {
             case "delivery":
                 returnedPro = await ReturnedProModel.aggregate([
-                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id) } },
+                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id),status:true } },
                     {
                         $lookup: {
                             from: "orderwithdeliveries",
@@ -113,7 +113,7 @@ exports.findAll = async (req, res) => {
                                 pricetype: "$order.pricetype",
                                 createdAt: "$order.createdAt",
                                 title: "$breadDetails.title",
-                                totalQuantity: 1
+                                totalQuantity: 1,
                             }
                         }
                     }
@@ -124,7 +124,7 @@ exports.findAll = async (req, res) => {
             case "superAdmin":
             case "manager":
                 returnedPro = await ReturnedProModel.aggregate([
-                    { $match: {} },
+                    { $match: {status:true} },
                     {
                         $lookup: {
                             from: "orderwithdeliveries",
@@ -159,6 +159,17 @@ exports.findAll = async (req, res) => {
                         $unwind: "$breadIdDetails",
                     },
                     {
+                        $lookup: {
+                            from: "deliveries",
+                            localField: "order.deliveryId",
+                            foreignField: "_id",
+                            as: "delivery"
+                        }
+                    },
+                    {
+                        $unwind: "$delivery"
+                    },
+                    {
                         $project: {
                             _id: 1,
                             order: {
@@ -186,8 +197,13 @@ exports.findAll = async (req, res) => {
                                 pricetype: "$order.pricetype",
                                 createdAt: "$order.createdAt",
                                 title: "$breadDetails.title",
+
                                 totalQuantity: 1
-                            }
+                            },
+                            deliveryId: {
+                                _id: "$delivery._id",
+                                username: "$delivery.username"
+                            },
                         }
                     }
                 ])
