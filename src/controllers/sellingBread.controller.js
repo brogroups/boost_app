@@ -128,13 +128,36 @@ exports.getSellingBreadById = async (req, res) => {
 
 exports.updateSellingBreadById = async (req, res) => {
     try {
-        const sellingBread = await SellingBreadModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date() }, { new: true }).populate("typeOfBreadIds deliveryId")
+        const sellingBread = await SellingBreadModel.findById(req.params.id)
         if (!sellingBread) {
             return res.status(404).json({
                 success: false,
                 message: "selling bread not found"
             })
         }
+        let typeOfWareHouse = await SellerBreadModel.findById(req.body.breadId);
+        if (!typeOfWareHouse) {
+            return res.status(404).json({
+                success: false,
+                message: `Mahsulot topilmadi (ID: ${typeOfWareHouse.omborxonaProId})`
+            });
+        }
+
+        if (req.body.quantity > typeOfWareHouse.totalQuantity) {
+            return res.status(400).json({
+                success: false,
+                message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
+            });
+        }
+
+        typeOfWareHouse.totalQuantity += sellingBread.quantity;
+        typeOfWareHouse.totalQuantity -= req.body.quantity;
+        await SellerBreadModel.findByIdAndUpdate(
+            req.body.breadId,
+            { totalQuantity: typeOfWareHouse.totalQuantity },
+            { new: true }
+        );
+        await SellingBreadModel.findByIdAndUpdate(sellingBread._id, { ...req.body, updateAt: new Date() }, { new: true })
         await deleteCache(`sellingBread`)
         return res.status(200).json({
             success: true,

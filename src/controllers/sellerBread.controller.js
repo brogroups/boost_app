@@ -18,7 +18,6 @@ exports.createSellerBread = async (req, res) => {
         await deleteCache(`sellerBread${req.use.id}`)
         let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId typeOfBreadId.breadId.breadId")
         sellerPayedBread = sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
-        console.log(sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity), 0))
         await SellerPayedModel.create({ sellerId: req.use.id, price: sellerPayedBread, type: "Ishhaqi", status: "To`landi", comment: "--------" })
         return res.status(201).json({
             success: true,
@@ -120,7 +119,7 @@ exports.getSellerBread = async (req, res) => {
                 break;
             case "manager":
                 let sellers = await SellerModel.aggregate([
-                    { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id) } }
+                    { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), status: true } }
                 ])
                 for (const key of sellers) {
                     let sellerBread = await SellerBreadModel.aggregate([

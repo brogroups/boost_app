@@ -44,7 +44,7 @@ exports.getMagazines = async (req, res) => {
             case "manager":
                 for (const key of magazines) {
                     let sellingBreadToMagazines = await SellingBreadToMagazineModel.aggregate([
-                        { $match: {} },
+                        { $match: { magazineId: key._id } },
                         {
                             $lookup: {
                                 from: "sellerbreads",
@@ -124,7 +124,6 @@ exports.getMagazines = async (req, res) => {
                     })
                     data.push({ ...key, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
                 }
-                console.log(data)
                 break;
             case "delivery":
                 for (const key of magazines) {
@@ -204,8 +203,7 @@ exports.getMagazines = async (req, res) => {
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
                     sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
                         let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0)
-                        let pending = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0) - item.money
-                        return { ...item, totalPrice, pending }
+                        return { ...item, totalPrice, pending: totalPrice - item.money }
                     })
                     data.push({ ...key, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
                 }

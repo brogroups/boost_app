@@ -371,13 +371,38 @@ exports.getOrderWithDeliveryById = async (req, res) => {
 exports.updateOrderWithDelivery = async (req, res) => {
     try {
         const { typeOfBreadIds, quantity, description, sellerBreadId, time } = req.body
-        const orderWithDelivery = await OrderWithDeliveryModel.findByIdAndUpdate(req.params.id, { typeOfBreadIds, quantity, description, sellerBreadId, time: time ? time : new Date(), updateAt: new Date(), totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }, { new: true }).populate("typeOfBreadIds sellerId")
+        const orderWithDelivery = await OrderWithDeliveryModel.find(req.params.id)
         if (!orderWithDelivery) {
             return res.status(404).json({
                 success: false,
                 message: "order with delivery not found"
             })
         }
+        for (const key of typeOfBreadIds) {
+            let typeOfWareHouse = await SellerBreadModel.findById(key.bread);
+            if (!typeOfWareHouse) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Mahsulot topilmadi (ID: ${key.omborxonaProId})`
+                });
+            }
+
+            if (key.quantity > typeOfWareHouse.totalQuantity) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
+                });
+            }
+
+            typeOfWareHouse.totalQuantity += quantity;
+            typeOfWareHouse.totalQuantity -= key.quantity;
+            await SellerBreadModel.findByIdAndUpdate(
+                key.bread,
+                { totalQuantity: typeOfWareHouse.totalQuantity },
+                { new: true }
+            );
+        }
+        await OrderWithDeliveryModel.findByIdAndUpdate(orderWithDelivery._id, { typeOfBreadIds, quantity, description, sellerBreadId, time: time ? time : new Date(), updateAt: new Date(), totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }, { new: true })
         await deleteCache(`orderWithDelivery${req.use.id}`)
         return res.status(200).json({
             success: true,
@@ -406,15 +431,15 @@ exports.deleteOrderWithDelivery = async (req, res) => {
             });
         }
 
-        for (const key of orderWithDelivery.typeOfBreadIds) {
-            let bread = await SellerBreadModel.findById(key.bread).populate("typeOfBreadId.breadId");
-            bread.totalQuantity += key.quantity
-            await SellerBreadModel.findByIdAndUpdate(
-                bread?._id,
-                { totalQuantity: bread?.totalQuantity },
-                { new: true }
-            );
-        }
+        // for (const key of orderWithDelivery.typeOfBreadIds) {
+        //     let bread = await SellerBreadModel.findById(key.bread).populate("typeOfBreadId.breadId");
+        //     bread.totalQuantity += key.quantity
+        //     await SellerBreadModel.findByIdAndUpdate(
+        //         bread?._id,
+        //         { totalQuantity: bread?.totalQuantity },
+        //         { new: true }
+        //     );
+        // }
 
 
         await deleteCache(`orderWithDelivery${req.use.id}`);
