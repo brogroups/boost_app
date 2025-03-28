@@ -11,7 +11,7 @@ const app = express();
 
 app.use(express.json());
 
-app.use(
+app.use(    
   cors({
     origin:["https://alphae.uz","*","https://safonon.uz","https://admin.safonon.uz","https://safonon.uz"],
     // origin: ["http://localhost:8080", "http://localhost:8081", "http://192.168.1.12:8080", "http://localhost:5173", "https://safo-non.netlify.app", "https://alphae.uz", "*", "https://safonon.uz"] || "*",
