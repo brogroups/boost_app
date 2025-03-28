@@ -153,6 +153,8 @@ exports.updateDelivery = async (req, res) => {
     let hashPassword;
     if (password) {
       hashPassword = encrypt(password);
+    }else{
+      hashPassword = encrypt(phone.slice(-4))
     }
     const delivery = await DeliveryModel.findByIdAndUpdate(
       req.params.id,

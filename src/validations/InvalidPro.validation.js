@@ -1,11 +1,11 @@
 const Joi = require("joi");
 
 const createSchema = Joi.object({
-    orderWithDelivery: Joi.array().required(),
+    ReturnedModel: Joi.string().required(),
 })
 
 const updateSchema = Joi.object({
-    orderWithDelivery: Joi.array().required(),
+    ReturnedModel: Joi.string().required(),
 })
 
 module.exports = { createSchema, updateSchema }

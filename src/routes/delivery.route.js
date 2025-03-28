@@ -13,7 +13,7 @@ const { CreateDeliverySchema, UpdateDeliverySchema, LoginDeliverySchema } = requ
 router.post("/delivery", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel]), Middleware.verifyValidation(CreateDeliverySchema), Controller.createDelivery)
 router.get("/deliveries", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, SellerModel]), Controller.getDeliveries)
 router.get("/delivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel, SellerModel]), Controller.getDeliveryById)
-router.put("/delivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Middleware.verifyValidation(UpdateDeliverySchema), Controller.updateDelivery)
+router.put("/delivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel, DeliveryModel]), Controller.updateDelivery)
 router.delete("/delivery/history/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel]), Controller.deleteDeliveryHistory)
 router.delete("/delivery/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel]), Controller.deleteDelivery)
-module.exports = router
+module.exports = router 
