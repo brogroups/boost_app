@@ -376,6 +376,75 @@ exports.getStatics = async (req, res) => {
                             }
                         },
                     ])
+                    // let soldBread1 = await SellingBreadModel.aggregate([
+                    //     {
+                    //         $match: { magazineId: key._id, status: true }
+                    //     },
+                    //     {
+                    //         $lookup: {
+                    //             from: "orderwithdeliveries",
+                    //             localField: "breadId",
+                    //             foreignField: "_id",
+                    //             as: "bread"
+                    //         }
+                    //     },
+                    //     {
+                    //         $unwind: "$bread"
+                    //     },
+                    //     {
+                    //         $lookup: {
+                    //             from: "sellerbreads",
+                    //             localField: "bread.typeOfBreadIds.bread",
+                    //             foreignField: "_id",
+                    //             as: "breadDetails"
+                    //         }
+                    //     },
+                    //     { $unwind: "$breadDetails" },
+                    //     {
+                    //         $match: {
+                    //             "breadDetails.sellerId": seller._id, createdAt: { $gte: startDay, $lte: endDay }, status: true
+                    //         }
+                    //     },
+                    //     {
+                    //         $lookup: {
+                    //             from: "typeofbreads",
+                    //             localField: "breadDetails.typeOfBreadId.breadId",
+                    //             foreignField: "_id",
+                    //             as: "breadIdDetails"
+                    //         }
+                    //     },
+                    //     { $unwind: "$breadIdDetails" },
+                    //     {
+                    //         $project: {
+                    //             _id: 1,
+                    //             typeOfBreadIds: {
+                    //                 $map: {
+                    //                     input: "$breadDetails.typeOfBreadId",
+                    //                     as: "breadIdItem",
+                    //                     in: {
+                    //                         breadId: {
+                    //                             _id: "$breadIdDetails._id",
+                    //                             title: "$breadIdDetails.title",
+                    //                             price: "$breadIdDetails.price",
+                    //                             price2: "$breadIdDetails.price2",
+                    //                             price3: "$breadIdDetails.price3",
+                    //                             price4: "$breadIdDetails.price4",
+                    //                             createdAt: "$breadIdDetails.createdAt",
+                    //                         },
+                    //                         quantity: "$$breadIdItem.quantity"
+                    //                     }
+                    //                 }
+                    //             },
+                    //             paymentMethod: 1,
+                    //             delivertId: 1,
+                    //             quantity: 1,
+
+                    //             money: 1,
+                    //             pricetype: 1,
+                    //             createdAt: 1
+                    //         }
+                    //     },
+                    // ])
                     sellerPayedsManager = await SellerPayedModel.aggregate([
                         { $match: { type: { $in: ["Avans", "Oylik"] }, active: true, sellerId: seller._id } }
                     ])
@@ -534,20 +603,28 @@ exports.getStatics = async (req, res) => {
 
                 let soldBread1 = await SellingBreadModel.aggregate([
                     {
-                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }, status: true }
+                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true }
+                    },
+                    {
+                        $lookup: {
+                            from: "orderwithdeliveries",
+                            localField: "breadId",
+                            foreignField: "_id",
+                            as: "bread"
+                        }
+                    },
+                    {
+                        $unwind: "$bread"
                     },
                     {
                         $lookup: {
                             from: "sellerbreads",
-                            localField: "breadId",
+                            localField: "bread.typeOfBreadIds.bread",
                             foreignField: "_id",
                             as: "breadDetails"
                         }
                     },
-                    {
-                        $unwind: "$breadDetails",
-                    },
-
+                    { $unwind: "$breadDetails" },
                     {
                         $lookup: {
                             from: "typeofbreads",
@@ -556,20 +633,7 @@ exports.getStatics = async (req, res) => {
                             as: "breadIdDetails"
                         }
                     },
-                    {
-                        $unwind: "$breadIdDetails",
-                    },
-                    {
-                        $lookup: {
-                            from: "magazines",
-                            localField: "magazineId",
-                            foreignField: "_id",
-                            as: "magazine"
-                        }
-                    },
-                    {
-                        $unwind: "$magazine"
-                    },
+                    { $unwind: "$breadIdDetails" },
                     {
                         $project: {
                             _id: 1,
@@ -594,16 +658,27 @@ exports.getStatics = async (req, res) => {
                             paymentMethod: 1,
                             delivertId: 1,
                             quantity: 1,
-                            magazineId: {
-                                _id: "$magazine._id",
-                                title: "$magazine.title"
-                            },
+
                             money: 1,
+                            pricetype: 1,
                             createdAt: 1
                         }
                     },
                 ])
-
+                soldBread1 = soldBread1.reduce((acc, item) => {
+                    const excite = acc.find(b => String(b._id) === String(item._id))
+                    if (!excite) {
+                        acc.push({ ...item })
+                    }
+                    return acc
+                }, [])
+                soldBread = soldBread.reduce((acc, item) => {
+                    const excite = acc.find(b => String(b._id) === String(item._id))
+                    if (!excite) {
+                        acc.push({ ...item })
+                    }
+                    return acc
+                }, [])
                 for (const key of [...soldBread, ...soldBread1]) {
                     let totalPrice = key?.typeOfBreadIds.reduce((a, b) => a + b.breadId.price2, 0)
                     if (totalPrice - key.money > 0) {

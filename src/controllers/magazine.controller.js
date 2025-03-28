@@ -114,20 +114,28 @@ exports.getMagazines = async (req, res) => {
                     ])
                     let soldBread1 = await SellingBreadModel.aggregate([
                         {
-                            $match: { magazineId: key._id,status: true }
+                            $match: { magazineId: key._id, status: true }
+                        },
+                        {
+                            $lookup: {
+                                from: "orderwithdeliveries",
+                                localField: "breadId",
+                                foreignField: "_id",
+                                as: "bread"
+                            }
+                        },
+                        {
+                            $unwind: "$bread"
                         },
                         {
                             $lookup: {
                                 from: "sellerbreads",
-                                localField: "breadId",
+                                localField: "bread.typeOfBreadIds.bread",
                                 foreignField: "_id",
                                 as: "breadDetails"
                             }
                         },
-                        {
-                            $unwind: "$breadDetails",
-                        },
-
+                        { $unwind: "$breadDetails" },
                         {
                             $lookup: {
                                 from: "typeofbreads",
@@ -136,20 +144,7 @@ exports.getMagazines = async (req, res) => {
                                 as: "breadIdDetails"
                             }
                         },
-                        {
-                            $unwind: "$breadIdDetails",
-                        },
-                        {
-                            $lookup: {
-                                from: "magazines",
-                                localField: "magazineId",
-                                foreignField: "_id",
-                                as: "magazine"
-                            }
-                        },
-                        {
-                            $unwind: "$magazine"
-                        },
+                        { $unwind: "$breadIdDetails" },
                         {
                             $project: {
                                 _id: 1,
@@ -174,15 +169,14 @@ exports.getMagazines = async (req, res) => {
                                 paymentMethod: 1,
                                 delivertId: 1,
                                 quantity: 1,
-                                magazineId: {
-                                    _id: "$magazine._id",
-                                    title: "$magazine.title"
-                                },
+
                                 money: 1,
+                                pricetype: 1,
                                 createdAt: 1
                             }
                         },
                     ])
+
                     sellingBreadToMagazines = [...sellingBreadToMagazines, ...soldBread1]
                     let magazinePayed = await MagazinePayedModel.aggregate([
                         {
@@ -270,20 +264,28 @@ exports.getMagazines = async (req, res) => {
                     ])
                     let soldBread1 = await SellingBreadModel.aggregate([
                         {
-                            $match: { magazineId: key._id,  status: true }
+                            $match: { magazineId: key._id, status: true }
+                        },
+                        {
+                            $lookup: {
+                                from: "orderwithdeliveries",
+                                localField: "breadId",
+                                foreignField: "_id",
+                                as: "bread"
+                            }
+                        },
+                        {
+                            $unwind: "$bread"
                         },
                         {
                             $lookup: {
                                 from: "sellerbreads",
-                                localField: "breadId",
+                                localField: "bread.typeOfBreadIds.bread",
                                 foreignField: "_id",
                                 as: "breadDetails"
                             }
                         },
-                        {
-                            $unwind: "$breadDetails",
-                        },
-
+                        { $unwind: "$breadDetails" },
                         {
                             $lookup: {
                                 from: "typeofbreads",
@@ -292,20 +294,7 @@ exports.getMagazines = async (req, res) => {
                                 as: "breadIdDetails"
                             }
                         },
-                        {
-                            $unwind: "$breadIdDetails",
-                        },
-                        {
-                            $lookup: {
-                                from: "magazines",
-                                localField: "magazineId",
-                                foreignField: "_id",
-                                as: "magazine"
-                            }
-                        },
-                        {
-                            $unwind: "$magazine"
-                        },
+                        { $unwind: "$breadIdDetails" },
                         {
                             $project: {
                                 _id: 1,
@@ -330,15 +319,14 @@ exports.getMagazines = async (req, res) => {
                                 paymentMethod: 1,
                                 delivertId: 1,
                                 quantity: 1,
-                                magazineId: {
-                                    _id: "$magazine._id",
-                                    title: "$magazine.title"
-                                },
+
                                 money: 1,
+                                pricetype: 1,
                                 createdAt: 1
                             }
                         },
                     ])
+
                     sellingBreadToMagazines = [...sellingBreadToMagazines, ...soldBread1]
                     let magazinePayed = await MagazinePayedModel.aggregate([
                         {
@@ -346,6 +334,13 @@ exports.getMagazines = async (req, res) => {
                         }
                     ])
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
+                    sellingBreadToMagazines = sellingBreadToMagazines.reduce((acc, item) => {
+                        const excite = acc.find(b => String(b._id) === String(item._id))
+                        if (!excite) {
+                            acc.push({ ...item })
+                        }
+                        return acc
+                    }, [])
                     sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
                         let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0)
                         let pending = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0) - item.money
