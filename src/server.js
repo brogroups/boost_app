@@ -101,6 +101,9 @@ app.use("/api", ReturnedProRoute)
 const SaleRoute = require("./routes/sale.route")
 app.use("/api", SaleRoute)
 
+const InvalidProRoute = require("./routes/Invalid.route")
+app.use("/api", InvalidProRoute)
+
 app.use("/api/refreshToken", async (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) return res.status(403).json({ message: "Token kerak" });

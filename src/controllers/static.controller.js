@@ -10,6 +10,7 @@ const ManagerModel = require("../models/manager.model")
 const SellerPayedModel = require("../models/sellerPayed.model")
 const { getSellerBread } = require("./sellerBread.controller")
 const SaleModel = require("../models/sale.mode")
+const DeliveryPayedModel = require("../models/deliveryPayed.model")
 
 exports.getStatics = async (req, res) => {
     try {
@@ -43,6 +44,15 @@ exports.getStatics = async (req, res) => {
                 let debt1s = await Debt1Model.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).lean()
                 let debt2s = await Debt2Model.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate('omborxonaProId', "name price").lean()
                 let deliveryDebt = await DeliveryDebtModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate("deliveryId", 'username').lean()
+
+                let deliverypayeds1 = await DeliveryPayedModel.aggregate([
+                    { $match: { type: { $in: ['Avans', 'Oylik'] } } }
+                ])
+
+                let sellerpayeds = await SellerPayedModel.aggregate([
+                    { $match: { type: { $in: ['Avans', 'Oylik'] } } }
+                ])
+
 
                 debt1s = debt1s.map((item) => {
                     return { ...item, role: "seller" }
@@ -97,6 +107,7 @@ exports.getStatics = async (req, res) => {
                     let debt = []
                     let managerPrixod = []
                     let managerPending = []
+                    let sellerPayeds = []
                     for (const seller of sellers) {
                         managerPrixod = await SellingBreadModel.aggregate([
                             {
@@ -153,6 +164,9 @@ exports.getStatics = async (req, res) => {
                                     createdAt: 1
                                 }
                             }
+                        ])
+                        sellerPayeds = await SellerPayedModel.aggregate([
+                            { $match: { type: { $in: ['Avans', 'Oylik'] }, sellerId: seller._id } }
                         ])
                     }
                     debt.push(await Debt1Model.aggregate([
@@ -211,7 +225,7 @@ exports.getStatics = async (req, res) => {
                         _id: item._id,
                         username: item.username,
                         createdAt: item.createdAt,
-                        debt: { totalPrice: debt.length > 0 ? debt.reduce((a, b) => a + ((b?.price ? b?.price : b?.omborxonaProId?.price ? b.omborxonaProId?.price : 0) * b.quantity), 0) : 0, history: debt },
+                        debt: { totalPrice: [...debt, ...sellerPayeds].length > 0 ? [...debt, ...sellerPayeds].reduce((a, b) => a + ((b?.price ? b?.price : b?.omborxonaProId?.price ? b.omborxonaProId?.price : 0) * (b.quantity || 1)), 0) : 0, history: [...debt, ...sellerPayeds] },
                         pending: {
                             totalPrice: managerPending.reduce((a, b) => a + b.typeOfBreadId.reduce((c, d) => c + (d.breadId.price2 * b.quantity), 0), 0),
                             history: managerPending
@@ -225,8 +239,8 @@ exports.getStatics = async (req, res) => {
                 return res.status(200).json({
                     statics: {
                         debt: {
-                            totalPrice: [...debt1s, ...debt2s, ...deliveryDebt].reduce((a, b) => a + (b.price ? b.price : b?.omborxonaProId?.price ? b?.omborxonaProId?.price : 0) * (b?.quantity || 1), 0),
-                            history: [...debt1s, ...debt2s, ...deliveryDebt]
+                            totalPrice: [...debt1s, ...debt2s, ...deliveryDebt, ...deliverypayeds1, ...sellerpayeds].reduce((a, b) => a + (b.price ? b.price : b?.omborxonaProId?.price ? b?.omborxonaProId?.price : 0) * (b?.quantity || 1), 0),
+                            history: [...debt1s, ...debt2s, ...deliveryDebt, ...deliverypayeds1, ...sellerpayeds]
                         },
                         prixod: {
                             totalPrice: [...deliveryPrixod, ...Allsales].reduce((a, b) => a + b.money, 0),

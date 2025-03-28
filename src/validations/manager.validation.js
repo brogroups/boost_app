@@ -7,7 +7,7 @@ const CreateManagerSchema = Joi.object({
 
 const UpdateManagerSchema = Joi.object({
     username: Joi.string().required(),
-    password: Joi.string().required(),
+    password: Joi.string().optional(),
 })
 
 const LoginManagerSchema = Joi.object({
