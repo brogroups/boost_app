@@ -6,9 +6,10 @@ const OrderWithDeliveryModel = require('../models/orderWithDelivery.model')
 
 exports.create = async (req, res) => {
     try {
+        let returned = null
         switch (req.use.role) {
             case "delivery":
-                await ReturnedProModel.create({ ...req.body, deliveryId: new mongoose.Types.ObjectId(req.use.id) })
+                returned = await ReturnedProModel.create({ ...req.body, deliveryId: new mongoose.Types.ObjectId(req.use.id) })
                 break;
             default:
                 return res.status(403).json({
@@ -16,14 +17,13 @@ exports.create = async (req, res) => {
                     message: "Ruxsat yo'q"
                 });
         }
-        for (const key of req.body.orderWithDelivery) {
-            await OrderWithDeliveryModel.findByIdAndUpdate(key, { status: false }, { new: true })
-        }
+            await OrderWithDeliveryModel.findByIdAndUpdate(req.body.orderWithDelivery, { status: false }, { new: true })
         await deleteCache(`returnedPro${req.use.id}`)
         await deleteCache(`sellerBread`)
         return res.status(201).json({
             success: true,
             message: "order with delivery created",
+            returned
 
         })
     }
@@ -51,7 +51,7 @@ exports.findAll = async (req, res) => {
         switch (req.use.role) {
             case "delivery":
                 returnedPro = await ReturnedProModel.aggregate([
-                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id),status:true } },
+                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true } },
                     {
                         $lookup: {
                             from: "orderwithdeliveries",
@@ -124,7 +124,7 @@ exports.findAll = async (req, res) => {
             case "superAdmin":
             case "manager":
                 returnedPro = await ReturnedProModel.aggregate([
-                    { $match: {status:true} },
+                    { $match: { status: true } },
                     {
                         $lookup: {
                             from: "orderwithdeliveries",

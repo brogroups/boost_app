@@ -165,9 +165,19 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
     try {
-
-
+        const invalidPro = await InvalidProModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true })
+        if(!invalidPro){
+            return res.status(404).json({
+                success:false,
+                message:"Invalid pro"
+            })
+        }
         await deleteCache(`InvalidPro${req.use.id}`);
+        return res.status(200).json({
+            success:true,
+            message:"invalid pro deleted",
+            invalidPro
+        })
 
 
     }
