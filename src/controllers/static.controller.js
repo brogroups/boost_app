@@ -46,11 +46,11 @@ exports.getStatics = async (req, res) => {
                 let deliveryDebt = await DeliveryDebtModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek } }).populate("deliveryId", 'username').lean()
 
                 let deliverypayeds1 = await DeliveryPayedModel.aggregate([
-                    { $match: { type: { $in: ['Avans', 'Oylik'] } } }
+                    { $match: { type: { $in: ['Avans', 'Oylik'] }, active: true } }
                 ])
 
                 let sellerpayeds = await SellerPayedModel.aggregate([
-                    { $match: { type: { $in: ['Avans', 'Oylik'] } } }
+                    { $match: { type: { $in: ['Avans', 'Oylik'] }, active: true } }
                 ])
 
 
@@ -259,6 +259,7 @@ exports.getStatics = async (req, res) => {
                 let managerPrixod = []
                 let managerPending = []
                 let sales = []
+                let sellerPayedsManager = []
                 const sellers = await SellerModel.aggregate([
                     { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), status: true } }
                 ])
@@ -375,6 +376,9 @@ exports.getStatics = async (req, res) => {
                             }
                         },
                     ])
+                    sellerPayedsManager = await SellerPayedModel.aggregate([
+                        { $match: { type: { $in: ["Avans", "Oylik"] }, active: true, sellerId: seller._id } }
+                    ])
                 }
                 for (const key of managerPrixod) {
                     let allPrice = key.typeOfBreadIds.reduce((a, b) => {
@@ -438,8 +442,8 @@ exports.getStatics = async (req, res) => {
                 return res.status(200).json({
                     statics: {
                         debt: {
-                            totalPrice: debt.length > 0 ? debt.reduce((a, b) => a + ((b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0) * b.quantity), 0) : 0,
-                            history: debt
+                            totalPrice: [...debt, ...sellerPayedsManager].length > 0 ? [...debt, ...sellerPayedsManager].reduce((a, b) => a + ((b.price ? b.price : b.omborxonaProId.price ? b.omborxonaProId.price : 0) * (b.quantity || 1)), 0) : 0,
+                            history: [...debt, ...sellerPayedsManager]
                         },
                         pending: {
                             totalPrice: managerPending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.breadId.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0) * b.quantity - b.money), 0),

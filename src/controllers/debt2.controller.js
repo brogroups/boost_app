@@ -130,9 +130,9 @@ exports.getDebt2s = async (req, res) => {
                 debt1s = await Debt1Model.find({})
                 deliveryDebts = await DeliveryDebtModel.find({}).populate("deliveryId")
                 debts = [...debt2s.map((item) => {
-                    return { ...item._doc, role: "seller" }
+                    return { ...item._doc, role: "nonvoy" }
                 }), ...debt1s.map((item) => {
-                    return { ...item._doc, role: "seller" }
+                    return { ...item._doc, role: "nonvoy" }
                 }), ...deliveryDebts.map((item) => {
                     return { ...item._doc, role: "delivery" }
                 })]
