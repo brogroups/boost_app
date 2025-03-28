@@ -486,12 +486,10 @@ exports.getStatics = async (req, res) => {
                 ])
                 let pendingDelivery = []
                 let soldBread = await SellingBreadModel.aggregate([
-                    {
-                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }, status: true }
-                    },
+                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }, status: true } },
                     {
                         $lookup: {
-                            from: "orderwithdeliveries",
+                            from: "sellerbreads",
                             localField: "breadId",
                             foreignField: "_id",
                             as: "breadDetails"
@@ -502,19 +500,8 @@ exports.getStatics = async (req, res) => {
                     },
                     {
                         $lookup: {
-                            from: "sellerbreads",
-                            localField: "breadDetails.typeOfBreadIds.bread",
-                            foreignField: "_id",
-                            as: "breadIdDetails"
-                        }
-                    },
-                    {
-                        $unwind: "$breadIdDetails",
-                    },
-                    {
-                        $lookup: {
                             from: "typeofbreads",
-                            localField: "breadIdDetails.typeOfBreadId.breadId",
+                            localField: "breadDetails.typeOfBreadId.breadId",
                             foreignField: "_id",
                             as: "breadId"
                         }
@@ -523,23 +510,12 @@ exports.getStatics = async (req, res) => {
                         $unwind: "$breadId"
                     },
                     {
-                        $lookup: {
-                            from: "deliveries",
-                            localField: "deliveryId",
-                            foreignField: "_id",
-                            as: "delivery"
-                        }
-                    },
-                    {
-                        $unwind: "$delivery"
-                    },
-                    {
                         $project: {
                             _id: 1,
                             breadDetails: "$breadDetails.typeOfBreadIds",
                             typeOfBreadIds: {
                                 $map: {
-                                    input: "$breadIdDetails.typeOfBreadId",
+                                    input: "$breadDetails.typeOfBreadId",
                                     as: "typeofbread",
                                     in: {
                                         breadId: "$breadId",
@@ -547,19 +523,16 @@ exports.getStatics = async (req, res) => {
                                 }
                             },
                             paymentMethod: 1,
-                            deliveryId: {
-                                _id: "$delivery._id",
-                                username: "$delivery.username"
-                            },
                             magazineId: 1,
                             money: 1,
                             pricetype: 1,
                             createdAt: 1,
-                            quantity: 1
+                            quantity: 1,
                         }
                     },
                 ])
-                let deliverySellingBread = await SellingBreadModel.aggregate([
+
+                let soldBread1 = await SellingBreadModel.aggregate([
                     {
                         $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }, status: true }
                     },
@@ -631,7 +604,7 @@ exports.getStatics = async (req, res) => {
                     },
                 ])
 
-                for (const key of deliverySellingBread) {
+                for (const key of [...soldBread, ...soldBread1]) {
                     let totalPrice = key?.typeOfBreadIds.reduce((a, b) => a + b.breadId.price2, 0)
                     if (totalPrice - key.money > 0) {
                         pendingDelivery.push({ ...key })
@@ -648,8 +621,8 @@ exports.getStatics = async (req, res) => {
                         history: pendingDelivery
                     },
                     soldBread: {
-                        totalPrice: soldBread?.reduce((a, i) => a + i.typeOfBreadIds.reduce((a, b) => a + (b.breadId.price2 * i.quantity), 0), 0),
-                        history: soldBread
+                        totalPrice: [...soldBread, ...soldBread1]?.reduce((a, i) => a + i.typeOfBreadIds.reduce((a, b) => a + ((b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * i.quantity), 0), 0),
+                        history: [...soldBread, ...soldBread1]
                     }
                 })
                 break;
@@ -685,6 +658,7 @@ exports.getStatics = async (req, res) => {
                 })
                 break;
             default:
+
                 break;
         }
     }

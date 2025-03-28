@@ -34,7 +34,7 @@ exports.createManager = async (req, res) => {
       password: hashPassword,
       superAdminId,
       refreshToken,
-      status:true
+      status: true
     });
     await deleteCache(`manager`);
     const accessToken = await jwt.sign(
@@ -66,7 +66,7 @@ exports.getAllManagers = async (req, res) => {
       });
     }
     const managers = await ManagerModel.aggregate([
-      {$match:{status:true}}
+      { $match: { status: true } }
     ]);
     await setCache(`manager`, managers);
     return res.status(200).json({
@@ -146,7 +146,14 @@ exports.deleteManager = async (req, res) => {
       });
     }
 
- 
+    const seller = await SellerModel.aggregate([
+      { $match: { superAdminId: manager._id } }
+    ])
+
+    seller.forEach(async (i) => {
+      await SellerModel.findByIdAndUpdate(i._id, { status: true }, { new: true })
+    })
+
     await deleteCache(`manager`);
     await deleteCache("delivery");
     await deleteCache(`seller`);

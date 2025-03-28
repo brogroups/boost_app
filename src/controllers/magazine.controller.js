@@ -3,6 +3,7 @@ const SellingBreadToMagazineModel = require("../models/sellingBread.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const MagazinePayedModel = require("../models/magazinePayed.model")
 const { default: mongoose } = require("mongoose")
+const SellingBreadModel = require("../models/sellingBread.model")
 
 
 exports.createMagazine = async (req, res) => {
@@ -111,6 +112,78 @@ exports.getMagazines = async (req, res) => {
                             }
                         },
                     ])
+                    let soldBread1 = await SellingBreadModel.aggregate([
+                        {
+                            $match: { magazineId: key._id,status: true }
+                        },
+                        {
+                            $lookup: {
+                                from: "sellerbreads",
+                                localField: "breadId",
+                                foreignField: "_id",
+                                as: "breadDetails"
+                            }
+                        },
+                        {
+                            $unwind: "$breadDetails",
+                        },
+
+                        {
+                            $lookup: {
+                                from: "typeofbreads",
+                                localField: "breadDetails.typeOfBreadId.breadId",
+                                foreignField: "_id",
+                                as: "breadIdDetails"
+                            }
+                        },
+                        {
+                            $unwind: "$breadIdDetails",
+                        },
+                        {
+                            $lookup: {
+                                from: "magazines",
+                                localField: "magazineId",
+                                foreignField: "_id",
+                                as: "magazine"
+                            }
+                        },
+                        {
+                            $unwind: "$magazine"
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                typeOfBreadIds: {
+                                    $map: {
+                                        input: "$breadDetails.typeOfBreadId",
+                                        as: "breadIdItem",
+                                        in: {
+                                            breadId: {
+                                                _id: "$breadIdDetails._id",
+                                                title: "$breadIdDetails.title",
+                                                price: "$breadIdDetails.price",
+                                                price2: "$breadIdDetails.price2",
+                                                price3: "$breadIdDetails.price3",
+                                                price4: "$breadIdDetails.price4",
+                                                createdAt: "$breadIdDetails.createdAt",
+                                            },
+                                            quantity: "$$breadIdItem.quantity"
+                                        }
+                                    }
+                                },
+                                paymentMethod: 1,
+                                delivertId: 1,
+                                quantity: 1,
+                                magazineId: {
+                                    _id: "$magazine._id",
+                                    title: "$magazine.title"
+                                },
+                                money: 1,
+                                createdAt: 1
+                            }
+                        },
+                    ])
+                    sellingBreadToMagazines = [...sellingBreadToMagazines, ...soldBread1]
                     let magazinePayed = await MagazinePayedModel.aggregate([
                         {
                             $match: { magazineId: new mongoose.Types.ObjectId(key._id) }
@@ -128,7 +201,7 @@ exports.getMagazines = async (req, res) => {
             case "delivery":
                 for (const key of magazines) {
                     let sellingBreadToMagazines = await SellingBreadToMagazineModel.aggregate([
-                        { $match: { magazineId: key._id, status: true } },
+                        { $match: { magazineId: key._id } },
                         {
                             $lookup: {
                                 from: "sellerbreads",
@@ -195,6 +268,78 @@ exports.getMagazines = async (req, res) => {
                             }
                         },
                     ])
+                    let soldBread1 = await SellingBreadModel.aggregate([
+                        {
+                            $match: { magazineId: key._id,  status: true }
+                        },
+                        {
+                            $lookup: {
+                                from: "sellerbreads",
+                                localField: "breadId",
+                                foreignField: "_id",
+                                as: "breadDetails"
+                            }
+                        },
+                        {
+                            $unwind: "$breadDetails",
+                        },
+
+                        {
+                            $lookup: {
+                                from: "typeofbreads",
+                                localField: "breadDetails.typeOfBreadId.breadId",
+                                foreignField: "_id",
+                                as: "breadIdDetails"
+                            }
+                        },
+                        {
+                            $unwind: "$breadIdDetails",
+                        },
+                        {
+                            $lookup: {
+                                from: "magazines",
+                                localField: "magazineId",
+                                foreignField: "_id",
+                                as: "magazine"
+                            }
+                        },
+                        {
+                            $unwind: "$magazine"
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                typeOfBreadIds: {
+                                    $map: {
+                                        input: "$breadDetails.typeOfBreadId",
+                                        as: "breadIdItem",
+                                        in: {
+                                            breadId: {
+                                                _id: "$breadIdDetails._id",
+                                                title: "$breadIdDetails.title",
+                                                price: "$breadIdDetails.price",
+                                                price2: "$breadIdDetails.price2",
+                                                price3: "$breadIdDetails.price3",
+                                                price4: "$breadIdDetails.price4",
+                                                createdAt: "$breadIdDetails.createdAt",
+                                            },
+                                            quantity: "$$breadIdItem.quantity"
+                                        }
+                                    }
+                                },
+                                paymentMethod: 1,
+                                delivertId: 1,
+                                quantity: 1,
+                                magazineId: {
+                                    _id: "$magazine._id",
+                                    title: "$magazine.title"
+                                },
+                                money: 1,
+                                createdAt: 1
+                            }
+                        },
+                    ])
+                    sellingBreadToMagazines = [...sellingBreadToMagazines, ...soldBread1]
                     let magazinePayed = await MagazinePayedModel.aggregate([
                         {
                             $match: { magazineId: new mongoose.Types.ObjectId(key._id) }
@@ -203,7 +348,8 @@ exports.getMagazines = async (req, res) => {
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
                     sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
                         let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0)
-                        return { ...item, totalPrice, pending: totalPrice - item.money }
+                        let pending = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0) - item.money
+                        return { ...item, totalPrice, pending }
                     })
                     data.push({ ...key, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
                 }

@@ -4,7 +4,6 @@ const { createdeliveryPayed } = require("./deliveryPayed.controller");
 const DeliveryModel = require("../models/delivery.model");
 const SellerBreadModel = require("../models/sellerBread.model");
 const OrderWithDeliveryModel = require("../models/orderWithDelivery.model");
-const { default: mongoose } = require("mongoose");
 const DeliveryPayedModel = require("../models/deliveryPayed.model");
 
 exports.createSellingBread = async (req, res) => {
@@ -14,42 +13,73 @@ exports.createSellingBread = async (req, res) => {
             case "superAdmin":
             case "manager": {
                 sellingBread = new SellingBreadModel(req.body)
+                let delivery = await DeliveryModel.findById(sellingBread.deliveryId)
+                if (delivery) {
+                    let typeOfWareHouse = await SellerBreadModel.findById(req.body.breadId);
+                    if (!typeOfWareHouse) {
+                        return res.status(404).json({
+                            success: false,
+                            message: `Mahsulot topilmadi`
+                        });
+                    }
+
+                    if (req.body.quantity > typeOfWareHouse.totalQuantity) {
+                        return res.status(400).json({
+                            success: false,
+                            message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
+                        });
+                    }
+
+                    typeOfWareHouse.totalQuantity -= req.body.quantity;
+                    await SellerBreadModel.findByIdAndUpdate(
+                        req.body.breadId,
+                        { totalQuantity: typeOfWareHouse.totalQuantity },
+                        { new: true }
+                    );
+                    await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik", comment: "----" })
+                    await sellingBread.save()
+                } else {
+                    return res.status(404).json({
+                        success: false,
+                        message: "delivery topilmadi"
+                    })
+                }
                 break;
             }
             case "delivery":
                 sellingBread = new SellingBreadModel({ ...req.body, deliveryId: req.use.id })
+                let delivery = await DeliveryModel.findById(sellingBread.deliveryId)
+                if (delivery) {
+                    let typeOfWareHouse = await OrderWithDeliveryModel.findById(req.body.breadId);
+                    if (!typeOfWareHouse) {
+                        return res.status(404).json({
+                            success: false,
+                            message: `Mahsulot topilmadi`
+                        });
+                    }
+
+                    if (req.body.quantity > typeOfWareHouse.totalQuantity) {
+                        return res.status(400).json({
+                            success: false,
+                            message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
+                        });
+                    }
+
+                    typeOfWareHouse.totalQuantity -= req.body.quantity;
+                    await OrderWithDeliveryModel.findByIdAndUpdate(
+                        req.body.breadId,
+                        { totalQuantity: typeOfWareHouse.totalQuantity },
+                        { new: true }
+                    );
+                    await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik", comment: "----" })
+                    await sellingBread.save()
+                } else {
+                    return res.status(404).json({
+                        success: false,
+                        message: "delivery topilmadi"
+                    })
+                }
                 break;
-        }
-        let delivery = await DeliveryModel.findById(sellingBread.deliveryId)
-        if (delivery) {
-            let typeOfWareHouse = await SellerBreadModel.findById(req.body.breadId);
-            if (!typeOfWareHouse) {
-                return res.status(404).json({
-                    success: false,
-                    message: `Mahsulot topilmadi`
-                });
-            }
-
-            if (req.body.quantity > typeOfWareHouse.totalQuantity) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
-                });
-            }
-
-            typeOfWareHouse.totalQuantity -= req.body.quantity;
-            await SellerBreadModel.findByIdAndUpdate(
-                req.body.breadId,
-                { totalQuantity: typeOfWareHouse.totalQuantity },
-                { new: true }
-            );
-            await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik", comment: "----" })
-            await sellingBread.save()
-        } else {
-            return res.status(404).json({
-                success: false,
-                message: "delivery topilmadi"
-            })
         }
         await deleteCache(`sellingBread`)
         await deleteCache(`sellerBread`)
