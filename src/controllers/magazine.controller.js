@@ -186,7 +186,8 @@ exports.getMagazines = async (req, res) => {
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
                     sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
                         let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0)
-                        let pending = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0) - item.money
+                        let pending = totalPrice - item.money
+                        console.log(totalPrice)
                         return { ...item, totalPrice, pending }
                     })
                     data.push({ ...key, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
@@ -343,10 +344,10 @@ exports.getMagazines = async (req, res) => {
                     }, [])
                     sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
                         let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0)
-                        let pending = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0) - item.money
+                        let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     })
-                    data.push({ ...key, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
+                    data.push({ ...key, history: sellingBreadToMagazines, pending: (sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending > 0 ? -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) : sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
                 }
                 break;
         }

@@ -62,6 +62,7 @@ exports.getSellerBread = async (req, res) => {
                     const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
                     return { ...key, price, totalQopQuantity };
                 });
+                
                 updatedData = await Promise.all(data.map(async (key) => {
                     let sellingBread = await SellingBreadModel.aggregate([
                         {

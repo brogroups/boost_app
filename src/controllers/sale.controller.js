@@ -118,13 +118,13 @@ exports.findAll = async (req, res) => {
         sales = sales.reduce((acc, item) => {
             const excite = acc.find(b => String(b._id) === String(item._id))
             if (!excite) {
-                acc.push({ ...item })
+                acc.push({ ...item, breadId: { ...item.breadId, totalQuantity: item.breadId.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalPrice: item.breadId.typeOfBreadId?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) } })
             }
             return acc
         }, [])
-        sales = sales.map((item) => {
-            return { ...item, breadId: { ...item.breadId, totalQuantity: item.breadId.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalPrice: item.breadId.typeOfBreadId?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) } }
-        })
+        // sales = sales.map((item) => {
+        //     return { ...item, breadId: { ...item.breadId, totalQuantity: item.breadId.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalPrice: item.breadId.typeOfBreadId?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) } }
+        // })
         await setCache(`sale${req.use.id}`, sales)
         return res.status(200).json({
             success: true,
