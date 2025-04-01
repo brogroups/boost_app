@@ -658,7 +658,6 @@ exports.getStatics = async (req, res) => {
                             paymentMethod: 1,
                             delivertId: 1,
                             quantity: 1,
-
                             money: 1,
                             pricetype: 1,
                             createdAt: 1
@@ -680,11 +679,12 @@ exports.getStatics = async (req, res) => {
                     return acc
                 }, [])
                 for (const key of [...soldBread, ...soldBread1]) {
-                    let totalPrice = key?.typeOfBreadIds.reduce((a, b) => a + b.breadId.price2, 0)
+                    let totalPrice = key?.typeOfBreadIds.reduce((a, b) => a + (key.pricetype === 'tan' ? b.breadId.price : key.pricetype === 'narxi' ? b.breadId.price2 : key.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price), 0)
                     if (totalPrice - key.money > 0) {
                         pendingDelivery.push({ ...key })
                     }
                 }
+
 
                 return res.status(200).json({
                     debt: {
@@ -692,11 +692,11 @@ exports.getStatics = async (req, res) => {
                         history: DeliveryDebts
                     },
                     pending: {
-                        totalPrice: pendingDelivery.reduce((a, b) => a + b.typeOfBreadIds.reduce((c, d) => c + d.breadId.price2, 0), 0),
+                        totalPrice: pendingDelivery.reduce((a, b) => a + b.typeOfBreadIds.reduce((c, d) => c + (b.pricetype === 'tan' ? d.breadId.price : b.pricetype === 'narxi' ? d.breadId.price2 : b.pricetype === 'toyxona' ? d.breadId.price3 : d.breadId.price), 0), 0),
                         history: pendingDelivery
                     },
                     soldBread: {
-                        totalPrice: [...soldBread, ...soldBread1]?.reduce((a, i) => a + i.typeOfBreadIds.reduce((a, b) => a + ((b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * i.quantity), 0), 0),
+                        totalPrice: [...soldBread, ...soldBread1]?.reduce((a, i) => a + i.typeOfBreadIds.reduce((a, b) => a + ((b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * i.quantity), 0), 0),
                         history: [...soldBread, ...soldBread1]
                     }
                 })

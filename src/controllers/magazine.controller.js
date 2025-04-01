@@ -251,10 +251,7 @@ exports.getMagazines = async (req, res) => {
                                     }
                                 },
                                 paymentMethod: 1,
-                                deliveryId: {
-                                    _id: "$delivery._id",
-                                    username: "$delivery.username"
-                                },
+                                deliveryId: 1,
                                 magazineId: 1,
                                 money: 1,
                                 pricetype: 1,
@@ -297,6 +294,17 @@ exports.getMagazines = async (req, res) => {
                         },
                         { $unwind: "$breadIdDetails" },
                         {
+                            $lookup: {
+                                from: "deliveries",
+                                localField: "deliveryId",
+                                foreignField: "_id",
+                                as: "delivery"
+                            }
+                        },
+                        {
+                            $unwind: "$delivery"
+                        },
+                        {
                             $project: {
                                 _id: 1,
                                 typeOfBreadIds: {
@@ -318,7 +326,10 @@ exports.getMagazines = async (req, res) => {
                                     }
                                 },
                                 paymentMethod: 1,
-                                delivertId: 1,
+                                deliveryId: {
+                                    _id: "$delivery._id",
+                                    username: "$delivery.username"
+                                },
                                 quantity: 1,
 
                                 money: 1,
