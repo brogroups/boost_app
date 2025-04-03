@@ -6,47 +6,97 @@ const SellerBreadModel = require("../models/sellerBread.model");
 const OrderWithDeliveryModel = require("../models/orderWithDelivery.model");
 const DeliveryPayedModel = require("../models/deliveryPayed.model");
 
+async function processBread(sellingBread, req, retryCount = 3) {
+    let delivery = await DeliveryModel.findById(sellingBread.deliveryId);
+    if (!delivery) {
+        return {
+            success: false,
+            message: "Delivery not found"
+        };
+    }
+
+    let typeOfWareHouse = await SellerBreadModel.findById(sellingBread.id);
+    if (!typeOfWareHouse) {
+        return { type: "not found" };
+    }
+
+    let remainingQuantity = req.body.quantity;
+    if (typeOfWareHouse.totalQuantity < remainingQuantity) {
+        if (retryCount > 0) {
+            remainingQuantity -= typeOfWareHouse.totalQuantity; 
+            typeOfWareHouse.totalQuantity = 0; 
+            await SellerBreadModel.findByIdAndUpdate(sellingBread.id, { totalQuantity: typeOfWareHouse.totalQuantity }, { new: true });
+        } else {
+            return { type: "error", quantity: typeOfWareHouse.totalQuantity };
+        }
+    } else {
+        typeOfWareHouse.totalQuantity -= remainingQuantity;
+        await SellerBreadModel.findByIdAndUpdate(sellingBread.id, { totalQuantity: typeOfWareHouse.totalQuantity }, { new: true });
+        remainingQuantity = 0; 
+    }
+    // let remainingQuantity = req.body.quantity;
+    // if (req.body.quantity > typeOfWareHouse.totalQuantity) {
+    //     if (retryCount > 0) {
+    //         req.body.quantity = typeOfWareHouse.totalQuantity;
+    //         return processBread(sellingBread, req, retryCount - 1);
+    //     }
+    //     return { type: "error", quantity: typeOfWareHouse.totalQuantity };
+    // }
+
+    typeOfWareHouse.totalQuantity -= req.body.quantity;
+
+    await SellerBreadModel.findByIdAndUpdate(
+        sellingBread.id,
+        { totalQuantity: typeOfWareHouse.totalQuantity },
+        { new: true }
+    );
+
+    await DeliveryPayedModel.create({
+        deliveryId: delivery._id,
+        price: req.body.quantity * delivery.price,
+        status: "To`landi",
+        type: "Kunlik",
+        comment: "----"
+    });
+
+
+    await sellingBread.schema.save();
+    return { type: "success" };
+}
+
 exports.createSellingBread = async (req, res) => {
     try {
         let sellingBread;
+        let totalQuantityRequired = req.body.quantity;
         switch (req.use.role) {
             case "superAdmin":
             case "manager": {
-                sellingBread = new SellingBreadModel(req.body)
-                let delivery = await DeliveryModel.findById(sellingBread.deliveryId)
-                if (delivery) {
-                    let typeOfWareHouse = await SellerBreadModel.findById(req.body.breadId);
-                    if (!typeOfWareHouse) {
-                        return res.status(404).json({
-                            success: false,
-                            message: `Mahsulot topilmadi`
-                        });
+                for (let i = 0; i < req.body.breadId.length; i++) {
+                    sellingBread = new SellingBreadModel({ ...req.body, breadId: req.body.breadId[i] })
+                    let result = await processBread({ id: req.body.breadId[i], deliveryId: req.body.deliveryId, schema: sellingBread }, req);
+                    switch (result.value) {
+                        case "not found":
+                            return res.status(404).json({
+                                success: false,
+                                message: `Mahsulot topilmadi`
+                            });
+                            break;
+                        case "error":
+                            return res.status(400).json({
+                                success: false,
+                                message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${result.quantity}`
+                            });
+                            break;
+                        default:
+                            break;
                     }
-
-                    if (req.body.quantity > typeOfWareHouse.totalQuantity) {
-                        return res.status(400).json({
-                            success: false,
-                            message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
-                        });
-                    }
-
-                    typeOfWareHouse.totalQuantity -= req.body.quantity;
-                    await SellerBreadModel.findByIdAndUpdate(
-                        req.body.breadId,
-                        { totalQuantity: typeOfWareHouse.totalQuantity },
-                        { new: true }
-                    );
-                    await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik", comment: "----" })
-                    await sellingBread.save()
-                } else {
-                    return res.status(404).json({
-                        success: false,
-                        message: "delivery topilmadi"
-                    })
+                    totalQuantityRequired -= (req.body.quantity - result.remainingQuantity);
+                    if (totalQuantityRequired <= 0) break;
                 }
                 break;
             }
-            case "delivery":
+            case "delivery": {
+
                 sellingBread = new SellingBreadModel({ ...req.body, deliveryId: req.use.id })
                 let delivery = await DeliveryModel.findById(sellingBread.deliveryId)
                 if (delivery) {
@@ -80,6 +130,7 @@ exports.createSellingBread = async (req, res) => {
                     })
                 }
                 break;
+            }
         }
         await deleteCache(`sellingBread`)
         await deleteCache(`sellerBread`)
