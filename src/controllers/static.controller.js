@@ -310,8 +310,8 @@ exports.getStatics = async (req, res) => {
                     managerPrixod = await SellingBreadModel.aggregate([
                         {
                             $lookup: {
-                                from: "sellerbreads",
-                                localField: "typeOfBreadIds.breadId",
+                                from: "managerwares",
+                                localField: "breadId",
                                 foreignField: "_id",
                                 as: "breadDetails"
                             }
@@ -319,15 +319,11 @@ exports.getStatics = async (req, res) => {
                         {
                             $unwind: "$breadDetails",
                         },
-                        {
-                            $match: {
-                                "breadDetails.sellerId": seller._id, createdAt: { $gte: startDay, $lte: endDay }, status: true
-                            }
-                        },
+                        { $match: { "breadDetails.sellerId": seller._id } },
                         {
                             $lookup: {
                                 from: "typeofbreads",
-                                localField: "breadDetails.typeOfBreadId.breadId",
+                                localField: "breadDetails.bread",
                                 foreignField: "_id",
                                 as: "breadIdDetails"
                             }
@@ -336,43 +332,38 @@ exports.getStatics = async (req, res) => {
                             $unwind: "$breadIdDetails",
                         },
                         {
+                            $lookup: {
+                                from: "deliveries",
+                                localField: "deliveryId",
+                                foreignField: "_id",
+                                as: "delivery"
+                            }
+                        },
+                        {
+                            $unwind: "$delivery"
+                        },
+                        {
                             $project: {
                                 _id: 1,
-                                typeOfBreadIds: {
-                                    $map: {
-                                        input: "$typeOfBreadIds",
-                                        as: "breadItem",
-                                        in: {
-                                            bread: {
-                                                _id: "$breadDetails._id",
-                                                typeOfBreadId: {
-                                                    $map: {
-                                                        input: "$breadDetails.typeOfBreadId",
-                                                        as: "breadIdItem",
-                                                        in: {
-                                                            breadId: {
-                                                                _id: "$breadIdDetails._id",
-                                                                title: "$breadIdDetails.title",
-                                                                price: "$breadIdDetails.price",
-                                                                price2: "$breadIdDetails.price2",
-                                                                price3: "$breadIdDetails.price3",
-                                                                price4: "$breadIdDetails.price4",
-                                                                createdAt: "$breadIdDetails.createdAt",
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                createdAt: "$breadDetails.createdAt",
-                                            },
-                                            quantity: "$$breadItem.quantity"
-                                        }
-                                    }
+                                breadId: {
+                                    _id: "$breadIdDetails._id",
+                                    title: "$breadIdDetails.title",
+                                    price: "$breadIdDetails.price",
+                                    price2: "$breadIdDetails.price2",
+                                    price3: "$breadIdDetails.price3",
+                                    price4: "$breadIdDetails.price4",
+                                    createdAt: "$breadIdDetails.createdAt",
                                 },
                                 paymentMethod: 1,
-                                delivertId: 1,
+                                deliveryId: {
+                                    _id: "$delivery._id",
+                                    username: "$delivery.username"
+                                },
                                 magazineId: 1,
                                 money: 1,
-                                createdAt: 1
+                                pricetype: 1,
+                                createdAt: 1,
+                                quantity: 1
                             }
                         },
                     ])
@@ -450,11 +441,7 @@ exports.getStatics = async (req, res) => {
                     ])
                 }
                 for (const key of managerPrixod) {
-                    let allPrice = key.typeOfBreadIds.reduce((a, b) => {
-                        return a + b.breadId?.typeOfBreadId.reduce((a, b) => {
-                            return a + b.breadId.price
-                        }, 0)
-                    }, 0) * key.quantity
+                    let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'narxi' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
                     if (allPrice - key.money >= 0) {
                         managerPending.push({ ...key })
                     }
@@ -515,7 +502,7 @@ exports.getStatics = async (req, res) => {
                             history: [...debt, ...sellerPayedsManager]
                         },
                         pending: {
-                            totalPrice: managerPending.reduce((a, b) => a + (b.typeOfBreadIds.reduce((a, b) => a + b.breadId.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0), 0) * b.quantity - b.money), 0),
+                            totalPrice: managerPending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * b.quantity - b.money, 0),
                             history: managerPending
                         },
                         prixod: {

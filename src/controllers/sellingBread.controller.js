@@ -5,6 +5,8 @@ const SellerBreadModel = require("../models/sellerBread.model");
 const OrderWithDeliveryModel = require("../models/orderWithDelivery.model");
 const DeliveryPayedModel = require("../models/deliveryPayed.model");
 const ManagerWareModel = require("../models/managerWare.model");
+const SellerModel = require("../models/seller.model");
+const { default: mongoose } = require("mongoose");
 
 
 
@@ -33,8 +35,23 @@ exports.createSellingBread = async (req, res) => {
                     }
 
                     typeOfWareHouse.totalQuantity -= req.body.quantity;
-                    let bread = await SellerBreadModel.findOne({ sellerId: typeOfWareHouse.sellerId, status: true, totalQuantity: { $gte: req.body.quantity } });
-                    console.log(bread)
+
+                    let sellers = await SellerModel.aggregate([
+                        { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), status: true } }
+                    ])
+
+                    for (const key of sellers) {
+                        let bread = await SellerBreadModel.findOne({ sellerId: key._id, status: true, "typeOfBreadId.breadId": typeOfWareHouse.bread });
+                        if (bread) {
+                            bread.totalQuantity = (bread?.totalQuantity || 0) - req.body.quantity
+                            if (bread?.totalQuantity >= 0) {
+                                await bread.save()
+                                break;
+                            } else {
+                                await bread.save()
+                            }
+                        }
+                    }
                     await ManagerWareModel.findByIdAndUpdate(
                         req.body.breadId,
                         { totalQuantity: typeOfWareHouse.totalQuantity },
