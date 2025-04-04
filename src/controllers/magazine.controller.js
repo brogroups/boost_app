@@ -169,7 +169,6 @@ exports.getMagazines = async (req, res) => {
                                 paymentMethod: 1,
                                 delivertId: 1,
                                 quantity: 1,
-
                                 money: 1,
                                 pricetype: 1,
                                 createdAt: 1
@@ -187,7 +186,6 @@ exports.getMagazines = async (req, res) => {
                     sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
                         let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0)
                         let pending = totalPrice - item.money
-                        console.log(totalPrice)
                         return { ...item, totalPrice, pending }
                     })
                     data.push({ ...key, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })

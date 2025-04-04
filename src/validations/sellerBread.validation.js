@@ -6,8 +6,6 @@ const CreateSellerBread = Joi.object({
         quantity: Joi.number(),
         qopQuantity: Joi.number()
     })).required(),
-    title: Joi.string().required(),
-    description: Joi.string().required(),
     // ovenId: Joi.string().required(),
     // qopQuantity: Joi.number().required()
 })
@@ -18,8 +16,6 @@ const UpdateSellerBread = Joi.object({
         quantity: Joi.number(),
         qopQuantity: Joi.number()
     })).required(),
-    title: Joi.string().required(),
-    description: Joi.string().required(),
     // ovenId: Joi.string().required(),
     // qopQuantity: Joi.number().required()
 })

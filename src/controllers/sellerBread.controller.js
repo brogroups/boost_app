@@ -1,7 +1,6 @@
 const SellerBreadModel = require("../models/sellerBread.model")
 const { getCache, setCache, deleteCache } = require("../helpers/redis.helper")
 const { default: mongoose } = require("mongoose")
-const { createSelleryPayed } = require("./sellerPayed.controller")
 const SellingBreadModel = require("../models/sellingBread.model")
 const SellerModel = require("../models/seller.model")
 const SellerPayedModel = require("../models/sellerPayed.model")
@@ -9,12 +8,22 @@ const SellerPayedModel = require("../models/sellerPayed.model")
 
 exports.createSellerBread = async (req, res) => {
     try {
-        const sellerBread = await SellerBreadModel.create({
-            ...req.body,
-            sellerId: req.use.id,
-            totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0),
-            status: true
-        })
+        let sellerBread
+        for (const key of req.body.typeOfBreadId) {
+            let bread = await SellerBreadModel.findOne({ "typeOfBreadId.breadId": key.breadId, sellerId: new mongoose.Types.ObjectId(req.use.id), status: true })
+            if (bread) {
+                sellerBread = await SellerBreadModel.findByIdAndUpdate(bread._id, { totalQuantity: (bread.totalQuantity || 0) + key.quantity, totalQopQuantity: (bread.totalQopQuantity || 0)+ key.qopQuantity, status: true }, { new: true })
+            } else {
+                sellerBread = await SellerBreadModel.create({
+                    ...req.body,
+                    sellerId: req.use.id,
+                    totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0),
+                    totalQopQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0),
+                    status: true
+                })
+            }
+        }
+
         await deleteCache(`sellerBread${req.use.id}`)
         let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId typeOfBreadId.breadId.breadId")
         sellerPayedBread = sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
@@ -57,12 +66,12 @@ exports.getSellerBread = async (req, res) => {
                     path: 'typeOfBreadId.breadId',
                     model: 'TypeOfBread'
                 });
+
                 data = populatedSellerBreads.map((key) => {
                     const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price4 || 0) * (item.qopQuantity || 0)), 0);
-                    const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
-                    return { ...key, price, totalQopQuantity };
+                    return { ...key, price };
                 });
-                
+
                 updatedData = await Promise.all(data.map(async (key) => {
                     let sellingBread = await SellingBreadModel.aggregate([
                         {
@@ -168,18 +177,18 @@ exports.getSellerBread = async (req, res) => {
                                     username: "$SELLER.username"
                                 },
                                 createdAt: 1,
-                                totalQuantity: 1
+                                totalQuantity: 1,
+                                totalQopQuantity: 1,
                             }
                         }
                     ])
                     sellerBread.forEach((key) => {
                         const price = key.typeOfBreadId.reduce((sum, item) => sum + (item.breadId.price || 0), 0)
                         const totalPrice = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price || 0) * (item.quantity || 0)), 0);
-                        const totalQopQuantity = key.typeOfBreadId.reduce((sum, item) => sum + (item.qopQuantity || 0), 0);
                         // const totalQuantity = key.typeOfBreadId.reduce((sum, item) => {
                         //     return sum + item.quantity
                         // }, 0)
-                        data.push({ ...key, totalPrice, totalQopQuantity, price })
+                        data.push({ ...key, totalPrice, price })
                     });
                 }
 
@@ -223,9 +232,7 @@ exports.getSellerBread = async (req, res) => {
                                             }
                                         }
                                     },
-                                    title: 1,
                                     price: 1,
-                                    description: 1,
                                     sellerId: {
                                         _id: "$SELLER._id",
                                         username: "$SELLER.username"
@@ -308,13 +315,13 @@ exports.getSellerBread = async (req, res) => {
                                 username: "$SELLER.username"
                             },
                             createdAt: 1,
+                            totalQopQuantity
                         }
                     }
                 ])
                 for (const key of sellerBreads) {
                     const price = key.typeOfBreadId.reduce((a, b) => a + (b?.breadId?.price * b.quantity), 0)
-                    const totalQopQuantity = key.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0)
-                    data.push({ ...key, price, totalQopQuantity })
+                    data.push({ ...key, price })
                 }
                 updatedData = await Promise.all(data.map(async (key) => {
                     let sellingBread = await SellingBreadModel.aggregate([
@@ -413,7 +420,7 @@ exports.getSellerById = async (req, res) => {
 
 exports.updateSellerById = async (req, res) => {
     try {
-        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date(), totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), }, { new: true }).populate("typeOfBreadId")
+        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date(), totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalQopQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0), }, { new: true }).populate("typeOfBreadId")
         if (!sellerBread) {
             return res.status(404).json({
                 success: false,
