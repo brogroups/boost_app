@@ -4,6 +4,8 @@ const DeliveryModel = require("../models/delivery.model");
 const SellerBreadModel = require("../models/sellerBread.model");
 const OrderWithDeliveryModel = require("../models/orderWithDelivery.model");
 const DeliveryPayedModel = require("../models/deliveryPayed.model");
+const ManagerWareModel = require("../models/managerWare.model");
+
 
 
 exports.createSellingBread = async (req, res) => {
@@ -15,7 +17,7 @@ exports.createSellingBread = async (req, res) => {
                 sellingBread = new SellingBreadModel({ ...req.body })
                 let delivery = await DeliveryModel.findById(req.body.deliveryId)
                 if (delivery) {
-                    let typeOfWareHouse = await SellerBreadModel.findById(req.body.breadId);
+                    let typeOfWareHouse = await ManagerWareModel.findById(req.body.breadId);
                     if (!typeOfWareHouse) {
                         return res.status(404).json({
                             success: false,
@@ -31,7 +33,9 @@ exports.createSellingBread = async (req, res) => {
                     }
 
                     typeOfWareHouse.totalQuantity -= req.body.quantity;
-                    await SellerBreadModel.findByIdAndUpdate(
+                    let bread = await SellerBreadModel.findOne({ sellerId: typeOfWareHouse.sellerId, status: true, totalQuantity: { $gte: req.body.quantity } });
+                    console.log(bread)
+                    await ManagerWareModel.findByIdAndUpdate(
                         req.body.breadId,
                         { totalQuantity: typeOfWareHouse.totalQuantity },
                         { new: true }
