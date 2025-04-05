@@ -7,5 +7,6 @@ const SuperAdminModel = require("../models/superAdmin.model")
 const ManagerModel = require("../models/manager.model")
 
 router.get("/manager's/warehouse", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel]), Controller.getManagerWare)
+router.delete("/manager's/warehouse/:id", Middleware.verifyToken(process.env.JWT_TOKEN_ACCESS), Middleware.isCorrectRole([SuperAdminModel, ManagerModel]), Controller.deleteManagerWare)
 
 module.exports = router

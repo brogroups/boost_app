@@ -3,6 +3,7 @@ const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { default: mongoose } = require("mongoose")
 const SellerBreadModel = require("../models/sellerBread.model")
 const ManagerWareModel = require("../models/managerWare.model")
+const SellerModel = require("../models/seller.model")
 
 
 exports.createOrderWithDelivery = async (req, res) => {
@@ -28,10 +29,10 @@ exports.createOrderWithDelivery = async (req, res) => {
                     { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), status: true } }
                 ])
 
-                for (const key of sellers) {
-                    let bread = await SellerBreadModel.findOne({ sellerId: key._id, status: true, "typeOfBreadId.breadId": typeOfWareHouse.bread });
+                for (const seller of sellers) {
+                    let bread = await SellerBreadModel.findOne({ sellerId: seller._id, status: true, "typeOfBreadId.breadId": typeOfWareHouse.bread });
                     if (bread) {
-                        bread.totalQuantity = (bread?.totalQuantity || 0) - req.body.quantity
+                        bread.totalQuantity = (bread?.totalQuantity || 0) - (key.quantity || 1)
                         if (bread?.totalQuantity >= 0) {
                             await bread.save()
                             break;
@@ -93,7 +94,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
         switch (req.use.role) {
             case "superAdmin": {
-                orderWithDeliveries = await OrderWithDeliveryModel.find({ status: true }).populate("deliveryId", "username").populate({
+                orderWithDeliveries = await OrderWithDeliveryModel.find({ status: true, totalQuantity: { $gt: 0 } }).populate("deliveryId", "username").populate({
                     path: "typeOfBreadIds.bread",
                     model: "SellerBread",
                     populate: {
@@ -110,7 +111,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
             case "delivery": {
                 orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
                     {
-                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true }
+                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true, totalQuantity: { $gt: 0 } }
                     },
 
                     {
@@ -183,13 +184,13 @@ exports.getOrderWithDeliveries = async (req, res) => {
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
                     return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
                 })
-              
+
                 break;
             }
             case "manager": {
                 orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
                     {
-                        $match: { adminId: new mongoose.Types.ObjectId(req.use.id), status: true }
+                        $match: { adminId: new mongoose.Types.ObjectId(req.use.id), status: true, totalQuantity: { $gt: 0 } }
                     },
                     {
                         $lookup: {

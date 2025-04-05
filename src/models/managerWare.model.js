@@ -8,7 +8,7 @@ const ManagerWareSchema = new Schema({
     bread: { type: Schema.Types.ObjectId, ref: TypeOfBreadModel, required: true },
     totalQuantity: { type: Number, required: true, default: 0 },
     totalQopQuantity: { type: Number, required: true, default: 0 },
-    status: { type: Boolean, default: true },
+    status: { type: Boolean,required:true, default: true },
 }, { timestamps: true })
 
 const ManagerWareModel = model("ManagerWare", ManagerWareSchema)

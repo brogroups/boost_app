@@ -76,7 +76,7 @@ exports.getStatics = async (req, res) => {
                         path: "breadId",
                         model: "OrderWithDelivery",
                         populate: {
-                            path: "typeOfBreadIds.bread", 
+                            path: "typeOfBreadIds.bread",
                             model: "ManagerWare",
                             populate: {
                                 path: "bread",
@@ -84,11 +84,10 @@ exports.getStatics = async (req, res) => {
                             }
                         }
                     })
-                    .lean();
+                    .lean()
 
                 deliveryPrixod = deliveryPrixod.map((item) => {
                     const typeOfBread = item?.breadId?.typeOfBreadIds || [];
-
                     const price = typeOfBread.reduce((sum, breadItem) => {
                         const breadData = breadItem.bread?.bread || {};
 
@@ -112,6 +111,8 @@ exports.getStatics = async (req, res) => {
                         quantity
                     };
                 });
+
+
 
                 let Allsales = await SaleModel.aggregate([
                     { $match: { status: true } }

@@ -68,11 +68,14 @@ exports.createSellingBread = async (req, res) => {
                 break;
             }
             case "delivery": {
-
                 sellingBread = new SellingBreadModel({ ...req.body, deliveryId: req.use.id })
                 let delivery = await DeliveryModel.findById(sellingBread.deliveryId)
                 if (delivery) {
-                    let typeOfWareHouse = await OrderWithDeliveryModel.findById(req.body.breadId);
+                    let typeOfWareHouse = await OrderWithDeliveryModel.findOne({
+                        _id: new mongoose.Types.ObjectId(req.body.breadId),
+                        totalQuantity: { $gt: 0 },
+                        status: true
+                    })
                     if (!typeOfWareHouse) {
                         return res.status(404).json({
                             success: false,

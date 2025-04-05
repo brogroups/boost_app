@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 const DeliveryModel = require("./delivery.model")
 const MagazineModel = require("./magazine.model");
-const SellerBreadModel = require("./sellerBread.model");
+// const SellerBreadModel = require("./sellerBread.model");
 
 const SellingBreadSchema = new Schema({
     breadId: { type: Schema.Types.ObjectId, required: true },

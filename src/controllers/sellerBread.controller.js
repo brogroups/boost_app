@@ -24,9 +24,9 @@ exports.createSellerBread = async (req, res) => {
                 })
             }
 
-            let bread2 = await ManagerWareModel.findOne({ bread: key.breadId })
+            let bread2 = await ManagerWareModel.findOne({ bread: key.breadId,status:true })
             if (bread2) {
-                await ManagerWareModel.findByIdAndUpdate(bread2._id, { totalQuantity: bread2.totalQuantity + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity }, { new: true })
+                await ManagerWareModel.findByIdAndUpdate(bread2._id, { ...bread2, totalQuantity: bread2.totalQuantity + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity }, { new: true })
             } else {
                 await ManagerWareModel.create({
                     sellerId: req.use.id, bread: key.breadId, totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0),
