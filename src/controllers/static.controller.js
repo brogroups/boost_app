@@ -66,51 +66,208 @@ exports.getStatics = async (req, res) => {
                     return { ...item, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({
-                    createdAt: { $gte: startOfWeek, $lte: endOfWeek },
-                    status: true
-                })
-                    .populate("deliveryId", "username")
-                    .populate("magazineId")
-                    .populate({
-                        path: "breadId",
-                        model: "OrderWithDelivery",
-                        populate: {
-                            path: "typeOfBreadIds.bread",
-                            model: "ManagerWare",
-                            populate: {
-                                path: "bread",
-                                model: "TypeOfBread"
-                            }
+                // let deliveryPrixod = await SellingBreadModel.find({
+                // createdAt: { $gte: startOfWeek, $lte: endOfWeek },
+                // status: true
+                // })
+                //     .populate("deliveryId", "username")
+                //     .populate("magazineId")
+                //     .populate({
+                //         path: "breadId",
+                //         model: "OrderWithDelivery",
+                //         populate: {
+                //             path: "typeOfBreadIds.bread",
+                //             model: "ManagerWare",
+                //             populate: {
+                //                 path: "bread",
+                //                 model: "TypeOfBread"
+                //             }
+                //         }
+                //     })
+                //     .lean()
+                let deliveryPrixod = await SellingBreadModel.aggregate([
+                    {
+                        $match: {
+                            createdAt: { $gte: startOfWeek, $lte: endOfWeek },
+                            status: true
                         }
-                    })
-                    .lean()
+                    },
+                    {
+                        $lookup: {
+                            from: "managerwares",
+                            localField: "breadId",
+                            foreignField: "_id",
+                            as: "breadDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadDetails",
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "breadDetails.bread",
+                            foreignField: "_id",
+                            as: "breadIdDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadIdDetails",
+                    },
+                    {
+                        $lookup: {
+                            from: "deliveries",
+                            localField: "deliveryId",
+                            foreignField: "_id",
+                            as: "delivery"
+                        }
+                    },
+                    {
+                        $unwind: "$delivery"
+                    },
+                    {
+                        $lookup: {
+                            from: "magazines",
+                            localField: "magazineId",
+                            foreignField: "_id",
+                            as: "magazine"
+                        }
+                    },
+                    {
+                        $unwind: "$magazine"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            breadId: {
+                                _id: "$breadIdDetails._id",
+                                title: "$breadIdDetails.title",
+                                price: "$breadIdDetails.price",
+                                price2: "$breadIdDetails.price2",
+                                price3: "$breadIdDetails.price3",
+                                price4: "$breadIdDetails.price4",
+                                createdAt: "$breadIdDetails.createdAt",
+                            },
+                            paymentMethod: 1,
+                            deliveryId: {
+                                _id: "$delivery._id",
+                                username: "$delivery.username"
+                            },
+                            magazineId: {
+                                _id: "$magazine._id",
+                                title: "$magazine.title"
+                            },
+                            money: 1,
+                            pricetype: 1,
+                            createdAt: 1,
+                            quantity: 1
+                        }
+                    },
+                ])
 
-                deliveryPrixod = deliveryPrixod.map((item) => {
-                    const typeOfBread = item?.breadId?.typeOfBreadIds || [];
-                    const price = typeOfBread.reduce((sum, breadItem) => {
-                        const breadData = breadItem.bread?.bread || {};
+                deliveryPrixod = [...deliveryPrixod, ...await SellingBreadModel.aggregate([
+                    {
+                        $match: { status: true }
+                    },
+                    {
+                        $lookup: {
+                            from: "orderwithdeliveries",
+                            localField: "breadId",
+                            foreignField: "_id",
+                            as: "bread"
+                        }
+                    },
+                    {
+                        $unwind: "$bread"
+                    },
+                    {
+                        $lookup: {
+                            from: "managerwares",
+                            localField: "bread.typeOfBreadIds.bread",
+                            foreignField: "_id",
+                            as: "breadDetails"
+                        }
+                    },
+                    { $unwind: "$breadDetails" },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "breadDetails.bread",
+                            foreignField: "_id",
+                            as: "breadIdDetails"
+                        }
+                    },
+                    { $unwind: "$breadIdDetails" },
+                    {
+                        $lookup: {
+                            from: "deliveries",
+                            localField: "deliveryId",
+                            foreignField: "_id",
+                            as: "delivery"
+                        }
+                    },
+                    {
+                        $unwind: "$delivery"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            typeOfBreadIds: {
+                                $map: {
+                                    input: "$bread.typeOfBreadIds",
+                                    as: "breadIdItem",
+                                    in: {
+                                        breadId: {
+                                            _id: "$breadIdDetails._id",
+                                            title: "$breadIdDetails.title",
+                                            price: "$breadIdDetails.price",
+                                            price2: "$breadIdDetails.price2",
+                                            price3: "$breadIdDetails.price3",
+                                            price4: "$breadIdDetails.price4",
+                                            createdAt: "$breadIdDetails.createdAt",
+                                        },
+                                        quantity: "$$breadIdItem.quantity"
+                                    }
+                                }
+                            },
+                            paymentMethod: 1,
+                            deliveryId: {
+                                _id: "$delivery._id",
+                                username: "$delivery.username"
+                            },
+                            quantity: 1,
+                            money: 1,
+                            pricetype: 1,
+                            createdAt: 1
+                        }
+                    },
+                ])]
 
-                        const selectedPrice =
-                            item.pricetype === "tan"
-                                ? breadData.price
-                                : item.pricetype === "narxi"
-                                    ? breadData.price2
-                                    : item.pricetype === "toyxona"
-                                        ? breadData.price3
-                                        : 0;
+                // deliveryPrixod = deliveryPrixod.map((item) => {
+                //     const typeOfBread = item?.breadId?.typeOfBreadIds || [];
+                //     const price = typeOfBread.reduce((sum, breadItem) => {
+                //         const breadData = breadItem.bread?.bread || {};
 
-                        return sum + (selectedPrice || 0);
-                    }, 0);
+                //         const selectedPrice =
+                //             item.pricetype === "tan"
+                //                 ? breadData.price
+                //                 : item.pricetype === "narxi"
+                //                     ? breadData.price2
+                //                     : item.pricetype === "toyxona"
+                //                         ? breadData.price3
+                //                         : 0;
 
-                    const quantity = typeOfBread.reduce((sum, breadItem) => sum + (breadItem.quantity || 0), 0);
+                //         return sum + (selectedPrice || 0);
+                //     }, 0);
 
-                    return {
-                        ...item,
-                        price,
-                        quantity
-                    };
-                });
+                //     const quantity = typeOfBread.reduce((sum, breadItem) => sum + (breadItem.quantity || 0), 0);
+
+                //     return {
+                //         ...item,
+                //         price,
+                //         quantity
+                //     };
+                // });
 
 
 
@@ -120,9 +277,7 @@ exports.getStatics = async (req, res) => {
 
                 const pending = []
                 for (const key of deliveryPrixod) {
-                    let allPrice = key?.breadId?.typeOfBreadId?.reduce((a, b) => {
-                        return a + b.breadId.price
-                    }, 0) * key.quantity
+                    let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'narxi' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
                     if (allPrice - key.money > 0) {
                         pending.push({ ...key })
                     }
@@ -143,10 +298,10 @@ exports.getStatics = async (req, res) => {
                     let managerPending = []
                     let sellerPayeds = []
                     for (const seller of sellers) {
-                        managerPrixod = await SellingBreadModel.aggregate([
+                        managerPrixod = [...managerPrixod, ...await SellingBreadModel.aggregate([
                             {
                                 $lookup: {
-                                    from: "sellerbreads",
+                                    from: "managerwares",
                                     localField: "breadId",
                                     foreignField: "_id",
                                     as: "breadDetails"
@@ -155,27 +310,108 @@ exports.getStatics = async (req, res) => {
                             {
                                 $unwind: "$breadDetails",
                             },
-                            {
-                                $match: {
-                                    "breadDetails.sellerId": seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek }, status: true
-                                }
-                            },
+                            { $match: { "breadDetails.sellerId": seller._id } },
                             {
                                 $lookup: {
                                     from: "typeofbreads",
-                                    localField: "breadDetails.typeOfBreadId.breadId",
+                                    localField: "breadDetails.bread",
                                     foreignField: "_id",
                                     as: "breadIdDetails"
                                 }
                             },
                             {
-                                $unwind: "$breadIdDetails"
+                                $unwind: "$breadIdDetails",
+                            },
+                            {
+                                $lookup: {
+                                    from: "deliveries",
+                                    localField: "deliveryId",
+                                    foreignField: "_id",
+                                    as: "delivery"
+                                }
+                            },
+                            {
+                                $unwind: "$delivery"
                             },
                             {
                                 $project: {
-                                    typeOfBreadId: {
+                                    _id: 1,
+                                    breadDetails: "$breadDetails",
+                                    breadId: {
+                                        _id: "$breadIdDetails._id",
+                                        title: "$breadIdDetails.title",
+                                        price: "$breadIdDetails.price",
+                                        price2: "$breadIdDetails.price2",
+                                        price3: "$breadIdDetails.price3",
+                                        price4: "$breadIdDetails.price4",
+                                        createdAt: "$breadIdDetails.createdAt",
+                                    },
+                                    paymentMethod: 1,
+                                    deliveryId: {
+                                        _id: "$delivery._id",
+                                        username: "$delivery.username"
+                                    },
+                                    magazineId: 1,
+                                    money: 1,
+                                    pricetype: 1,
+                                    createdAt: 1,
+                                    quantity: 1
+                                }
+                            },
+                        ])]
+
+                        managerPrixod = [...managerPrixod, ...await SellingBreadModel.aggregate([
+
+                            {
+                                $lookup: {
+                                    from: "orderwithdeliveries",
+                                    localField: "breadId",
+                                    foreignField: "_id",
+                                    as: "bread"
+                                }
+                            },
+                            {
+                                $unwind: "$bread"
+                            },
+                            {
+                                $lookup: {
+                                    from: "managerwares",
+                                    localField: "bread.typeOfBreadIds.bread",
+                                    foreignField: "_id",
+                                    as: "breadDetails"
+                                }
+                            },
+                            { $unwind: "$breadDetails" },
+                            {
+                                $match: { "breadDetails.sellerId": seller._id, status: true }
+                            },
+                            {
+                                $lookup: {
+                                    from: "typeofbreads",
+                                    localField: "breadDetails.bread",
+                                    foreignField: "_id",
+                                    as: "breadIdDetails"
+                                }
+                            },
+                            { $unwind: "$breadIdDetails" },
+                            {
+                                $lookup: {
+                                    from: "deliveries",
+                                    localField: "deliveryId",
+                                    foreignField: "_id",
+                                    as: "delivery"
+                                }
+                            },
+                            {
+                                $unwind: "$delivery"
+                            },
+                            {
+                                $project: {
+                                    _id: 1,
+                                    bread: "$bread",
+                                    typeOfBreadIds: {
                                         $map: {
-                                            input: "$breadDetails.typeOfBreadId",
+                                            input: "$bread.typeOfBreadIds",
                                             as: "breadIdItem",
                                             in: {
                                                 breadId: {
@@ -186,19 +422,25 @@ exports.getStatics = async (req, res) => {
                                                     price3: "$breadIdDetails.price3",
                                                     price4: "$breadIdDetails.price4",
                                                     createdAt: "$breadIdDetails.createdAt",
-                                                }
+                                                },
+                                                quantity: "$$breadIdItem.quantity"
                                             }
                                         }
                                     },
-                                    quantity: 1,
                                     paymentMethod: 1,
-                                    deliveryId: 1,
-                                    magazineId: 1,
+                                    deliveryId: {
+                                        _id: "$delivery._id",
+                                        username: "$delivery.username"
+                                    },
+                                    quantity: 1,
+
                                     money: 1,
+                                    pricetype: 1,
                                     createdAt: 1
                                 }
-                            }
-                        ])
+                            },
+                        ])]
+
                         sellerPayeds = await SellerPayedModel.aggregate([
                             { $match: { type: { $in: ['Avans', 'Oylik'] }, sellerId: seller._id } }
                         ])
@@ -246,7 +488,7 @@ exports.getStatics = async (req, res) => {
                         }
                     ]))
                     for (const key of managerPrixod) {
-                        let allPrice = key.typeOfBreadId.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0), 0) * key.quantity
+                        let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'narxi' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
                         if (allPrice - key.money >= 0) {
                             managerPending.push({ ...key })
                         }
@@ -261,7 +503,7 @@ exports.getStatics = async (req, res) => {
                         createdAt: item.createdAt,
                         debt: { totalPrice: [...debt, ...sellerPayeds].length > 0 ? [...debt, ...sellerPayeds].reduce((a, b) => a + ((b?.price ? b?.price : b?.omborxonaProId?.price ? b.omborxonaProId?.price : 0) * (b.quantity || 1)), 0) : 0, history: [...debt, ...sellerPayeds] },
                         pending: {
-                            totalPrice: managerPending.reduce((a, b) => a + b.typeOfBreadId.reduce((c, d) => c + (d.breadId.price2 * b.quantity), 0), 0),
+                            totalPrice: managerPending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * b.quantity - b.money, 0),
                             history: managerPending
                         },
                         prixod: {
@@ -281,7 +523,7 @@ exports.getStatics = async (req, res) => {
                             history: [...deliveryPrixod, ...Allsales]
                         },
                         pending: {
-                            totalPrice: pending.reduce((a, b) => a + b.breadId.typeOfBreadId.reduce((a, b) => a + b.breadId.price, 0) * b.quantity - b.money, 0),
+                            totalPrice: pending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * b.quantity - b.money, 0),
                             history: pending
                         }
                     },
@@ -341,7 +583,7 @@ exports.getStatics = async (req, res) => {
                 ]))
                 for (const seller of sellers) {
 
-                    managerPrixod = await SellingBreadModel.aggregate([
+                    managerPrixod = [...managerPrixod, ...await SellingBreadModel.aggregate([
                         {
                             $lookup: {
                                 from: "managerwares",
@@ -379,6 +621,7 @@ exports.getStatics = async (req, res) => {
                         {
                             $project: {
                                 _id: 1,
+                                breadDetails: "$breadDetails",
                                 breadId: {
                                     _id: "$breadIdDetails._id",
                                     title: "$breadIdDetails.title",
@@ -400,76 +643,90 @@ exports.getStatics = async (req, res) => {
                                 quantity: 1
                             }
                         },
-                    ])
-                    // let soldBread1 = await SellingBreadModel.aggregate([
-                    //     {
-                    //         $match: { magazineId: key._id, status: true }
-                    //     },
-                    //     {
-                    //         $lookup: {
-                    //             from: "orderwithdeliveries",
-                    //             localField: "breadId",
-                    //             foreignField: "_id",
-                    //             as: "bread"
-                    //         }
-                    //     },
-                    //     {
-                    //         $unwind: "$bread"
-                    //     },
-                    //     {
-                    //         $lookup: {
-                    //             from: "sellerbreads",
-                    //             localField: "bread.typeOfBreadIds.bread",
-                    //             foreignField: "_id",
-                    //             as: "breadDetails"
-                    //         }
-                    //     },
-                    //     { $unwind: "$breadDetails" },
-                    //     {
-                    //         $match: {
-                    //             "breadDetails.sellerId": seller._id, createdAt: { $gte: startDay, $lte: endDay }, status: true
-                    //         }
-                    //     },
-                    //     {
-                    //         $lookup: {
-                    //             from: "typeofbreads",
-                    //             localField: "breadDetails.typeOfBreadId.breadId",
-                    //             foreignField: "_id",
-                    //             as: "breadIdDetails"
-                    //         }
-                    //     },
-                    //     { $unwind: "$breadIdDetails" },
-                    //     {
-                    //         $project: {
-                    //             _id: 1,
-                    //             typeOfBreadIds: {
-                    //                 $map: {
-                    //                     input: "$breadDetails.typeOfBreadId",
-                    //                     as: "breadIdItem",
-                    //                     in: {
-                    //                         breadId: {
-                    //                             _id: "$breadIdDetails._id",
-                    //                             title: "$breadIdDetails.title",
-                    //                             price: "$breadIdDetails.price",
-                    //                             price2: "$breadIdDetails.price2",
-                    //                             price3: "$breadIdDetails.price3",
-                    //                             price4: "$breadIdDetails.price4",
-                    //                             createdAt: "$breadIdDetails.createdAt",
-                    //                         },
-                    //                         quantity: "$$breadIdItem.quantity"
-                    //                     }
-                    //                 }
-                    //             },
-                    //             paymentMethod: 1,
-                    //             delivertId: 1,
-                    //             quantity: 1,
+                    ])]
 
-                    //             money: 1,
-                    //             pricetype: 1,
-                    //             createdAt: 1
-                    //         }
-                    //     },
-                    // ])
+                    managerPrixod = [...managerPrixod, ...await SellingBreadModel.aggregate([
+
+                        {
+                            $lookup: {
+                                from: "orderwithdeliveries",
+                                localField: "breadId",
+                                foreignField: "_id",
+                                as: "bread"
+                            }
+                        },
+                        {
+                            $unwind: "$bread"
+                        },
+                        {
+                            $lookup: {
+                                from: "managerwares",
+                                localField: "bread.typeOfBreadIds.bread",
+                                foreignField: "_id",
+                                as: "breadDetails"
+                            }
+                        },
+                        { $unwind: "$breadDetails" },
+                        {
+                            $match: { "breadDetails.sellerId": seller._id, status: true }
+                        },
+                        {
+                            $lookup: {
+                                from: "typeofbreads",
+                                localField: "breadDetails.bread",
+                                foreignField: "_id",
+                                as: "breadIdDetails"
+                            }
+                        },
+                        { $unwind: "$breadIdDetails" },
+                        {
+                            $lookup: {
+                                from: "deliveries",
+                                localField: "deliveryId",
+                                foreignField: "_id",
+                                as: "delivery"
+                            }
+                        },
+                        {
+                            $unwind: "$delivery"
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                bread: "$bread",
+                                typeOfBreadIds: {
+                                    $map: {
+                                        input: "$bread.typeOfBreadIds",
+                                        as: "breadIdItem",
+                                        in: {
+                                            breadId: {
+                                                _id: "$breadIdDetails._id",
+                                                title: "$breadIdDetails.title",
+                                                price: "$breadIdDetails.price",
+                                                price2: "$breadIdDetails.price2",
+                                                price3: "$breadIdDetails.price3",
+                                                price4: "$breadIdDetails.price4",
+                                                createdAt: "$breadIdDetails.createdAt",
+                                            },
+                                            quantity: "$$breadIdItem.quantity"
+                                        }
+                                    }
+                                },
+                                paymentMethod: 1,
+                                deliveryId: {
+                                    _id: "$delivery._id",
+                                    username: "$delivery.username"
+                                },
+                                quantity: 1,
+
+                                money: 1,
+                                pricetype: 1,
+                                createdAt: 1
+                            }
+                        },
+                    ])]
+
+
                     sellerPayedsManager = await SellerPayedModel.aggregate([
                         { $match: { type: { $in: ["Avans", "Oylik"] }, active: true, sellerId: seller._id } }
                     ])
