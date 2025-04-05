@@ -109,6 +109,9 @@ exports.getSellers = async (req, res) => {
             case "Oylik":
               return a - b?.price;
               break;
+            case "O`chirildi":
+              return a - b?.price;
+              break;
             default:
               break;
           }
@@ -117,10 +120,10 @@ exports.getSellers = async (req, res) => {
           data.push({
             ...key,
             totalPrice,
-            history: sellerPayedes.reverse(),
+            history: sellerPayedes.filter((i)=>i.type !== "O`chirildi").reverse(),
           });
         } else {
-          data.push({ ...key, totalPrice, history: sellerPayedes.reverse() });
+          data.push({ ...key, totalPrice, history: sellerPayedes.filter((i)=>i.type !== "O`chirildi").reverse() });
         }
       }
     }

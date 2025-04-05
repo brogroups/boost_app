@@ -472,13 +472,15 @@ exports.updateSellerById = async (req, res) => {
 
 exports.deleteSellerById = async (req, res) => {
     try {
-        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true })
+        let sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true }).populate("typeOfBreadId.breadId")
         if (!sellerBread) {
             return res.status(404).json({
                 success: false,
                 message: "seller bread not found"
             })
         }
+        sellerBread = sellerBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
+        await SellerPayedModel.create({ sellerId: req.use.id, price: sellerBread, type: "O`chirildi", status: "To`landi", comment: "--------" })
         await deleteCache(`sellerBread${req.use.id}`)
         return res.status(200).json({
             success: true,

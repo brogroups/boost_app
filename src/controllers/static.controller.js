@@ -743,6 +743,9 @@ exports.getStatics = async (req, res) => {
                         case "Avans":
                             return a - b?.price;
                             break;
+                        case "O`chirildi":
+                            return a - b?.price;
+                            break;
                         default:
                             break;
                     }
