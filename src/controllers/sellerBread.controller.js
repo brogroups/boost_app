@@ -37,8 +37,8 @@ exports.createSellerBread = async (req, res) => {
                 await ManagerWareModel.create({
                     sellerId: req.use.id,
                     bread: key.breadId,
-                    totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0),
-                    totalQopQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0),
+                    totalQuantity: key.quantity,
+                    totalQopQuantity:key.qopQuantity,
                     status: true
                 })
             }
