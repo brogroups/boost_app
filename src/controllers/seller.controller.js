@@ -120,10 +120,10 @@ exports.getSellers = async (req, res) => {
           data.push({
             ...key,
             totalPrice,
-            history: sellerPayedes.filter((i)=>i.type !== "O`chirildi").reverse(),
+            history: sellerPayedes.reverse(),
           });
         } else {
-          data.push({ ...key, totalPrice, history: sellerPayedes.filter((i)=>i.type !== "O`chirildi").reverse() });
+          data.push({ ...key, totalPrice, history: sellerPayedes.reverse() });
         }
       }
     }
