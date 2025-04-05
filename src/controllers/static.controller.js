@@ -66,23 +66,56 @@ exports.getStatics = async (req, res) => {
                     return { ...item, role: "delivery" }
                 })
 
-                let deliveryPrixod = await SellingBreadModel.find({ createdAt: { $gte: startOfWeek, $lte: endOfWeek }, status: true }).populate("deliveryId", 'username').populate({
-                    path: "breadId",
-                    model: "SellerBread",
-                    populate: {
-                        path: "typeOfBreadId.breadId",
-                        model: "TypeOfBread"
-                    }
-                }).populate("magazineId").lean()
+                let deliveryPrixod = await SellingBreadModel.find({
+                    createdAt: { $gte: startOfWeek, $lte: endOfWeek },
+                    status: true
+                })
+                    .populate("deliveryId", "username")
+                    .populate("magazineId")
+                    .populate({
+                        path: "breadId",
+                        model: "OrderWithDelivery",
+                        populate: {
+                            path: "typeOfBreadIds.bread", 
+                            model: "ManagerWare",
+                            populate: {
+                                path: "bread",
+                                model: "TypeOfBread"
+                            }
+                        }
+                    })
+                    .lean();
+
+                deliveryPrixod = deliveryPrixod.map((item) => {
+                    const typeOfBread = item?.breadId?.typeOfBreadIds || [];
+
+                    const price = typeOfBread.reduce((sum, breadItem) => {
+                        const breadData = breadItem.bread?.bread || {};
+
+                        const selectedPrice =
+                            item.pricetype === "tan"
+                                ? breadData.price
+                                : item.pricetype === "narxi"
+                                    ? breadData.price2
+                                    : item.pricetype === "toyxona"
+                                        ? breadData.price3
+                                        : 0;
+
+                        return sum + (selectedPrice || 0);
+                    }, 0);
+
+                    const quantity = typeOfBread.reduce((sum, breadItem) => sum + (breadItem.quantity || 0), 0);
+
+                    return {
+                        ...item,
+                        price,
+                        quantity
+                    };
+                });
+
                 let Allsales = await SaleModel.aggregate([
                     { $match: { status: true } }
                 ])
-                deliveryPrixod = deliveryPrixod.map((item) => {
-                    return {
-                        ...item, price: item?.breadId?.typeOfBreadId?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0), 0),
-                        quantity: item.breadId?.typeOfBreadId?.reduce((a, b) => a + b.quantity, 0)
-                    }
-                })
 
                 const pending = []
                 for (const key of deliveryPrixod) {

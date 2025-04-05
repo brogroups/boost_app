@@ -2,13 +2,14 @@ const OrderWithDeliveryModel = require("../models/orderWithDelivery.model")
 const { getCache, setCache, deleteCache } = require('../helpers/redis.helper')
 const { default: mongoose } = require("mongoose")
 const SellerBreadModel = require("../models/sellerBread.model")
+const ManagerWareModel = require("../models/managerWare.model")
 
 
 exports.createOrderWithDelivery = async (req, res) => {
     try {
         if (req.body?.type !== "returned") {
             for (const key of req.body.typeOfBreadIds) {
-                let typeOfWareHouse = await SellerBreadModel.findById(key.bread);
+                let typeOfWareHouse = await ManagerWareModel.findById(key.bread);
                 if (!typeOfWareHouse) {
                     return res.status(404).json({
                         success: false,
@@ -23,8 +24,25 @@ exports.createOrderWithDelivery = async (req, res) => {
                     });
                 }
 
+                let sellers = await SellerModel.aggregate([
+                    { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), status: true } }
+                ])
+
+                for (const key of sellers) {
+                    let bread = await SellerBreadModel.findOne({ sellerId: key._id, status: true, "typeOfBreadId.breadId": typeOfWareHouse.bread });
+                    if (bread) {
+                        bread.totalQuantity = (bread?.totalQuantity || 0) - req.body.quantity
+                        if (bread?.totalQuantity >= 0) {
+                            await bread.save()
+                            break;
+                        } else {
+                            await bread.save()
+                        }
+                    }
+                }
+
                 typeOfWareHouse.totalQuantity -= key.quantity;
-                await SellerBreadModel.findByIdAndUpdate(
+                await ManagerWareModel.findByIdAndUpdate(
                     key.bread,
                     { totalQuantity: typeOfWareHouse.totalQuantity },
                     { new: true }
@@ -108,7 +126,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     },
                     {
                         $lookup: {
-                            from: "sellerbreads",
+                            from: "managerwares",
                             localField: "typeOfBreadIds.bread",
                             foreignField: "_id",
                             as: "breadDetails"
@@ -120,7 +138,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     {
                         $lookup: {
                             from: "typeofbreads",
-                            localField: "breadDetails.typeOfBreadId.breadId",
+                            localField: "breadDetails.bread",
                             foreignField: "_id",
                             as: "breadIdDetails"
                         }
@@ -141,7 +159,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                             createdAt: 1,
                             typeOfBreadIds: {
                                 $map: {
-                                    input: "$breadDetails.typeOfBreadId",
+                                    input: "$typeOfBreadIds",
                                     as: "breadIdItem",
                                     in: {
                                         breadId: {
@@ -165,6 +183,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
                     return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
                 })
+              
                 break;
             }
             case "manager": {
@@ -183,7 +202,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     { $unwind: "$deliveryDetails" },
                     {
                         $lookup: {
-                            from: "sellerbreads",
+                            from: "managerwares",
                             localField: "typeOfBreadIds.bread",
                             foreignField: "_id",
                             as: "breadDetails"
@@ -193,7 +212,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     {
                         $lookup: {
                             from: "typeofbreads",
-                            localField: "breadDetails.typeOfBreadId.breadId",
+                            localField: "breadDetails.bread",
                             foreignField: "_id",
                             as: "breadIdDetails"
                         }
@@ -212,7 +231,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                             createdAt: 1,
                             typeOfBreadIds: {
                                 $map: {
-                                    input: "$breadDetails.typeOfBreadId",
+                                    input: "$typeOfBreadIds",
                                     as: "breadIdItem",
                                     in: {
                                         breadId: {
@@ -229,10 +248,9 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                     }
                                 }
                             },
-                            title: "$breadDetails.title"
                         }
                     }
-                ]);
+                ])
                 orderWithDeliveries = orderWithDeliveries.reduce((acc, item) => {
                     const excite = acc.find(b => String(b._id) === String(item._id))
                     if (!excite) {
