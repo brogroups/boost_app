@@ -24,8 +24,8 @@ exports.createSellerBread = async (req, res) => {
                         }
                     ],
                     sellerId: req.use.id,
-                    totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0),
-                    totalQopQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0),
+                    totalQuantity: key.quantity,
+                    totalQopQuantity: key.qopQuantity,
                     status: true
                 })
             }
