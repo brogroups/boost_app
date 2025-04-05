@@ -16,7 +16,13 @@ exports.createSellerBread = async (req, res) => {
                 sellerBread = await SellerBreadModel.findByIdAndUpdate(bread._id, { totalQuantity: (bread.totalQuantity || 0) + key.quantity, totalQopQuantity: (bread.totalQopQuantity || 0) + key.qopQuantity, status: true }, { new: true })
             } else {
                 sellerBread = await SellerBreadModel.create({
-                    ...req.body,
+                    typeOfBreadId: [
+                        {
+                            breadId: key.breadId,
+                            quantity: key.quantity,
+                            qopQuantity: key.qopQuantity
+                        }
+                    ],
                     sellerId: req.use.id,
                     totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0),
                     totalQopQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0),
@@ -25,11 +31,8 @@ exports.createSellerBread = async (req, res) => {
             }
 
             let bread2 = await ManagerWareModel.findOne({ bread: key.breadId, status: true })
-            console.log(bread2.totalQuantity)
-            console.log(key.quantity)
-            console.log(bread2.totalQuantity + key.quantity)
             if (bread2) {
-                await ManagerWareModel.findByIdAndUpdate(bread2._id, { totalQuantity: bread2.totalQuantity + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity, status: true }, { new: true })
+                await ManagerWareModel.findByIdAndUpdate(bread2._id, { totalQuantity: bread2?.totalQuantity + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity, status: true }, { new: true })
             } else {
                 await ManagerWareModel.create({
                     sellerId: req.use.id,
