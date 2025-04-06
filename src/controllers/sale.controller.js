@@ -1,15 +1,15 @@
 const { default: mongoose } = require("mongoose");
 const { setCache, getCache, deleteCache } = require("../helpers/redis.helper");
 const SaleModel = require("../models/sale.mode");
-const SellerBreadModel = require("../models/sellerBread.model");
+const ManagerWareModel = require("../models/managerWare.model");
 
 exports.create = async (req, res) => {
     try {
-        let typeOfWareHouse = await SellerBreadModel.findById(req.body.breadId);
+        let typeOfWareHouse = await ManagerWareModel.findById(req.body.breadId);
         if (!typeOfWareHouse) {
             return res.status(404).json({
                 success: false,
-                message: `Mahsulot topilmadi (ID: ${typeOfWareHouse.omborxonaProId})`
+                message: `Mahsulot topilmadi (ID: ${typeOfWareHouse})`
             });
         }
 
@@ -21,7 +21,7 @@ exports.create = async (req, res) => {
         }
 
         typeOfWareHouse.totalQuantity -= req.body.quantity;
-        await SellerBreadModel.findByIdAndUpdate(
+        await ManagerWareModel.findByIdAndUpdate(
             req.body.breadId,
             { totalQuantity: typeOfWareHouse.totalQuantity },
             { new: true }
@@ -69,7 +69,7 @@ exports.findAll = async (req, res) => {
             { $match: { managerId: new mongoose.Types.ObjectId(req.use.id), status: true } },
             {
                 $lookup: {
-                    from: "sellerbreads",
+                    from: "managerwares",
                     localField: "breadId",
                     foreignField: "_id",
                     as: "bread"
@@ -80,7 +80,7 @@ exports.findAll = async (req, res) => {
             {
                 $lookup: {
                     from: "typeofbreads",
-                    localField: "bread.typeOfBreadId.breadId",
+                    localField: "bread.bread",
                     foreignField: "_id",
                     as: "breadId2"
                 }
@@ -92,19 +92,13 @@ exports.findAll = async (req, res) => {
                 $project: {
                     _id: 1,
                     breadId: {
-                        _id: "$bread._id",
-                        typeOfBreadId: {
-                            $map: {
-                                input: "$bread.typeOfBreadId",
-                                as: "typeofbread",
-                                in: {
-                                    breadId: "$breadId2",
-                                    quantity: "$$typeofbread.quantity",
-                                    qopQuantity: "$$typeofbread.qopQuantity"
-                                }
-                            }
-                        },
-                        title: "$bread.title"
+                        _id: "$breadId2._id",
+                        title: "$breadId2.title",
+                        price: "$breadId2.price",
+                        price2: "$breadId2.price2",
+                        price3: "$breadId2.price3",
+                        price4: "$breadId2.price4",
+                        createdAt: "$breadId2.createdAt",
                     },
                     money: 1,
                     quantity: 1,
@@ -118,7 +112,7 @@ exports.findAll = async (req, res) => {
         sales = sales.reduce((acc, item) => {
             const excite = acc.find(b => String(b._id) === String(item._id))
             if (!excite) {
-                acc.push({ ...item, breadId: { ...item.breadId, totalQuantity: item.breadId.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalPrice: item.breadId.typeOfBreadId?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) } })
+                acc.push({ ...item, price: (item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'narxi' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0) })
             }
             return acc
         }, [])
@@ -169,7 +163,7 @@ exports.update = async (req, res) => {
                 message: "Sale not found"
             })
         }
-        let typeOfWareHouse = await SellerBreadModel.findById(req.body.breadId);
+        let typeOfWareHouse = await ManagerWareModel.findById(req.body.breadId);
         if (!typeOfWareHouse) {
             return res.status(404).json({
                 success: false,
@@ -186,7 +180,7 @@ exports.update = async (req, res) => {
 
         typeOfWareHouse.totalQuantity += sale.quantity;
         typeOfWareHouse.totalQuantity -= req.body.quantity;
-        await SellerBreadModel.findByIdAndUpdate(
+        await ManagerWareModel.findByIdAndUpdate(
             req.body.breadId,
             { totalQuantity: typeOfWareHouse.totalQuantity },
             { new: true }

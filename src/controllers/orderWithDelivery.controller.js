@@ -368,8 +368,6 @@ exports.deleteOrderWithDelivery = async (req, res) => {
             });
         }
 
-
-
         await deleteCache(`orderWithDelivery${req.use.id}`);
 
         return res.status(200).json({

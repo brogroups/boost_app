@@ -1,7 +1,8 @@
 const { Schema, model } = require("mongoose");
+const ManagerWareModel = require("./managerWare.model");
 
 const SaleSchema = new Schema({
-    breadId: { type: Schema.Types.ObjectId, ref: "SellerBread", required: true },
+    breadId: { type: Schema.Types.ObjectId, ref: ManagerWareModel, required: true },
     money: { type: Number, required: true },
     quantity: { type: Number, required: true },
     description: { type: String, required: true },

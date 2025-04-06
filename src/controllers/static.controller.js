@@ -646,7 +646,6 @@ exports.getStatics = async (req, res) => {
                         {
                             $project: {
                                 _id: 1,
-                                breadDetails: "$breadDetails",
                                 breadId: {
                                     _id: "$breadIdDetails._id",
                                     title: "$breadIdDetails.title",
@@ -716,26 +715,27 @@ exports.getStatics = async (req, res) => {
                             $unwind: "$delivery"
                         },
                         {
+                            $lookup: {
+                                from: "magazines",
+                                localField: "magazineId",
+                                foreignField: "_id",
+                                as: "magazine"
+                            }
+                        },
+                        {
+                            $unwind: "$magazine"
+                        },
+                        {
                             $project: {
                                 _id: 1,
-                                bread: "$bread",
-                                typeOfBreadIds: {
-                                    $map: {
-                                        input: "$bread.typeOfBreadIds",
-                                        as: "breadIdItem",
-                                        in: {
-                                            breadId: {
-                                                _id: "$breadIdDetails._id",
-                                                title: "$breadIdDetails.title",
-                                                price: "$breadIdDetails.price",
-                                                price2: "$breadIdDetails.price2",
-                                                price3: "$breadIdDetails.price3",
-                                                price4: "$breadIdDetails.price4",
-                                                createdAt: "$breadIdDetails.createdAt",
-                                            },
-                                            quantity: "$$breadIdItem.quantity"
-                                        }
-                                    }
+                                breadId: {
+                                    _id: "$breadIdDetails._id",
+                                    title: "$breadIdDetails.title",
+                                    price: "$breadIdDetails.price",
+                                    price2: "$breadIdDetails.price2",
+                                    price3: "$breadIdDetails.price3",
+                                    price4: "$breadIdDetails.price4",
+                                    createdAt: "$breadIdDetails.createdAt",
                                 },
                                 paymentMethod: 1,
                                 deliveryId: {
@@ -743,7 +743,10 @@ exports.getStatics = async (req, res) => {
                                     username: "$delivery.username"
                                 },
                                 quantity: 1,
-
+                                magazineId: {
+                                    _id: "$magazine._id",
+                                    title: "$magazine.title"
+                                },
                                 money: 1,
                                 pricetype: 1,
                                 createdAt: 1
@@ -768,7 +771,7 @@ exports.getStatics = async (req, res) => {
                     { $match: { managerId: new mongoose.Types.ObjectId(req.use.id), status: true } },
                     {
                         $lookup: {
-                            from: "sellerbreads",
+                            from: "managerwares",
                             localField: "breadId",
                             foreignField: "_id",
                             as: "bread"
@@ -779,7 +782,7 @@ exports.getStatics = async (req, res) => {
                     {
                         $lookup: {
                             from: "typeofbreads",
-                            localField: "bread.typeOfBreadId.breadId",
+                            localField: "bread.bread",
                             foreignField: "_id",
                             as: "breadId2"
                         }
@@ -790,18 +793,15 @@ exports.getStatics = async (req, res) => {
                     {
                         $project: {
                             _id: 1,
-                            typeOfBreadId: {
-                                $map: {
-                                    input: "$bread.typeOfBreadId",
-                                    as: "typeofbread",
-                                    in: {
-                                        breadId: "$breadId2",
-                                        quantity: "$$typeofbread.quantity",
-                                        qopQuantity: "$$typeofbread.qopQuantity"
-                                    }
-                                }
+                            breadId: {
+                                _id: "$breadId2._id",
+                                title: "$breadId2.title",
+                                price: "$breadId2.price",
+                                price2: "$breadId2.price2",
+                                price3: "$breadId2.price3",
+                                price4: "$breadId2.price4",
+                                createdAt: "$breadId2.createdAt",
                             },
-                            title: "$bread.title",
                             money: 1,
                             quantity: 1,
                             description: 1,
@@ -823,7 +823,17 @@ exports.getStatics = async (req, res) => {
                         },
                         prixod: {
                             totalPrice: [...managerPrixod, ...sales].reduce((a, b) => a + b.money, 0),
-                            history: [...managerPrixod, ...sales]
+                            history: [...managerPrixod, ...sales].map((item) => {
+                                let price = item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'narxi' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0
+                                return { ...item, price }
+                            })
+                        },
+                        sellingBread: {
+                            totalQuantity: managerPrixod.reduce((a, b) => a + (b.quantity || 0), 0),
+                            history: managerPrixod.map((item) => {
+                                let price = item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'narxi' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0
+                                return { ...item, price }
+                            })
                         }
                     },
                 })

@@ -28,6 +28,96 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
     try {
+        console.log(await InvalidProModel.aggregate([
+            { $match: {} },
+            {
+                $lookup: {
+                    from: "returnedpros",
+                    localField: "ReturnedModel",
+                    foreignField: "_id",
+                    as: "returned"
+                }
+            },
+            {
+                $unwind: "$returned"
+            },
+            // {
+            //     $lookup: {
+            //         from: "orderwithdeliveries",
+            //         localField: "returned.orderWithDelivery",
+            //         foreignField: "_id",
+            //         as: "order"
+            //     }
+            // },
+            // {
+            //     $unwind: "$order"
+            // },
+            // {
+            //     $lookup: {
+            //         from: "managerwares",
+            //         localField: "order.typeOfBreadIds.bread",
+            //         foreignField: "_id",
+            //         as: "breadDetails"
+            //     }
+            // },
+            // {
+            //     $unwind: "$breadDetails",
+            // },
+            // {
+            //     $lookup: {
+            //         from: "typeofbreads",
+            //         localField: "breadDetails.bread",
+            //         foreignField: "_id",
+            //         as: "breadIdDetails"
+            //     }
+            // },
+            // {
+            //     $unwind: "$breadIdDetails",
+            // },
+            // {
+            //     $lookup: {
+            //         from: "deliveries",
+            //         localField: "order.deliveryId",
+            //         foreignField: "_id",
+            //         as: "delivery"
+            //     }
+            // },
+            // {
+            //     $unwind: "$delivery"
+            // },
+            {
+                $project: {
+                    _id: 1,
+                    // order: {
+                    //     typeOfBreadIds: {
+                    //         $map: {
+                    //             input: "$breadDetails.typeOfBreadId",
+                    //             as: "breadIdItem",
+                    //             in: {
+                    //                 breadId: {
+                    //                     _id: "$breadIdDetails._id",
+                    //                     title: "$breadIdDetails.title",
+                    //                     price: "$breadIdDetails.price",
+                    //                     price2: "$breadIdDetails.price2",
+                    //                     price3: "$breadIdDetails.price3",
+                    //                     price4: "$breadIdDetails.price4",
+                    //                     createdAt: "$breadIdDetails.createdAt",
+                    //                 },
+                    //                 quantity: "$$breadIdItem.quantity",
+                    //                 _id: "$breadDetails._id"
+                    //             }
+                    //         }
+                    //     },
+                    //     description: "$order.description",
+                    //     quantity: "$order.quantity",
+                    //     pricetype: "$order.pricetype",
+                    //     createdAt: "$order.createdAt",
+                    //     title: "$breadDetails.title",
+                    //     totalQuantity: 1
+                    // },
+                }
+            }
+        ]))
         let InvalidPro = await InvalidProModel.aggregate([
             { $match: {} },
             {
@@ -54,7 +144,7 @@ exports.findAll = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "sellerbreads",
+                    from: "managerwares",
                     localField: "order.typeOfBreadIds.bread",
                     foreignField: "_id",
                     as: "breadDetails"
@@ -66,7 +156,7 @@ exports.findAll = async (req, res) => {
             {
                 $lookup: {
                     from: "typeofbreads",
-                    localField: "breadDetails.typeOfBreadId.breadId",
+                    localField: "breadDetails.bread",
                     foreignField: "_id",
                     as: "breadIdDetails"
                 }
@@ -87,6 +177,7 @@ exports.findAll = async (req, res) => {
             },
             {
                 $project: {
+                    _id: 1,
                     order: {
                         typeOfBreadIds: {
                             $map: {
@@ -112,7 +203,6 @@ exports.findAll = async (req, res) => {
                         pricetype: "$order.pricetype",
                         createdAt: "$order.createdAt",
                         title: "$breadDetails.title",
-
                         totalQuantity: 1
                     },
                 }
@@ -121,7 +211,7 @@ exports.findAll = async (req, res) => {
         InvalidPro = InvalidPro.map((item) => {
             return { ...item, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
         })
-        // await setCache(`InvalidPro${req.use.id}`,InvalidPro)
+        await setCache(`InvalidPro${req.use.id}`,InvalidPro)
         return res.status(200).json({
             success: true,
             InvalidPro
@@ -166,16 +256,16 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
     try {
         const invalidPro = await InvalidProModel.findByIdAndUpdate(req.params.id, { status: false }, { new: true })
-        if(!invalidPro){
+        if (!invalidPro) {
             return res.status(404).json({
-                success:false,
-                message:"Invalid pro"
+                success: false,
+                message: "Invalid pro"
             })
         }
         await deleteCache(`InvalidPro${req.use.id}`);
         return res.status(200).json({
-            success:true,
-            message:"invalid pro deleted",
+            success: true,
+            message: "invalid pro deleted",
             invalidPro
         })
 

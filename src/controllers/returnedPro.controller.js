@@ -17,7 +17,7 @@ exports.create = async (req, res) => {
                     message: "Ruxsat yo'q"
                 });
         }
-            await OrderWithDeliveryModel.findByIdAndUpdate(req.body.orderWithDelivery, { status: false }, { new: true })
+        await OrderWithDeliveryModel.findByIdAndUpdate(req.body.orderWithDelivery, { status: false }, { new: true })
         await deleteCache(`returnedPro${req.use.id}`)
         await deleteCache(`sellerBread`)
         return res.status(201).json({
@@ -50,7 +50,7 @@ exports.findAll = async (req, res) => {
 
         switch (req.use.role) {
             case "delivery":
-                returnedPro = await ReturnedProModel.aggregate([
+                returnedPro = [...returnedPro, ...await ReturnedProModel.aggregate([
                     { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true } },
                     {
                         $lookup: {
@@ -65,7 +65,7 @@ exports.findAll = async (req, res) => {
                     },
                     {
                         $lookup: {
-                            from: "sellerbreads",
+                            from: "managerwares",
                             localField: "order.typeOfBreadIds.bread",
                             foreignField: "_id",
                             as: "breadDetails"
@@ -77,7 +77,7 @@ exports.findAll = async (req, res) => {
                     {
                         $lookup: {
                             from: "typeofbreads",
-                            localField: "breadDetails.typeOfBreadId.breadId",
+                            localField: "breadDetails.bread",
                             foreignField: "_id",
                             as: "breadIdDetails"
                         }
@@ -91,7 +91,7 @@ exports.findAll = async (req, res) => {
                             order: {
                                 typeOfBreadIds: {
                                     $map: {
-                                        input: "$breadDetails.typeOfBreadId",
+                                        input: "$order.typeOfBreadIds",
                                         as: "breadIdItem",
                                         in: {
                                             breadId: {
@@ -117,14 +117,15 @@ exports.findAll = async (req, res) => {
                             }
                         }
                     }
-                ])
+                ])]
                 returnedPro = returnedPro.map((item) => {
                     return { ...item, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
                 })
+                break;
             case "superAdmin":
             case "manager":
-                returnedPro = await ReturnedProModel.aggregate([
-                    { $match: { status: true } },
+                returnedPro = [...returnedPro, ...await ReturnedProModel.aggregate([
+                    { $match: {  status: true } },
                     {
                         $lookup: {
                             from: "orderwithdeliveries",
@@ -138,7 +139,7 @@ exports.findAll = async (req, res) => {
                     },
                     {
                         $lookup: {
-                            from: "sellerbreads",
+                            from: "managerwares",
                             localField: "order.typeOfBreadIds.bread",
                             foreignField: "_id",
                             as: "breadDetails"
@@ -150,7 +151,7 @@ exports.findAll = async (req, res) => {
                     {
                         $lookup: {
                             from: "typeofbreads",
-                            localField: "breadDetails.typeOfBreadId.breadId",
+                            localField: "breadDetails.bread",
                             foreignField: "_id",
                             as: "breadIdDetails"
                         }
@@ -159,23 +160,13 @@ exports.findAll = async (req, res) => {
                         $unwind: "$breadIdDetails",
                     },
                     {
-                        $lookup: {
-                            from: "deliveries",
-                            localField: "order.deliveryId",
-                            foreignField: "_id",
-                            as: "delivery"
-                        }
-                    },
-                    {
-                        $unwind: "$delivery"
-                    },
-                    {
                         $project: {
                             _id: 1,
                             order: {
+                                _id:"$order._id",
                                 typeOfBreadIds: {
                                     $map: {
-                                        input: "$breadDetails.typeOfBreadId",
+                                        input: "$order.typeOfBreadIds",
                                         as: "breadIdItem",
                                         in: {
                                             breadId: {
@@ -197,16 +188,11 @@ exports.findAll = async (req, res) => {
                                 pricetype: "$order.pricetype",
                                 createdAt: "$order.createdAt",
                                 title: "$breadDetails.title",
-
-                                totalQuantity: 1
-                            },
-                            deliveryId: {
-                                _id: "$delivery._id",
-                                username: "$delivery.username"
-                            },
+                                totalQuantity: 1,
+                            }
                         }
                     }
-                ])
+                ])]
                 returnedPro = returnedPro.map((item) => {
                     return { ...item, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
                 })
@@ -216,7 +202,7 @@ exports.findAll = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "list of returned products",
-            returnedPro: returnedPro.reverse()
+            returnedPro: returnedPro
         })
     }
     catch (error) {
