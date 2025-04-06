@@ -210,30 +210,36 @@ exports.getStatics = async (req, res) => {
                         $unwind: "$delivery"
                     },
                     {
+                        $lookup: {
+                            from: "magazines",
+                            localField: "magazineId",
+                            foreignField: "_id",
+                            as: "magazine"
+                        }
+                    },
+                    {
+                        $unwind: "$magazine"
+                    },
+                    {
                         $project: {
                             _id: 1,
-                            typeOfBreadIds: {
-                                $map: {
-                                    input: "$bread.typeOfBreadIds",
-                                    as: "breadIdItem",
-                                    in: {
-                                        breadId: {
-                                            _id: "$breadIdDetails._id",
-                                            title: "$breadIdDetails.title",
-                                            price: "$breadIdDetails.price",
-                                            price2: "$breadIdDetails.price2",
-                                            price3: "$breadIdDetails.price3",
-                                            price4: "$breadIdDetails.price4",
-                                            createdAt: "$breadIdDetails.createdAt",
-                                        },
-                                        quantity: "$$breadIdItem.quantity"
-                                    }
-                                }
+                            breadId: {
+                                _id: "$breadIdDetails._id",
+                                title: "$breadIdDetails.title",
+                                price: "$breadIdDetails.price",
+                                price2: "$breadIdDetails.price2",
+                                price3: "$breadIdDetails.price3",
+                                price4: "$breadIdDetails.price4",
+                                createdAt: "$breadIdDetails.createdAt",
                             },
                             paymentMethod: 1,
                             deliveryId: {
                                 _id: "$delivery._id",
                                 username: "$delivery.username"
+                            },
+                            magazineId: {
+                                _id: "$magazine._id",
+                                title: "$magazine.title"
                             },
                             quantity: 1,
                             money: 1,
@@ -334,6 +340,17 @@ exports.getStatics = async (req, res) => {
                                 $unwind: "$delivery"
                             },
                             {
+                                $lookup: {
+                                    from: "magazines",
+                                    localField: "magazineId",
+                                    foreignField: "_id",
+                                    as: "magazine"
+                                }
+                            },
+                            {
+                                $unwind: "$magazine"
+                            },
+                            {
                                 $project: {
                                     _id: 1,
                                     breadDetails: "$breadDetails",
@@ -351,7 +368,10 @@ exports.getStatics = async (req, res) => {
                                         _id: "$delivery._id",
                                         username: "$delivery.username"
                                     },
-                                    magazineId: 1,
+                                    magazineId: {
+                                        _id: "$magazine._id",
+                                        title: "$magazine.title"
+                                    },
                                     money: 1,
                                     pricetype: 1,
                                     createdAt: 1,
@@ -406,34 +426,39 @@ exports.getStatics = async (req, res) => {
                                 $unwind: "$delivery"
                             },
                             {
+                                $lookup: {
+                                    from: "magazines",
+                                    localField: "magazineId",
+                                    foreignField: "_id",
+                                    as: "magazine"
+                                }
+                            },
+                            {
+                                $unwind: "$magazine"
+                            },
+                            {
                                 $project: {
                                     _id: 1,
                                     bread: "$bread",
-                                    typeOfBreadIds: {
-                                        $map: {
-                                            input: "$bread.typeOfBreadIds",
-                                            as: "breadIdItem",
-                                            in: {
-                                                breadId: {
-                                                    _id: "$breadIdDetails._id",
-                                                    title: "$breadIdDetails.title",
-                                                    price: "$breadIdDetails.price",
-                                                    price2: "$breadIdDetails.price2",
-                                                    price3: "$breadIdDetails.price3",
-                                                    price4: "$breadIdDetails.price4",
-                                                    createdAt: "$breadIdDetails.createdAt",
-                                                },
-                                                quantity: "$$breadIdItem.quantity"
-                                            }
-                                        }
+                                    breadId: {
+                                        _id: "$breadIdDetails._id",
+                                        title: "$breadIdDetails.title",
+                                        price: "$breadIdDetails.price",
+                                        price2: "$breadIdDetails.price2",
+                                        price3: "$breadIdDetails.price3",
+                                        price4: "$breadIdDetails.price4",
+                                        createdAt: "$breadIdDetails.createdAt",
                                     },
                                     paymentMethod: 1,
                                     deliveryId: {
                                         _id: "$delivery._id",
                                         username: "$delivery.username"
                                     },
+                                    magazineId: {
+                                        _id: "$magazine._id",
+                                        title: "$magazine.title"
+                                    },
                                     quantity: 1,
-
                                     money: 1,
                                     pricetype: 1,
                                     createdAt: 1
