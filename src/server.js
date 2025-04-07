@@ -3,7 +3,7 @@ const cors = require("cors");
 const SuperAdminModel = require("./models/superAdmin.model");
 const jwt = require("jsonwebtoken");
 const ConnecToDb = require("./configs/connection");
-const { encrypt } = require("./helpers/crypto.helper");
+const { encrypt, decrypt } = require("./helpers/crypto.helper");
 require('colors')
 require("dotenv").config();
 
@@ -130,7 +130,6 @@ app.use("/api/refreshToken", async (req, res) => {
     });
   }
 });
-
 
 
 const PORT = process.env.PORT || 3500;

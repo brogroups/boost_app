@@ -13,7 +13,7 @@ exports.createSellerBread = async (req, res) => {
         for (const key of req.body.typeOfBreadId) {
             let bread = await SellerBreadModel.findOne({ "typeOfBreadId.breadId": key.breadId, sellerId: new mongoose.Types.ObjectId(req.use.id), status: true })
             if (bread) {
-                sellerBread = await SellerBreadModel.findByIdAndUpdate(bread._id, { totalQuantity: (bread.totalQuantity || 0) + key.quantity, totalQopQuantity: (bread.totalQopQuantity || 0) + key.qopQuantity, status: true }, { new: true })
+                sellerBread = await SellerBreadModel.findByIdAndUpdate(bread._id, { totalQuantity: (bread.totalQuantity || 0) + key.quantity, totalQopQuantity: (bread.totalQopQuantity || 0) + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
             } else {
                 sellerBread = await SellerBreadModel.create({
                     typeOfBreadId: [
@@ -32,13 +32,13 @@ exports.createSellerBread = async (req, res) => {
 
             let bread2 = await ManagerWareModel.findOne({ bread: key.breadId, status: true })
             if (bread2) {
-                await ManagerWareModel.findByIdAndUpdate(bread2._id, { totalQuantity: bread2?.totalQuantity + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity, status: true }, { new: true })
+                await ManagerWareModel.findByIdAndUpdate(bread2._id, { totalQuantity: bread2?.totalQuantity + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
             } else {
                 await ManagerWareModel.create({
                     sellerId: req.use.id,
                     bread: key.breadId,
                     totalQuantity: key.quantity,
-                    totalQopQuantity:key.qopQuantity,
+                    totalQopQuantity: key.qopQuantity,
                     status: true
                 })
             }

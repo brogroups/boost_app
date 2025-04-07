@@ -1016,7 +1016,7 @@ exports.getStatics = async (req, res) => {
                 break;
             case "seller":
                 let sellerPayeds = await SellerPayedModel.aggregate([
-                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }, active: true } }
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id),   active: true } }
                 ])
                 sellerPayeds = sellerPayeds.reduce((a, b) => {
                     switch (b.type) {

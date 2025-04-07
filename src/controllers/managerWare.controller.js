@@ -2,6 +2,31 @@ const { default: mongoose } = require("mongoose");
 const ManagerWareModel = require("../models/managerWare.model");
 const SellerModel = require("../models/seller.model");
 
+exports.createManagerWare = async (req, res) => {
+    try {
+        let warehouse = await ManagerWareModel.findOne({ bread: req.body.bread, status: true })
+        if (warehouse) {
+            await ManagerWareModel.findByIdAndUpdate(warehouse._id, { totalQuantity: warehouse?.totalQuantity + req.body.totalQuantity, totalQopQuantity: warehouse.totalQopQuantity + req.body.totalQopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
+        } else {
+            await ManagerWareModel.create({
+                sellerId: req.body.sellerId,
+                bread: req.body.bread,
+                totalQuantity: req.body.totalQuantity,
+                totalQopQuantity: req.body.totalQopQuantity,
+                status: true
+            })
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: "it's okey"
+        })
+    }
+    catch (error) {
+        console.error(error)
+    }
+}
+
 exports.getManagerWare = async (req, res) => {
     try {
         let datas = []
@@ -10,7 +35,7 @@ exports.getManagerWare = async (req, res) => {
             case "manager": {
                 sellers = await SellerModel.aggregate([{ $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), status: true } }])
                 for (const key of sellers) {
-                
+
                     datas = [...datas, ...await ManagerWareModel.aggregate([
                         { $match: { sellerId: key._id, status: true } },
                         {
