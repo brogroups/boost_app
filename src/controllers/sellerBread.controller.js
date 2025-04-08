@@ -32,12 +32,13 @@ exports.createSellerBread = async (req, res) => {
 
             let bread2 = await ManagerWareModel.findOne({ bread: key.breadId, status: true })
             if (bread2) {
-                await ManagerWareModel.findByIdAndUpdate(bread2._id, { totalQuantity: bread2?.totalQuantity + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
+                await ManagerWareModel.findByIdAndUpdate(bread2._id, { totalQuantity: bread2?.totalQuantity + key.quantity,totalQuantity2: bread2?.totalQuantity2 + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
             } else {
                 await ManagerWareModel.create({
                     sellerId: req.use.id,
                     bread: key.breadId,
                     totalQuantity: key.quantity,
+                    totalQuantity2: key.quantity,
                     totalQopQuantity: key.qopQuantity,
                     status: true
                 })
@@ -45,8 +46,8 @@ exports.createSellerBread = async (req, res) => {
         }
 
         await deleteCache(`sellerBread${req.use.id}`)
-        let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId typeOfBreadId.breadId.breadId")
-        sellerPayedBread = sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
+        let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId")
+        sellerPayedBread = sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * (b?.breadId?.price4 || 1)), 0)
         await SellerPayedModel.create({ sellerId: req.use.id, price: sellerPayedBread, type: "Ishhaqi", status: "To`landi", comment: "--------" })
         return res.status(201).json({
             success: true,
@@ -55,6 +56,7 @@ exports.createSellerBread = async (req, res) => {
         })
     }
     catch (error) {
+        console.error(error.message)
         return res.status(500).json({
             success: false,
             message: error.message

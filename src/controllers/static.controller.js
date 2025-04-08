@@ -868,53 +868,6 @@ exports.getStatics = async (req, res) => {
                 ])
                 let pendingDelivery = []
                 let soldBread = await SellingBreadModel.aggregate([
-                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), createdAt: { $gte: startDay, $lte: endDay }, status: true } },
-                    {
-                        $lookup: {
-                            from: "sellerbreads",
-                            localField: "breadId",
-                            foreignField: "_id",
-                            as: "breadDetails"
-                        }
-                    },
-                    {
-                        $unwind: "$breadDetails",
-                    },
-                    {
-                        $lookup: {
-                            from: "typeofbreads",
-                            localField: "breadDetails.typeOfBreadId.breadId",
-                            foreignField: "_id",
-                            as: "breadId"
-                        }
-                    },
-                    {
-                        $unwind: "$breadId"
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            breadDetails: "$breadDetails.typeOfBreadIds",
-                            typeOfBreadIds: {
-                                $map: {
-                                    input: "$breadDetails.typeOfBreadId",
-                                    as: "typeofbread",
-                                    in: {
-                                        breadId: "$breadId",
-                                    }
-                                }
-                            },
-                            paymentMethod: 1,
-                            magazineId: 1,
-                            money: 1,
-                            pricetype: 1,
-                            createdAt: 1,
-                            quantity: 1,
-                        }
-                    },
-                ])
-
-                let soldBread1 = await SellingBreadModel.aggregate([
                     {
                         $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true }
                     },
@@ -931,7 +884,7 @@ exports.getStatics = async (req, res) => {
                     },
                     {
                         $lookup: {
-                            from: "sellerbreads",
+                            from: "managerwares",
                             localField: "bread.typeOfBreadIds.bread",
                             foreignField: "_id",
                             as: "breadDetails"
@@ -941,18 +894,40 @@ exports.getStatics = async (req, res) => {
                     {
                         $lookup: {
                             from: "typeofbreads",
-                            localField: "breadDetails.typeOfBreadId.breadId",
+                            localField: "breadDetails.bread",
                             foreignField: "_id",
                             as: "breadIdDetails"
                         }
                     },
                     { $unwind: "$breadIdDetails" },
                     {
+                        $lookup: {
+                            from: "deliveries",
+                            localField: "deliveryId",
+                            foreignField: "_id",
+                            as: "delivery"
+                        }
+                    },
+                    {
+                        $unwind: "$delivery"
+                    },
+                    {
+                        $lookup: {
+                            from: "magazines",
+                            localField: "magazineId",
+                            foreignField: "_id",
+                            as: "magazine"
+                        }
+                    },
+                    {
+                        $unwind: "$magazine"
+                    },
+                    {
                         $project: {
                             _id: 1,
                             typeOfBreadIds: {
                                 $map: {
-                                    input: "$breadDetails.typeOfBreadId",
+                                    input: "$bread.typeOfBreadIds",
                                     as: "breadIdItem",
                                     in: {
                                         breadId: {
@@ -969,7 +944,14 @@ exports.getStatics = async (req, res) => {
                                 }
                             },
                             paymentMethod: 1,
-                            delivertId: 1,
+                            deliveryId: {
+                                _id: "$delivery._id",
+                                username: "$delivery.username"
+                            },
+                            magazineId: {
+                                _id: "$magazine._id",
+                                title: "$magazine.title"
+                            },
                             quantity: 1,
                             money: 1,
                             pricetype: 1,
@@ -977,23 +959,98 @@ exports.getStatics = async (req, res) => {
                         }
                     },
                 ])
-                soldBread1 = soldBread1.reduce((acc, item) => {
-                    const excite = acc.find(b => String(b._id) === String(item._id))
-                    if (!excite) {
-                        acc.push({ ...item })
-                    }
-                    return acc
-                }, [])
-                soldBread = soldBread.reduce((acc, item) => {
-                    const excite = acc.find(b => String(b._id) === String(item._id))
-                    if (!excite) {
-                        acc.push({ ...item })
-                    }
-                    return acc
-                }, [])
+
+                let soldBread1 = await SellingBreadModel.aggregate([
+                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id),status:true } },
+                    {
+                        $lookup: {
+                            from: "managerwares",
+                            localField: "breadId",
+                            foreignField: "_id",
+                            as: "breadDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadDetails",
+                    },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "breadDetails.bread",
+                            foreignField: "_id",
+                            as: "breadIdDetails"
+                        }
+                    },
+                    {
+                        $unwind: "$breadIdDetails",
+                    },
+                    {
+                        $lookup: {
+                            from: "deliveries",
+                            localField: "deliveryId",
+                            foreignField: "_id",
+                            as: "delivery"
+                        }
+                    },
+                    {
+                        $unwind: "$delivery"
+                    },
+                    {
+                        $lookup: {
+                            from: "magazines",
+                            localField: "magazineId",
+                            foreignField: "_id",
+                            as: "magazine"
+                        }
+                    },
+                    {
+                        $unwind: "$magazine"
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            breadId: {
+                                _id: "$breadIdDetails._id",
+                                title: "$breadIdDetails.title",
+                                price: "$breadIdDetails.price",
+                                price2: "$breadIdDetails.price2",
+                                price3: "$breadIdDetails.price3",
+                                price4: "$breadIdDetails.price4",
+                                createdAt: "$breadIdDetails.createdAt",
+                            },
+                            paymentMethod: 1,
+                            deliveryId: {
+                                _id: "$delivery._id",
+                                username: "$delivery.username"
+                            },
+                            magazineId: 1,
+                            money: 1,
+                            pricetype: 1,
+                            createdAt: 1,
+                            quantity: 1,
+                            magazineId: {
+                                _id: "$magazine._id",
+                                title: "$magazine.title"
+                            },
+                        }
+                    },
+                ])
+
+              
+                soldBread1 = soldBread1.map((item) => {
+                    let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'narxi' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
+                    let pending = totalPrice - item.money
+                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'narxi' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) }
+                })
+
+                soldBread = soldBread.map((item) => {
+                    let totalPrice = (item.pricetype === 'tan' ? item?.typeOfBreadIds[0]?.breadId?.price : item.pricetype === 'narxi' ? item?.typeOfBreadIds[0]?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.typeOfBreadIds[0]?.breadId?.price3 : 0)
+                    let pending = totalPrice - item.money
+                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.typeOfBreadIds[0]?.breadId?.price : item.pricetype === 'narxi' ? item?.typeOfBreadIds[0]?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.typeOfBreadIds[0]?.breadId?.price3 : 0) }
+                })
+
                 for (const key of [...soldBread, ...soldBread1]) {
-                    let totalPrice = key?.typeOfBreadIds.reduce((a, b) => a + (key.pricetype === 'tan' ? b.breadId.price : key.pricetype === 'narxi' ? b.breadId.price2 : key.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price), 0)
-                    if (totalPrice - key.money > 0) {
+                    if ((key?.totalPrice || 1) - key.money > 0) {
                         pendingDelivery.push({ ...key })
                     }
                 }
@@ -1005,18 +1062,18 @@ exports.getStatics = async (req, res) => {
                         history: DeliveryDebts
                     },
                     pending: {
-                        totalPrice: pendingDelivery.reduce((a, b) => a + b.typeOfBreadIds.reduce((c, d) => c + (b.pricetype === 'tan' ? d.breadId.price : b.pricetype === 'narxi' ? d.breadId.price2 : b.pricetype === 'toyxona' ? d.breadId.price3 : d.breadId.price), 0), 0),
+                        totalPrice: pendingDelivery.reduce((a, b) => a + b.pending, 0),
                         history: pendingDelivery
                     },
                     soldBread: {
-                        totalPrice: [...soldBread, ...soldBread1]?.reduce((a, i) => a + i.typeOfBreadIds.reduce((a, b) => a + ((b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * i.quantity), 0), 0),
+                        totalPrice: soldBread.reduce((a, b) => a + b.totalPrice, 0) + soldBread1.reduce((a, b) => a + b.totalPrice, 0),
                         history: [...soldBread, ...soldBread1]
                     }
                 })
                 break;
             case "seller":
                 let sellerPayeds = await SellerPayedModel.aggregate([
-                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id),   active: true } }
+                    { $match: { sellerId: new mongoose.Types.ObjectId(req.use.id), active: true } }
                 ])
                 sellerPayeds = sellerPayeds.reduce((a, b) => {
                     switch (b.type) {

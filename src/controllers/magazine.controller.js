@@ -183,14 +183,26 @@ exports.getMagazines = async (req, res) => {
                     ])
 
                     sellingBreadToMagazines = [...sellingBreadToMagazines.map((item) => {
-                        let totalPrice = (item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'narxi' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0) * item.quantity
+                        let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'narxi' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     }), ...soldBread1.map((item) => {
-                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0)
+                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'narxi' ? b?.breadId?.price2 : item.pricetype === 'toyxona' ? b?.breadId?.price3 : 0) * item.quantity, 0)
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     })]
+
+
+                    sellingBreadToMagazines = sellingBreadToMagazines.reduce((a, b) => {
+                        const excite = a.find((i) => String(i._id) === String(b._id))
+                        if (!excite) {
+                            a.push({ ...b })
+                        } else {
+                            a.map((item) => String(item._id) === String(excite._id) ? { ...excite, quantity: item.quantity + excite.quantity, money: item.money + excite.money } : item)
+                        }
+                        return a
+                    }, [])
+
 
 
                     let magazinePayed = await MagazinePayedModel.aggregate([
@@ -407,13 +419,13 @@ exports.getMagazines = async (req, res) => {
                         },
                     ])
 
-                    
+
                     sellingBreadToMagazines = [...sellingBreadToMagazines.map((item) => {
-                        let totalPrice = (item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'narxi' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0) * item.quantity
+                        let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'narxi' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     }), ...soldBread1.map((item) => {
-                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0)
+                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'narxi' ? b?.breadId?.price2 : item.pricetype === 'toyxona' ? b?.breadId?.price3 : 0) * item.quantity, 0)
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     })]
@@ -424,18 +436,7 @@ exports.getMagazines = async (req, res) => {
                         }
                     ])
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
-                    // sellingBreadToMagazines = sellingBreadToMagazines.reduce((acc, item) => {
-                    //     const excite = acc.find(b => String(b._id) === String(item._id))
-                    //     if (!excite) {
-                    //         acc.push({ ...item })
-                    //     }
-                    //     return acc
-                    // }, [])
-                    // sellingBreadToMagazines = sellingBreadToMagazines.flat(Infinity).map((item) => {
-                    //     let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * item.quantity, 0)
-                    //     let pending = totalPrice - item.money
-                    //     return { ...item, totalPrice, pending }
-                    // })
+
                     data.push({ ...key, history: sellingBreadToMagazines, pending: (sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending > 0 ? -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) : sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
                 }
                 break;
@@ -449,6 +450,7 @@ exports.getMagazines = async (req, res) => {
         })
     }
     catch (error) {
+        console.error(error.message)
         return res.status(500).json({
             success: false,
             message: error.message

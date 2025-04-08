@@ -7,6 +7,7 @@ const ManagerWareSchema = new Schema({
     sellerId: { type: Schema.Types.ObjectId, ref: SellerModel, required: true },
     bread: { type: Schema.Types.ObjectId, ref: TypeOfBreadModel, required: true },
     totalQuantity: { type: Number, required: true, default: 0 },
+    totalQuantity2: { type: Number, required: true, default: 0 },
     totalQopQuantity: { type: Number, required: true, default: 0 },
     status: { type: Boolean,required:true, default: true },
 }, { timestamps: true })
