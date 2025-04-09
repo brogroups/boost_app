@@ -254,13 +254,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                         }
                     }
                 ])
-                orderWithDeliveries = orderWithDeliveries.reduce((acc, item) => {
-                    const excite = acc.find(b => String(b._id) === String(item._id))
-                    if (!excite) {
-                        acc.push({ ...item })
-                    }
-                    return acc
-                }, [])
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
                     return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'dokon' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * (b.quantity || 1), 0) }
                 })
@@ -269,6 +262,13 @@ exports.getOrderWithDeliveries = async (req, res) => {
             default:
                 break;
         }
+        orderWithDeliveries = orderWithDeliveries.reduce((a, b) => {
+            const excite = a.find(i => String(i._id) === String(b._id))
+            if (!excite) {
+                a.push({ ...b })
+            }
+            return a
+        }, [])
         await setCache(`orderWithDelivery${req.use.id}`, orderWithDeliveries)
         return res.status(200).json({
             success: true,
