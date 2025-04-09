@@ -182,7 +182,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     }
                 ])
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'dokon' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * item.totalQuantity, 0) }
                 })
 
                 break;

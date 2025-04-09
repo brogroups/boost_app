@@ -187,7 +187,7 @@ exports.getMagazines = async (req, res) => {
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     }), ...soldBread1.map((item) => {
-                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'narxi' ? b?.breadId?.price2 : item.pricetype === 'toyxona' ? b?.breadId?.price3 : 0) * item.quantity, 0)
+                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'narxi' ? b?.breadId?.price2 : item === 'toyxona' ? b?.breadId?.price3 : 0) * item.quantity, 0)
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     })]
@@ -411,7 +411,6 @@ exports.getMagazines = async (req, res) => {
                                     username: "$delivery.username"
                                 },
                                 quantity: 1,
-
                                 money: 1,
                                 pricetype: 1,
                                 createdAt: 1
@@ -421,11 +420,11 @@ exports.getMagazines = async (req, res) => {
 
 
                     sellingBreadToMagazines = [...sellingBreadToMagazines.map((item) => {
-                        let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'narxi' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
+                        let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : b?.breadId.price) * item.quantity
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     }), ...soldBread1.map((item) => {
-                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'narxi' ? b?.breadId?.price2 : item.pricetype === 'toyxona' ? b?.breadId?.price3 : 0) * item.quantity, 0)
+                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'dokon' ? b?.breadId?.price2 : item.pricetype === 'toyxona' ? b?.breadId?.price3 : b?.breadId.price) * item.quantity, 0)
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     })]

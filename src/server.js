@@ -88,7 +88,6 @@ const TypeOfPayedRoute = require("./routes/typeOfPayed.route")
 app.use("/api", TypeOfPayedRoute)
 
 
-
 const PayedStatusRoute = require("./routes/payedStatus.route");
 app.use("/api", PayedStatusRoute)
 

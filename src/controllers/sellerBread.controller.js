@@ -10,10 +10,11 @@ const ManagerWareModel = require("../models/managerWare.model")
 exports.createSellerBread = async (req, res) => {
     try {
         let sellerBread
+        let sellerPayedBread = 0
         for (const key of req.body.typeOfBreadId) {
             let bread = await SellerBreadModel.findOne({ "typeOfBreadId.breadId": key.breadId, sellerId: new mongoose.Types.ObjectId(req.use.id), status: true })
             if (bread) {
-                sellerBread = await SellerBreadModel.findByIdAndUpdate(bread._id, { totalQuantity: (bread.totalQuantity || 0) + key.quantity, totalQopQuantity: (bread.totalQopQuantity || 0) + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
+                sellerBread = await SellerBreadModel.findByIdAndUpdate(bread._id, { totalQuantity: (bread.totalQuantity || 0) + key.quantity, totalQopQuantity: (bread.totalQopQuantity || 0) + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true }).populate("typeOfBreadId.breadId")
             } else {
                 sellerBread = await SellerBreadModel.create({
                     typeOfBreadId: [
@@ -30,9 +31,11 @@ exports.createSellerBread = async (req, res) => {
                 })
             }
 
+            sellerBread = await sellerBread.populate("typeOfBreadId.breadId")
+            sellerPayedBread += sellerBread.typeOfBreadId[0].breadId.price4 * key.qopQuantity
             let bread2 = await ManagerWareModel.findOne({ bread: key.breadId, status: true })
             if (bread2) {
-                await ManagerWareModel.findByIdAndUpdate(bread2._id, { totalQuantity: bread2?.totalQuantity + key.quantity,totalQuantity2: bread2?.totalQuantity2 + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
+                await ManagerWareModel.findByIdAndUpdate(bread2._id, { totalQuantity: bread2?.totalQuantity + key.quantity, totalQuantity2: bread2?.totalQuantity2 + key.quantity, totalQopQuantity: bread2.totalQopQuantity + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
             } else {
                 await ManagerWareModel.create({
                     sellerId: req.use.id,
@@ -43,12 +46,12 @@ exports.createSellerBread = async (req, res) => {
                     status: true
                 })
             }
+
         }
 
         await deleteCache(`sellerBread${req.use.id}`)
-        let sellerPayedBread = await sellerBread.populate("typeOfBreadId.breadId")
-        sellerPayedBread = sellerPayedBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * (b?.breadId?.price4 || 1)), 0)
         await SellerPayedModel.create({ sellerId: req.use.id, price: sellerPayedBread, type: "Ishhaqi", status: "To`landi", comment: "--------" })
+
         return res.status(201).json({
             success: true,
             message: "seller bread yaratildi",
@@ -90,7 +93,7 @@ exports.getSellerBread = async (req, res) => {
                 });
 
                 data = populatedSellerBreads.map((key) => {
-                    const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price4 || 0) * (item.qopQuantity || 0)), 0);
+                    const price = key.typeOfBreadId.reduce((sum, item) => sum + ((item?.breadId?.price4 || 0) * (key.totalQopQuantity || 0)), 0);
                     return { ...key, price };
                 });
 
@@ -481,7 +484,7 @@ exports.deleteSellerById = async (req, res) => {
                 message: "seller bread not found"
             })
         }
-        sellerBread = sellerBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
+        sellerBread = sellerBread.typeOfBreadId?.reduce((a, b) => a + (b.totalQopQuantity * b.breadId.price4), 0)
         await SellerPayedModel.create({ sellerId: req.use.id, price: sellerBread, type: "O`chirildi", status: "To`landi", comment: "--------" })
         await deleteCache(`sellerBread${req.use.id}`)
         return res.status(200).json({

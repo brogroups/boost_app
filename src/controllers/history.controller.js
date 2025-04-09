@@ -190,13 +190,13 @@ exports.getDeliveryHistory = async (req, res) => {
                 ])
 
                 sellingbread = [...sellingbread.map((item) => {
-                    let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'narxi' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
+                    let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
                     let pending = totalPrice - item.money
-                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'narxi' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) }
+                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) }
                 }), ...soldBread1.map((item) => {
-                    let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'narxi' ? b?.breadId?.price2 : item.pricetype === 'toyxona' ? b?.breadId?.price3 : 0) * item.quantity, 0)
+                    let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'dokon' ? b?.breadId?.price2 : item.pricetype === 'toyxona' ? b?.breadId?.price3 : 0) * item.quantity, 0)
                     let pending = totalPrice - item.money
-                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.typeOfBreadIds[0]?.breadId?.price : item.pricetype === 'narxi' ? item?.typeOfBreadIds[0]?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.typeOfBreadIds[0]?.breadId?.price3 : 0) }
+                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.typeOfBreadIds[0]?.breadId?.price : item.pricetype === 'dokon' ? item?.typeOfBreadIds[0]?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.typeOfBreadIds[0]?.breadId?.price3 : 0) }
                 })].map((i) => {
                     return { ...i, type: "sotilgan" }
                 })

@@ -28,7 +28,6 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
     try {
-   
         let InvalidPro = await InvalidProModel.aggregate([
             { $match: {} },
             {
@@ -90,24 +89,14 @@ exports.findAll = async (req, res) => {
                 $project: {
                     _id: 1,
                     order: {
-                        typeOfBreadIds: {
-                            $map: {
-                                input: "$breadDetails.typeOfBreadId",
-                                as: "breadIdItem",
-                                in: {
-                                    breadId: {
-                                        _id: "$breadIdDetails._id",
-                                        title: "$breadIdDetails.title",
-                                        price: "$breadIdDetails.price",
-                                        price2: "$breadIdDetails.price2",
-                                        price3: "$breadIdDetails.price3",
-                                        price4: "$breadIdDetails.price4",
-                                        createdAt: "$breadIdDetails.createdAt",
-                                    },
-                                    quantity: "$$breadIdItem.quantity",
-                                    _id: "$breadDetails._id"
-                                }
-                            }
+                        breadId: {
+                            _id: "$breadIdDetails._id",
+                            title: "$breadIdDetails.title",
+                            price: "$breadIdDetails.price",
+                            price2: "$breadIdDetails.price2",
+                            price3: "$breadIdDetails.price3",
+                            price4: "$breadIdDetails.price4",
+                            createdAt: "$breadIdDetails.createdAt",
                         },
                         description: "$order.description",
                         quantity: "$order.quantity",
@@ -120,9 +109,9 @@ exports.findAll = async (req, res) => {
             }
         ])
         InvalidPro = InvalidPro.map((item) => {
-            return { ...item, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
+            return { ...item, totalPrice: (item.pricetype === "tan" ? item.order.breadId.price : item.pricetype === "dokon" ? item.order.breadId.price2 : item.pricetype === "toyxona" ? item.order.breadId.price3 : item.order.breadId.price) * item.order.totalQuantity, price: (item.pricetype === "tan" ? item.order.breadId.price : item.pricetype === "dokon" ? item.order.breadId.price2 : item.pricetype === "toyxona" ? item.order.breadId.price3 : item.order.breadId.price) }
         })
-        await setCache(`InvalidPro${req.use.id}`,InvalidPro)
+        await setCache(`InvalidPro${req.use.id}`, InvalidPro)
         return res.status(200).json({
             success: true,
             InvalidPro
