@@ -52,10 +52,10 @@ exports.createOrderWithDelivery = async (req, res) => {
         }
         switch (req.use.role) {
             case "manager":
-                await OrderWithDeliveryModel.create({ ...req.body, adminId: new mongoose.Types.ObjectId(req.use.id), totalQuantity: req.body?.type === "returned" ? req.body.totalQuantity : req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) })
+                await OrderWithDeliveryModel.create({ ...req.body, adminId: new mongoose.Types.ObjectId(req.use.id), totalQuantity: req.body?.type === "returned" ? req.body.totalQuantity : req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0), totalQuantity2: req.body?.type === "returned" ? req.body.totalQuantity : req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) })
                 break;
             case "superAdmin":
-                await OrderWithDeliveryModel.create({ ...req.body, totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) })
+                await OrderWithDeliveryModel.create({ ...req.body, totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0), totalQuantity2: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) })
                 break;
             default:
                 return res.status(403).json({
@@ -153,6 +153,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                             quantity: 1,
                             pricetype: 1,
                             totalQuantity: 1,
+                            totalQuantity2: 1,
                             deliveryId: {
                                 _id: "$deliveryDetails._id",
                                 username: "$deliveryDetails.username"
@@ -225,6 +226,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                             quantity: 1,
                             pricetype: 1,
                             totalQuantity: 1,
+                            totalQuantity2: 1,
                             deliveryId: {
                                 _id: "$deliveryDetails._id",
                                 username: "$deliveryDetails.username"
