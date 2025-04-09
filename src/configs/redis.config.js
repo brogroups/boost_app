@@ -1,9 +1,9 @@
 const Redis = require("ioredis")
 
 const redis = new Redis({
-    host: 'redis-10892.c44.us-east-1-2.ec2.redns.redis-cloud.com',
-    port: 10892,
-    password: "7T49kH53p5If74NkbRg5ZZBpl2ERtXv9",
+    host: 'redis-12587.c17.us-east-1-4.ec2.redns.redis-cloud.com',
+    port: 12587,
+    password: "aVvP3K3bYh6BZfIrbw0kStSviihVUFf6",
     // host: 'redis-14180.c267.us-east-1-4.ec2.redns.redis-cloud.com',
     // port: 14180,
     // password: "Q02P20co7KY6RL6QM19gcDMlXa5nwBj7",
