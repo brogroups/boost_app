@@ -766,7 +766,6 @@ exports.getStatics = async (req, res) => {
                     }
                 }
 
-                console.log(managerPending)
 
                 debt = debt.filter((item) => item.length !== 0).flat(Infinity)
                 sales = await SaleModel.aggregate([
