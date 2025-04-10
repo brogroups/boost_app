@@ -150,23 +150,14 @@ exports.getMagazines = async (req, res) => {
                         {
                             $project: {
                                 _id: 1,
-                                typeOfBreadIds: {
-                                    $map: {
-                                        input: "$bread.typeOfBreadIds",
-                                        as: "breadIdItem",
-                                        in: {
-                                            breadId: {
-                                                _id: "$breadIdDetails._id",
-                                                title: "$breadIdDetails.title",
-                                                price: "$breadIdDetails.price",
-                                                price2: "$breadIdDetails.price2",
-                                                price3: "$breadIdDetails.price3",
-                                                price4: "$breadIdDetails.price4",
-                                                createdAt: "$breadIdDetails.createdAt",
-                                            },
-                                            quantity: "$$breadIdItem.quantity"
-                                        }
-                                    }
+                                breadId: {
+                                    _id: "$breadIdDetails._id",
+                                    title: "$breadIdDetails.title",
+                                    price: "$breadIdDetails.price",
+                                    price2: "$breadIdDetails.price2",
+                                    price3: "$breadIdDetails.price3",
+                                    price4: "$breadIdDetails.price4",
+                                    createdAt: "$breadIdDetails.createdAt",
                                 },
                                 paymentMethod: 1,
                                 deliveryId: {
@@ -182,26 +173,22 @@ exports.getMagazines = async (req, res) => {
                         },
                     ])
 
-                    sellingBreadToMagazines = [...sellingBreadToMagazines.map((item) => {
-                        let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'narxi' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
+                    sellingBreadToMagazines = [...sellingBreadToMagazines, ...soldBread1].map((item) => {
+                        let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : item?.breadId.price) * item.quantity
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
-                    }), ...soldBread1.map((item) => {
-                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'narxi' ? b?.breadId?.price2 : item === 'toyxona' ? b?.breadId?.price3 : 0) * item.quantity, 0)
-                        let pending = totalPrice - item.money
-                        return { ...item, totalPrice, pending }
-                    })]
+                    })
 
 
                     sellingBreadToMagazines = sellingBreadToMagazines.reduce((a, b) => {
                         const excite = a.find((i) => String(i._id) === String(b._id))
                         if (!excite) {
                             a.push({ ...b })
-                        } else {
-                            a.map((item) => String(item._id) === String(excite._id) ? { ...excite, quantity: item.quantity + excite.quantity, money: item.money + excite.money } : item)
                         }
                         return a
                     }, [])
+
+                
 
 
 
@@ -216,69 +203,6 @@ exports.getMagazines = async (req, res) => {
                 break;
             case "delivery":
                 for (const key of magazines) {
-                    // console.log("warehouse", await SellingBreadModel.aggregate([
-                    //     { $match: { status: true } },
-                    //     {
-                    //         $lookup: {
-                    //             from: "managerwares",
-                    //             localField: "breadId",
-                    //             foreignField: "_id",
-                    //             as: "breadDetails"
-                    //         }
-                    //     },
-                    //     {
-                    //         $unwind: "$breadDetails",
-                    //     },
-                    //     // {
-                    //     //     $lookup: {
-                    //     //         from: "typeofbreads",
-                    //     //         localField: "breadDetails.bread",
-                    //     //         foreignField: "_id",
-                    //     //         as: "breadIdDetails"
-                    //     //     }
-                    //     // },
-                    //     // {
-                    //     //     $unwind: "$breadIdDetails",
-                    //     // },
-                    //     {
-                    //         $lookup: {
-                    //             from: "deliveries",
-                    //             localField: "deliveryId",
-                    //             foreignField: "_id",
-                    //             as: "delivery"
-                    //         }
-                    //     },
-                    //     {
-                    //         $unwind: "$delivery"
-                    //     },
-                    //     {
-                    //         $project: {
-                    //             _id: 1,
-                    //             breadDetails: "$breadDetails",
-                    //             // breadId: {
-                    //             //     _id: "$breadIdDetails._id",
-                    //             //     title: "$breadIdDetails.title",
-                    //             //     price: "$breadIdDetails.price",
-                    //             //     price2: "$breadIdDetails.price2",
-                    //             //     price3: "$breadIdDetails.price3",
-                    //             //     price4: "$breadIdDetails.price4",
-                    //             //     createdAt: "$breadIdDetails.createdAt",
-                    //             // },
-                    //             paymentMethod: 1,
-                    //             deliveryId: {
-                    //                 _id: "$delivery._id",
-                    //                 username: "$delivery.username"
-                    //             },
-                    //             magazineId: 1,
-                    //             money: 1,
-                    //             pricetype: 1,
-                    //             createdAt: 1,
-                    //             quantity: 1
-                    //         }
-                    //     },
-                    // ])
-                    // )
-                    // console.log("orderWithdelivery", )
                     let sellingBreadToMagazines = await SellingBreadModel.aggregate([
                         { $match: { magazineId: key._id } },
                         {
@@ -387,23 +311,14 @@ exports.getMagazines = async (req, res) => {
                         {
                             $project: {
                                 _id: 1,
-                                typeOfBreadIds: {
-                                    $map: {
-                                        input: "$bread.typeOfBreadIds",
-                                        as: "breadIdItem",
-                                        in: {
-                                            breadId: {
-                                                _id: "$breadIdDetails._id",
-                                                title: "$breadIdDetails.title",
-                                                price: "$breadIdDetails.price",
-                                                price2: "$breadIdDetails.price2",
-                                                price3: "$breadIdDetails.price3",
-                                                price4: "$breadIdDetails.price4",
-                                                createdAt: "$breadIdDetails.createdAt",
-                                            },
-                                            quantity: "$$breadIdItem.quantity"
-                                        }
-                                    }
+                                breadId: {
+                                    _id: "$breadIdDetails._id",
+                                    title: "$breadIdDetails.title",
+                                    price: "$breadIdDetails.price",
+                                    price2: "$breadIdDetails.price2",
+                                    price3: "$breadIdDetails.price3",
+                                    price4: "$breadIdDetails.price4",
+                                    createdAt: "$breadIdDetails.createdAt",
                                 },
                                 paymentMethod: 1,
                                 deliveryId: {
@@ -419,15 +334,19 @@ exports.getMagazines = async (req, res) => {
                     ])
 
 
-                    sellingBreadToMagazines = [...sellingBreadToMagazines.map((item) => {
+                    sellingBreadToMagazines = [...sellingBreadToMagazines, ...soldBread1].map((item) => {
                         let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : b?.breadId.price) * item.quantity
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
-                    }), ...soldBread1.map((item) => {
-                        let totalPrice = item?.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'dokon' ? b?.breadId?.price2 : item.pricetype === 'toyxona' ? b?.breadId?.price3 : b?.breadId.price) * item.quantity, 0)
-                        let pending = totalPrice - item.money
-                        return { ...item, totalPrice, pending }
-                    })]
+                    })
+
+                    sellingBreadToMagazines = sellingBreadToMagazines.reduce((a, b) => {
+                        const excite = a.find((i) => String(i._id) === String(b._id))
+                        if (!excite) {
+                            a.push({ ...b})
+                        }
+                        return a
+                    }, [])
 
                     let magazinePayed = await MagazinePayedModel.aggregate([
                         {
@@ -440,6 +359,7 @@ exports.getMagazines = async (req, res) => {
                 }
                 break;
         }
+
 
         await setCache(`magazine`, data)
         return res.status(200).json({

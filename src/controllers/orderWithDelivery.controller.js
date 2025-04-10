@@ -111,87 +111,11 @@ exports.getOrderWithDeliveries = async (req, res) => {
             case "delivery": {
                 orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
                     {
-                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true, totalQuantity: { $gt: 0 } }
-                    },
-
-                    {
-                        $lookup: {
-                            from: "deliveries",
-                            localField: "deliveryId",
-                            foreignField: "_id",
-                            as: "deliveryDetails"
+                        $match: {
+                            deliveryId: new mongoose.Types.ObjectId(req.use.id),
+                            status: true,
+                            totalQuantity: { $gt: 0 }
                         }
-                    },
-                    {
-                        $unwind: "$deliveryDetails",
-                    },
-                    {
-                        $lookup: {
-                            from: "managerwares",
-                            localField: "typeOfBreadIds.bread",
-                            foreignField: "_id",
-                            as: "breadDetails"
-                        }
-                    },
-                    {
-                        $unwind: "$breadDetails",
-                    },
-                    {
-                        $lookup: {
-                            from: "typeofbreads",
-                            localField: "breadDetails.bread",
-                            foreignField: "_id",
-                            as: "breadIdDetails"
-                        }
-                    },
-                    {
-                        $unwind: "$breadIdDetails",
-                    },
-                    {
-                        $project: {
-                            description: 1,
-                            quantity: 1,
-                            pricetype: 1,
-                            totalQuantity: 1,
-                            totalQuantity2: 1,
-                            deliveryId: {
-                                _id: "$deliveryDetails._id",
-                                username: "$deliveryDetails.username"
-                            },
-                            createdAt: 1,
-                            typeOfBreadIds: {
-                                $map: {
-                                    input: "$typeOfBreadIds",
-                                    as: "breadIdItem",
-                                    in: {
-                                        breadId: {
-                                            _id: "$breadIdDetails._id",
-                                            title: "$breadIdDetails.title",
-                                            price: "$breadIdDetails.price",
-                                            price2: "$breadIdDetails.price2",
-                                            price3: "$breadIdDetails.price3",
-                                            price4: "$breadIdDetails.price4",
-                                            createdAt: "$breadIdDetails.createdAt",
-                                        },
-                                        quantity: "$$breadIdItem.quantity",
-                                        _id: "$breadDetails._id"
-                                    }
-                                }
-                            },
-                            title: "$breadDetails.title"
-                        }
-                    }
-                ])
-                orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'dokon' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * item.totalQuantity, 0) }
-                })
-
-                break;
-            }
-            case "manager": {
-                orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
-                    {
-                        $match: { adminId: new mongoose.Types.ObjectId(req.use.id), status: true, totalQuantity: { $gt: 0 } }
                     },
                     {
                         $lookup: {
@@ -203,59 +127,124 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     },
                     { $unwind: "$deliveryDetails" },
                     {
+                        $unwind: "$typeOfBreadIds"
+                    },
+                    {
                         $lookup: {
                             from: "managerwares",
                             localField: "typeOfBreadIds.bread",
                             foreignField: "_id",
-                            as: "breadDetails"
+                            as: "breadDetail"
                         }
                     },
-                    { $unwind: "$breadDetails" },
+                    { $unwind: { path: "$breadDetail", preserveNullAndEmptyArrays: true } },
                     {
                         $lookup: {
                             from: "typeofbreads",
-                            localField: "breadDetails.bread",
+                            localField: "breadDetail.bread",
                             foreignField: "_id",
-                            as: "breadIdDetails"
+                            as: "breadTypeDetail"
                         }
                     },
-                    { $unwind: "$breadIdDetails" },
+                    { $unwind: { path: "$breadTypeDetail", preserveNullAndEmptyArrays: true } },
                     {
-                        $project: {
-                            description: 1,
-                            quantity: 1,
-                            pricetype: 1,
-                            totalQuantity: 1,
-                            totalQuantity2: 1,
-                            deliveryId: {
-                                _id: "$deliveryDetails._id",
-                                username: "$deliveryDetails.username"
-                            },
-                            createdAt: 1,
+                        $group: {
+                            _id: "$_id",
+                            adminId: { $first: "$adminId" },
+                            deliveryId: { $first: {
+                                username:"$deliveryDetails.username"
+                            } },
+                            description: { $first: "$description" },
+                            quantity: { $first: "$quantity" },
+                            pricetype: { $first: "$pricetype" },
+                            totalQuantity: { $first: "$totalQuantity" },
+                            totalQuantity2: { $first: "$totalQuantity2" },
+                            createdAt: { $first: "$createdAt" },
                             typeOfBreadIds: {
-                                $map: {
-                                    input: "$typeOfBreadIds",
-                                    as: "breadIdItem",
-                                    in: {
-                                        breadId: {
-                                            _id: "$breadIdDetails._id",
-                                            title: "$breadIdDetails.title",
-                                            price: "$breadIdDetails.price",
-                                            price2: "$breadIdDetails.price2",
-                                            price3: "$breadIdDetails.price3",
-                                            price4: "$breadIdDetails.price4",
-                                            createdAt: "$breadIdDetails.createdAt",
-                                        },
-                                        quantity: "$$breadIdItem.quantity",
-                                        _id: "$breadDetails._id"
-                                    }
+                                $push: {
+                                    breadId: "$typeOfBreadIds.bread",
+                                    quantity: "$typeOfBreadIds.quantity",
+                                    breadId: "$breadTypeDetail"
                                 }
-                            },
+                            }
                         }
                     }
+                    
                 ])
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'dokon' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * (b.quantity || 1), 0) }
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'dokon' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * item.totalQuantity, 0)}
+                })
+
+                // , price: (item.pricetype === 'tan' ? item?.typeOfBreadIds[0]?.breadId?.price : item.pricetype === 'dokon' ? item?.typeOfBreadIds[0]?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.typeOfBreadIds[0]?.breadId?.price3 : 0)
+
+                break;
+            }
+            case "manager": {
+             
+                orderWithDeliveries = await OrderWithDeliveryModel.aggregate([
+                    {
+                        $match: {
+                            adminId: new mongoose.Types.ObjectId(req.use.id),
+                            status: true,
+                            totalQuantity: { $gt: 0 }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "deliveries",
+                            localField: "deliveryId",
+                            foreignField: "_id",
+                            as: "deliveryDetails"
+                        }
+                    },
+                    { $unwind: "$deliveryDetails" },
+                    {
+                        $unwind: "$typeOfBreadIds"
+                    },
+                    {
+                        $lookup: {
+                            from: "managerwares",
+                            localField: "typeOfBreadIds.bread",
+                            foreignField: "_id",
+                            as: "breadDetail"
+                        }
+                    },
+                    { $unwind: { path: "$breadDetail", preserveNullAndEmptyArrays: true } },
+                    {
+                        $lookup: {
+                            from: "typeofbreads",
+                            localField: "breadDetail.bread",
+                            foreignField: "_id",
+                            as: "breadTypeDetail"
+                        }
+                    },
+                    { $unwind: { path: "$breadTypeDetail", preserveNullAndEmptyArrays: true } },
+                    {
+                        $group: {
+                            _id: "$_id",
+                            adminId: { $first: "$adminId" },
+                            deliveryId: { $first: {
+                                username:"$deliveryDetails.username"
+                            } },
+                            description: { $first: "$description" },
+                            quantity: { $first: "$quantity" },
+                            pricetype: { $first: "$pricetype" },
+                            totalQuantity: { $first: "$totalQuantity" },
+                            totalQuantity2: { $first: "$totalQuantity2" },
+                            createdAt: { $first: "$createdAt" },
+                            typeOfBreadIds: {
+                                $push: {
+                                    breadId: "$typeOfBreadIds.bread",
+                                    quantity: "$typeOfBreadIds.quantity",
+                                    breadId: "$breadTypeDetail"
+                                }
+                            }
+                        }
+                    }
+                    
+                ])
+                orderWithDeliveries = orderWithDeliveries.map((item) => {
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'dokon' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * (b.quantity || 1), 0)}
                 })
                 break;
             }
