@@ -762,7 +762,7 @@ exports.getStatics = async (req, res) => {
                 for (const key of managerPrixod) {
                     let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'narxi' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
                     if (allPrice - key.money >= 0) {
-                        managerPending.push({ ...key, totalPrice:allPrice })
+                        managerPending.push({ ...key, totalPrice: allPrice })
                     }
                 }
 
@@ -812,6 +812,13 @@ exports.getStatics = async (req, res) => {
                         }
                     }
                 ])
+                managerPrixod = managerPrixod.reduce((a, b) => {
+                    const excite = a.find((i) => String(i._id) === String(b._id))
+                    if (!excite) {
+                        a.push({ ...b })
+                    }
+                    return a
+                }, [])
                 return res.status(200).json({
                     statics: {
                         debt: {
@@ -926,23 +933,14 @@ exports.getStatics = async (req, res) => {
                     {
                         $project: {
                             _id: 1,
-                            typeOfBreadIds: {
-                                $map: {
-                                    input: "$bread.typeOfBreadIds",
-                                    as: "breadIdItem",
-                                    in: {
-                                        breadId: {
-                                            _id: "$breadIdDetails._id",
-                                            title: "$breadIdDetails.title",
-                                            price: "$breadIdDetails.price",
-                                            price2: "$breadIdDetails.price2",
-                                            price3: "$breadIdDetails.price3",
-                                            price4: "$breadIdDetails.price4",
-                                            createdAt: "$breadIdDetails.createdAt",
-                                        },
-                                        quantity: "$$breadIdItem.quantity"
-                                    }
-                                }
+                            breadId: {
+                                _id: "$breadIdDetails._id",
+                                title: "$breadIdDetails.title",
+                                price: "$breadIdDetails.price",
+                                price2: "$breadIdDetails.price2",
+                                price3: "$breadIdDetails.price3",
+                                price4: "$breadIdDetails.price4",
+                                createdAt: "$breadIdDetails.createdAt",
                             },
                             paymentMethod: 1,
                             deliveryId: {
@@ -1037,25 +1035,28 @@ exports.getStatics = async (req, res) => {
                     },
                 ])
 
+                let allSoldBread = [...soldBread, ...soldBread1].reduce((a, b) => {
+                    const excite = a.find((i) => String(i._id) == String(b._id))
+                    if (!excite) {
+                        a.push({ ...b })
+                    }
+                    return a
+                }, [])
 
-                soldBread1 = soldBread1.map((item) => {
+                allSoldBread = allSoldBread.map((item) => {
                     let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
                     let pending = totalPrice - item.money
                     return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) }
                 })
 
-                soldBread = soldBread.map((item) => {
-                    let totalPrice = (item.pricetype === 'tan' ? item?.typeOfBreadIds[0]?.breadId?.price : item.pricetype === 'dokon' ? item?.typeOfBreadIds[0]?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.typeOfBreadIds[0]?.breadId?.price3 : 0) * item.quantity
-                    let pending = totalPrice - item.money
-                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.typeOfBreadIds[0]?.breadId?.price : item.pricetype === 'dokon' ? item?.typeOfBreadIds[0]?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.typeOfBreadIds[0]?.breadId?.price3 : 0) }
-                })
 
-
-                for (const key of [...soldBread, ...soldBread1]) {
+                for (const key of allSoldBread) {
                     if ((key?.totalPrice || 1) - key.money > 0) {
                         pendingDelivery.push({ ...key })
                     }
                 }
+
+           
 
 
                 return res.status(200).json({
@@ -1068,8 +1069,8 @@ exports.getStatics = async (req, res) => {
                         history: pendingDelivery
                     },
                     soldBread: {
-                        totalPrice: soldBread.reduce((a, b) => a + b.totalPrice, 0) + soldBread1.reduce((a, b) => a + b.totalPrice, 0),
-                        history: [...soldBread, ...soldBread1]
+                        totalPrice: allSoldBread.reduce((a, b) => a + b.totalPrice, 0),
+                        history: allSoldBread
                     }
                 })
                 break;
