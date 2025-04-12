@@ -155,7 +155,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                 username:"$deliveryDetails.username"
                             } },
                             description: { $first: "$description" },
-                            quantity: { $first: "$quantity" },
                             pricetype: { $first: "$pricetype" },
                             totalQuantity: { $first: "$totalQuantity" },
                             totalQuantity2: { $first: "$totalQuantity2" },
@@ -227,7 +226,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
                                 username:"$deliveryDetails.username"
                             } },
                             description: { $first: "$description" },
-                            quantity: { $first: "$quantity" },
                             pricetype: { $first: "$pricetype" },
                             totalQuantity: { $first: "$totalQuantity" },
                             totalQuantity2: { $first: "$totalQuantity2" },

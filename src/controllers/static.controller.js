@@ -249,31 +249,13 @@ exports.getStatics = async (req, res) => {
                     },
                 ])]
 
-                // deliveryPrixod = deliveryPrixod.map((item) => {
-                //     const typeOfBread = item?.breadId?.typeOfBreadIds || [];
-                //     const price = typeOfBread.reduce((sum, breadItem) => {
-                //         const breadData = breadItem.bread?.bread || {};
-
-                //         const selectedPrice =
-                //             item.pricetype === "tan"
-                //                 ? breadData.price
-                //                 : item.pricetype === "narxi"
-                //                     ? breadData.price2
-                //                     : item.pricetype === "toyxona"
-                //                         ? breadData.price3
-                //                         : 0;
-
-                //         return sum + (selectedPrice || 0);
-                //     }, 0);
-
-                //     const quantity = typeOfBread.reduce((sum, breadItem) => sum + (breadItem.quantity || 0), 0);
-
-                //     return {
-                //         ...item,
-                //         price,
-                //         quantity
-                //     };
-                // });
+                deliveryPrixod = deliveryPrixod.reduce((a, b) => {
+                    const excite = a.find((i) => String(i._id) == String(b._id))
+                    if (!excite) {
+                        a.push({ ...b })
+                    }
+                    return a
+                }, [])
 
 
 
@@ -283,9 +265,9 @@ exports.getStatics = async (req, res) => {
 
                 const pending = []
                 for (const key of deliveryPrixod) {
-                    let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'narxi' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
+                    let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'dokon' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
                     if (allPrice - key.money > 0) {
-                        pending.push({ ...key })
+                        pending.push({ ...key,totalPrice:allPrice })
                     }
                 }
 
@@ -544,11 +526,11 @@ exports.getStatics = async (req, res) => {
                             history: [...debt1s, ...debt2s, ...deliveryDebt, ...deliverypayeds1, ...sellerpayeds]
                         },
                         prixod: {
-                            totalPrice: [...deliveryPrixod, ...Allsales].reduce((a, b) => a + b.money, 0),
+                            totalPrice: deliveryPrixod.reduce((a, b) => a + (b.pricetype === 'tan' ? b?.breadId?.price : b.pricetype === 'dokon' ? b?.breadId?.price2 : b.pricetype === 'toyxona' ? b?.breadId?.price3 : 0) * b.quantity, 0) + Allsales.reduce((a, b) => a + b.money, 0),
                             history: [...deliveryPrixod, ...Allsales]
                         },
                         pending: {
-                            totalPrice: pending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * b.quantity - b.money, 0),
+                            totalPrice: pending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'dokon' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * b.quantity - b.money, 0),
                             history: pending
                         }
                     },
@@ -644,6 +626,17 @@ exports.getStatics = async (req, res) => {
                             $unwind: "$delivery"
                         },
                         {
+                            $lookup: {
+                                from: "magazines",
+                                localField: "magazineId",
+                                foreignField: "_id",
+                                as: "magazine"
+                            }
+                        },
+                        {
+                            $unwind: "$magazine"
+                        },
+                        {
                             $project: {
                                 _id: 1,
                                 breadId: {
@@ -660,7 +653,10 @@ exports.getStatics = async (req, res) => {
                                     _id: "$delivery._id",
                                     username: "$delivery.username"
                                 },
-                                magazineId: 1,
+                                magazineId: {
+                                    _id: "$magazine._id",
+                                    title: "$magazine.title"
+                                },
                                 money: 1,
                                 pricetype: 1,
                                 createdAt: 1,
@@ -760,7 +756,7 @@ exports.getStatics = async (req, res) => {
                     ])
                 }
                 for (const key of managerPrixod) {
-                    let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'narxi' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
+                    let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'dokon' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : key.breadId.price) * key.quantity
                     if (allPrice - key.money >= 0) {
                         managerPending.push({ ...key, totalPrice: allPrice })
                     }
@@ -826,7 +822,7 @@ exports.getStatics = async (req, res) => {
                             history: [...debt, ...sellerPayedsManager]
                         },
                         pending: {
-                            totalPrice: managerPending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * b.quantity - b.money, 0),
+                            totalPrice: managerPending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'dokon' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity - b.money, 0),
                             history: managerPending
                         },
                         prixod: {
@@ -1035,7 +1031,11 @@ exports.getStatics = async (req, res) => {
                     },
                 ])
 
-                let allSoldBread = [...soldBread, ...soldBread1].reduce((a, b) => {
+                let allSoldBread = [...soldBread, ...soldBread1].map((item) => {
+                    let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
+                    let pending = totalPrice - item.money
+                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) }
+                }).reduce((a, b) => {
                     const excite = a.find((i) => String(i._id) == String(b._id))
                     if (!excite) {
                         a.push({ ...b })
@@ -1043,11 +1043,7 @@ exports.getStatics = async (req, res) => {
                     return a
                 }, [])
 
-                allSoldBread = allSoldBread.map((item) => {
-                    let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
-                    let pending = totalPrice - item.money
-                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) }
-                })
+
 
 
                 for (const key of allSoldBread) {
@@ -1056,7 +1052,7 @@ exports.getStatics = async (req, res) => {
                     }
                 }
 
-           
+
 
 
                 return res.status(200).json({

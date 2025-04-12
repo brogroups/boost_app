@@ -51,7 +51,12 @@ exports.findAll = async (req, res) => {
         switch (req.use.role) {
             case "delivery":
                 returnedPro = [...returnedPro, ...await ReturnedProModel.aggregate([
-                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true } },
+                    {
+                        $match: {
+                            deliveryId: new mongoose.Types.ObjectId(req.use.id),
+                            status: true
+                        }
+                    },
                     {
                         $lookup: {
                             from: "orderwithdeliveries",
@@ -60,9 +65,8 @@ exports.findAll = async (req, res) => {
                             as: "order"
                         }
                     },
-                    {
-                        $unwind: "$order"
-                    },
+                    { $unwind: "$order" },
+                    { $unwind: "$order.typeOfBreadIds" },
                     {
                         $lookup: {
                             from: "managerwares",
@@ -71,9 +75,7 @@ exports.findAll = async (req, res) => {
                             as: "breadDetails"
                         }
                     },
-                    {
-                        $unwind: "$breadDetails",
-                    },
+                    { $unwind: "$breadDetails" },
                     {
                         $lookup: {
                             from: "typeofbreads",
@@ -82,48 +84,60 @@ exports.findAll = async (req, res) => {
                             as: "breadIdDetails"
                         }
                     },
+                    { $unwind: "$breadIdDetails" },
                     {
-                        $unwind: "$breadIdDetails",
+                        $lookup:{
+                            frm:"deliveries"
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: "$_id",
+                            breads: {
+                                $push: {
+                                    breadId: {
+                                        _id: "$breadIdDetails._id",
+                                        title: "$breadIdDetails.title",
+                                        price: "$breadIdDetails.price",
+                                        price2: "$breadIdDetails.price2",
+                                        price3: "$breadIdDetails.price3",
+                                        price4: "$breadIdDetails.price4",
+                                        createdAt: "$breadIdDetails.createdAt"
+                                    },
+                                    quantity: "$order.typeOfBreadIds.quantity",
+                                    _id: "$breadDetails._id"
+                                }
+                            },
+                            orderDescription: { $first: "$order.description" },
+                            orderQuantity: { $first: "$order.totalQuantity" },
+                            orderPricetype: { $first: "$order.pricetype" },
+                            orderCreatedAt: { $first: "$order.createdAt" }
+                        }
                     },
                     {
                         $project: {
                             _id: 1,
                             order: {
-                                typeOfBreadIds: {
-                                    $map: {
-                                        input: "$order.typeOfBreadIds",
-                                        as: "breadIdItem",
-                                        in: {
-                                            breadId: {
-                                                _id: "$breadIdDetails._id",
-                                                title: "$breadIdDetails.title",
-                                                price: "$breadIdDetails.price",
-                                                price2: "$breadIdDetails.price2",
-                                                price3: "$breadIdDetails.price3",
-                                                price4: "$breadIdDetails.price4",
-                                                createdAt: "$breadIdDetails.createdAt",
-                                            },
-                                            quantity: "$$breadIdItem.quantity",
-                                            _id: "$breadDetails._id"
-                                        }
-                                    }
-                                },
-                                description: "$order.description",
-                                quantity: "$order.quantity",
-                                pricetype: "$order.pricetype",
-                                createdAt: "$order.createdAt",
-                                title: "$breadDetails.title",
-                                totalQuantity: 1,
+                                typeOfBreadIds: "$breads",
+                                description: "$orderDescription",
+                                totalQuantity: "$orderQuantity",
+                                pricetype: "$orderPricetype",
+                                createdAt: "$orderCreatedAt"
                             }
                         }
                     }
                 ])]
                 returnedPro = returnedPro.map((item) => {
-                    return { ...item, price: item?.order?.pricetype === "tan" ? item?.order?.typeOfBreadIds[0]?.breadId?.price : item?.order?.pricetype === "dokon" ? item?.order?.typeOfBreadIds[0]?.breadId?.price2 : item?.order?.pricetype === "toyxona" ? item?.order?.typeOfBreadIds[0]?.breadId?.price3 : item?.order?.typeOfBreadIds[0]?.breadId?.price, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0) }
+                    return {
+                        ...item,
+                        price: item?.order?.pricetype === "tan" ? item?.order?.typeOfBreadIds[0]?.breadId?.price : item?.order?.pricetype === "dokon" ? item?.order?.typeOfBreadIds[0]?.breadId?.price2 : item?.order?.pricetype === "toyxona" ? item?.order?.typeOfBreadIds[0]?.breadId?.price3 : item?.order?.typeOfBreadIds[0]?.breadId?.price,
+                        totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0)
+                    }
                 })
                 break;
             case "superAdmin":
-            case "manager":
+            case "manager": {
+
                 returnedPro = [...returnedPro, ...await ReturnedProModel.aggregate([
                     { $match: { status: true } },
                     {
@@ -197,7 +211,82 @@ exports.findAll = async (req, res) => {
                     return { ...item, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.order.pricetype === 'tan' ? b.breadId.price : item.order.pricetype === 'dokon' ? b.breadId.price2 : item.order.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price), 0) * item.order.totalQuantity, price: item?.order?.pricetype === "tan" ? item?.order?.typeOfBreadIds[0]?.breadId?.price : item?.order?.pricetype === "dokon" ? item?.order?.typeOfBreadIds[0]?.breadId?.price2 : item?.order?.pricetype === "toyxona" ? item?.order?.typeOfBreadIds[0]?.breadId?.price3 : item?.order?.typeOfBreadIds[0]?.breadId?.price, }
                 })
                 break;
+            }
+            // await ReturnedProModel.aggregate([
+            //     { $match: { status: true } },
+            //     {
+            //         $lookup: {
+            //             from: "orderwithdeliveries",
+            //             localField: "orderWithDelivery",
+            //             foreignField: "_id",
+            //             as: "order"
+            //         }
+            //     },
+            //     { $unwind: "$order" },
+            //     { $unwind: "$order.typeOfBreadIds" },
+            //     {
+            //         $lookup: {
+            //             from: "managerwares",
+            //             localField: "order.typeOfBreadIds.bread",
+            //             foreignField: "_id",
+            //             as: "breadDetails"
+            //         }
+            //     },
+            //     { $unwind: "$breadDetails" },
+            //     {
+            //         $lookup: {
+            //             from: "typeofbreads",
+            //             localField: "breadDetails.bread",
+            //             foreignField: "_id",
+            //             as: "breadIdDetails"
+            //         }
+            //     },
+            //     { $unwind: "$breadIdDetails" },
+            //     {
+            //         $group: {
+            //             _id: "$_id",
+            //             order: { $first: "$order" },
+            //             breads: {
+            //                 $push: {
+            //                     breadId: {
+            //                         _id: "$breadIdDetails._id",
+            //                         title: "$breadIdDetails.title",
+            //                         price: "$breadIdDetails.price",
+            //                         price2: "$breadIdDetails.price2",
+            //                         price3: "$breadIdDetails.price3",
+            //                         price4: "$breadIdDetails.price4",
+            //                         createdAt: "$breadIdDetails.createdAt"
+            //                     },
+            //                     quantity: "$order.typeOfBreadIds.quantity",
+            //                     _id: "$breadDetails._id"
+            //                 }
+            //             }
+            //         }
+            //     },
+            //     {
+            //         $project: {
+            //             _id: 1,
+            //             order: {
+            //                 _id: "$order._id",
+            //                 typeOfBreadIds: "$breads",
+            //                 description: "$order.description",
+            //                 quantity: "$order.quantity",
+            //                 pricetype: "$order.pricetype",
+            //                 createdAt: "$order.createdAt"
+            //             }
+            //         }
+            //     }
+            // ])
+
         }
+        returnedPro = returnedPro.reduce((a, b) => {
+            const excite = a.find((i) => String(i._id) === String(b._id))
+            if (!excite) {
+                a.push({ ...b })
+            }
+            return a
+        }, [])
+        console.log(returnedPro)
         await setCache(`returnedPro${req.use.id}`, returnedPro)
         return res.status(200).json({
             success: true,

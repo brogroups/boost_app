@@ -34,7 +34,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
                 typeOfWareHouses: req.use.role !== "superAdmin" ? typeOfWareHousesCache?.reverse().filter((i) => i.quantity > 0).filter((i) => i.status == true) : typeOfWareHousesCache.reverse()
             })
         }
-        const typeOfWareHouses = await TypeOfWareHouse.find({})
+        const typeOfWareHouses = await TypeOfWareHouse.find({}).lean()
         let data = []
         for (const key of typeOfWareHouses) {
             const debt = await Debt2Model.aggregate([
@@ -88,7 +88,7 @@ exports.getTypeOfWareHouse = async (req, res) => {
             // payedQuantity = history.reduce((a, b) => {
             //     return b.type === "to'landi" ? a + b.quantity : a
             // }, 0)
-            data.push({ ...key._doc, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: history.reduce((a, b) => b.type === "to`landi" ? a + (b.price * b.quantity) : b.type == "Qarz" ? a - (b.omborxonaProId.price * b.quantity) : a + (b.price * b.quantity), 0), totalQuantity: history.reduce((a, b) => b.type === "to`landi" ? a + b.quantity : b.type == "Qarz" ? a - b.quantity : a + b.quantity, 0) })
+            data.push({ ...key, price: warehouse?.price ? warehouse?.price : key.price, history, totalPrice: history.reduce((a, b) => b.type === "to`landi" ? a + (b.price * b.quantity) : b.type == "Qarz" ? a - (b.omborxonaProId.price * b.quantity) : a + (b.price * b.quantity), 0), totalQuantity: history.reduce((a, b) => b.type === "to`landi" ? a + b.quantity : b.type == "Qarz" ? a - b.quantity : a + b.quantity, 0) })
         }
         await setCache("typeOfWareHouse", data)
         // if (req.use.role !== "superAdmin") {

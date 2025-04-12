@@ -10,13 +10,14 @@ exports.createDebt2 = async (req, res) => {
     try {
         let newDebt2;
         if (req.use.role === "manager") {
-            newDebt2 = await Debt2Model.create({ ...req.body, managerId: new mongoose.Types.ObjectId(req.use.id )})
+            newDebt2 = await Debt2Model.create({ ...req.body, managerId: new mongoose.Types.ObjectId(req.use.id) })
         } else if (req.use.role === "superAdmin") {
             newDebt2 = await Debt2Model.create(req.body)
         }
         let typeOfWareHouse = await TypeOfWareHouseModel.findById(newDebt2.omborxonaProId)
         if (typeOfWareHouse) {
-            if (typeOfWareHouse.quantity - newDebt2.quantity > 0) {
+            typeOfWareHouse.quantity -= newDebt2.quantity
+            if (typeOfWareHouse.quantity >= 0) {
                 await TypeOfWareHouseModel.updateOne({ quantity: typeOfWareHouse.quantity }, { $set: { quantity: typeOfWareHouse.quantity - newDebt2.quantity } })
             } else {
                 return res.status(400).json({
@@ -24,6 +25,9 @@ exports.createDebt2 = async (req, res) => {
                     message: "Bunday maahsulot omorxonada tugagan"
                 })
             }
+        }
+        if (typeOfWareHouse.quantity <= 0) {
+            await TypeOfWareHouseModel.findByIdAndUpdate(typeOfWareHouse._id, { status: false }, { new: true })
         }
         await deleteCache(`debt2${req.use.id}`)
         await deleteCache(`typeOfWareHouse`)
@@ -87,42 +91,11 @@ exports.getDebt2s = async (req, res) => {
                                 name: "$omborxona.name",
                                 price: "$omborxona.price",
                             },
-                           
+
                         }
                     }
                 ]);
-                // debt1s = await Debt1Model.aggregate([
-                //     {
-                //         $match: {
-                //             sellerId: new mongoose.Types.ObjectId(req.use.id)
-                //         }
-                //     },
-                //     {
-                //         $lookup: {
-                //             from: "sellers",
-                //             localField: "sellerId",
-                //             foreignField: "_id",
-                //             as: "seller"
-                //         }
-                //     },
-                //     {
-                //         $unwind: "$seller"
-                //     },
-                //     {
-                //         $project: {
-                //             _id: 1,
-                //             title: 1,
-                //             reason: 1,
-                //             price: 1,
-                //             quantity: 1,
-                //             createdAt: 1,
-                //             seller: {
-                //                 _id: "$seller._id",
-                //                 username: "$seller.username"
-                //             }
-                //         }
-                //     }
-                // ])
+
                 debts = [...debt2s]
                 break;
             case "superAdmin":
