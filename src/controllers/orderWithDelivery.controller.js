@@ -171,7 +171,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     
                 ])
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'dokon' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * item.totalQuantity, 0)}
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'dokon' ? b?.breadId?.price2 : item.pricetype === 'toyxona' ? b?.breadId?.price3 : b?.breadId?.price) * item.totalQuantity, 0)}
                 })
 
                 // , price: (item.pricetype === 'tan' ? item?.typeOfBreadIds[0]?.breadId?.price : item.pricetype === 'dokon' ? item?.typeOfBreadIds[0]?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.typeOfBreadIds[0]?.breadId?.price3 : 0)
@@ -242,7 +242,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
                     
                 ])
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
-                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'dokon' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : 0) * (b.quantity || 1), 0)}
+                    return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b?.breadId?.price : item.pricetype === 'dokon' ? b?.breadId?.price2 : item?.pricetype === 'toyxona' ? b?.breadId?.price3 : 0) * (b.quantity || 1), 0)}
                 })
                 break;
             }
@@ -264,6 +264,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
         })
     }
     catch (error) {
+        console.error(error.message)
         return res.status(500).json({
             success: false,
             message: error.message

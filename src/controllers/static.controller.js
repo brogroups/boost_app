@@ -750,7 +750,7 @@ exports.getStatics = async (req, res) => {
                             }
                         },
                     ])]
-                    warehouse = [...warehouse,...await ManagerWareModel.aggregate([
+                    warehouse = [...warehouse, ...await ManagerWareModel.aggregate([
                         { $match: { sellerId: seller._id, status: true, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
                         {
                             $lookup: {
@@ -793,6 +793,13 @@ exports.getStatics = async (req, res) => {
                         { $match: { type: { $in: ["Avans", "Oylik"] }, active: true, sellerId: seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } }
                     ])
                 }
+                managerPrixod = managerPrixod.reduce((a, b) => {
+                    const excite = a.find((i) => String(i._id) === String(b._id))
+                    if (!excite) {
+                        a.push({ ...b })
+                    }
+                    return a
+                }, [])
                 for (const key of managerPrixod) {
                     let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'dokon' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : key.breadId.price) * key.quantity
                     if (allPrice - key.money >= 0) {

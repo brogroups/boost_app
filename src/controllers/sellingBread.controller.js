@@ -75,7 +75,7 @@ exports.createSellingBread = async (req, res) => {
                         _id: new mongoose.Types.ObjectId(req.body.breadId),
                         totalQuantity: { $gt: 0 },
                         status: true
-                    })
+                    }).populate("typeOfBreadIds.bread").lean()
                     if (!typeOfWareHouse) {
                         return res.status(404).json({
                             success: false,
@@ -89,11 +89,10 @@ exports.createSellingBread = async (req, res) => {
                             message: `Yetarli mahsulot mavjud emas. Ombordagi miqdor: ${typeOfWareHouse.totalQuantity}`
                         });
                     }
-
                     typeOfWareHouse.totalQuantity -= req.body.quantity;
                     await OrderWithDeliveryModel.findByIdAndUpdate(
                         req.body.breadId,
-                        { totalQuantity: typeOfWareHouse.totalQuantity },
+                        { totalQuantity: typeOfWareHouse.totalQuantity, typeOfBreadIds: typeOfWareHouse.typeOfBreadIds.map((i) => String(i.bread.bread) === req.body.bread ? { bread: i.bread._id, quantity: i.quantity - req.body.quantity } : { bread: i.bread._id, quantity: i.quantity }) },
                         { new: true }
                     );
                     await DeliveryPayedModel.create({ deliveryId: delivery._id, price: typeOfWareHouse.totalQuantity * delivery.price, status: "To`landi", type: "Kunlik", comment: "----" })

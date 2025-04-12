@@ -188,7 +188,7 @@ exports.getMagazines = async (req, res) => {
                         return a
                     }, [])
 
-                
+
 
 
 
@@ -198,7 +198,7 @@ exports.getMagazines = async (req, res) => {
                         }
                     ])
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
-                    data.push({ ...key, history: sellingBreadToMagazines, pending: -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
+                    data.push({ ...key, history: sellingBreadToMagazines, pending: (sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
                 }
                 break;
             case "delivery":
@@ -343,7 +343,7 @@ exports.getMagazines = async (req, res) => {
                     sellingBreadToMagazines = sellingBreadToMagazines.reduce((a, b) => {
                         const excite = a.find((i) => String(i._id) === String(b._id))
                         if (!excite) {
-                            a.push({ ...b})
+                            a.push({ ...b })
                         }
                         return a
                     }, [])
@@ -355,7 +355,7 @@ exports.getMagazines = async (req, res) => {
                     ])
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
 
-                    data.push({ ...key, history: sellingBreadToMagazines, pending: (sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending > 0 ? -(sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) : sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
+                    data.push({ ...key, history: sellingBreadToMagazines, pending: (sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
                 }
                 break;
         }
