@@ -286,7 +286,6 @@ exports.findAll = async (req, res) => {
             }
             return a
         }, [])
-        console.log(returnedPro)
         await setCache(`returnedPro${req.use.id}`, returnedPro)
         return res.status(200).json({
             success: true,

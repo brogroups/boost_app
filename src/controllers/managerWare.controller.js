@@ -6,7 +6,7 @@ exports.createManagerWare = async (req, res) => {
     try {
         let warehouse = await ManagerWareModel.findOne({ bread: req.body.bread, status: true })
         if (warehouse) {
-            await ManagerWareModel.findByIdAndUpdate(warehouse._id, { totalQuantity: warehouse?.totalQuantity + req.body.totalQuantity, totalQuantity2: warehouse?.totalQuantity2 + req.body.totalQuantity, totalQopQuantity: warehouse.totalQopQuantity + req.body.totalQopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
+            await ManagerWareModel.findByIdAndUpdate(warehouse._id, { totalQuantity: warehouse?.totalQuantity + req.body.totalQuantity,  totalQopQuantity: warehouse.totalQopQuantity + req.body.totalQopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true })
         } else {
             await ManagerWareModel.create({
                 sellerId: req.body.sellerId,

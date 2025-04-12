@@ -11,6 +11,7 @@ const SellerPayedModel = require("../models/sellerPayed.model")
 const { getSellerBread } = require("./sellerBread.controller")
 const SaleModel = require("../models/sale.mode")
 const DeliveryPayedModel = require("../models/deliveryPayed.model")
+const ManagerWareModel = require("../models/managerWare.model")
 
 exports.getStatics = async (req, res) => {
     try {
@@ -267,7 +268,7 @@ exports.getStatics = async (req, res) => {
                 for (const key of deliveryPrixod) {
                     let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'dokon' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
                     if (allPrice - key.money > 0) {
-                        pending.push({ ...key,totalPrice:allPrice })
+                        pending.push({ ...key, totalPrice: allPrice })
                     }
                 }
 
@@ -543,6 +544,7 @@ exports.getStatics = async (req, res) => {
                 let managerPending = []
                 let sales = []
                 let sellerPayedsManager = []
+                let warehouse = []
                 const sellers = await SellerModel.aggregate([
                     { $match: { superAdminId: new mongoose.Types.ObjectId(req.use.id), status: true } }
                 ])
@@ -589,7 +591,6 @@ exports.getStatics = async (req, res) => {
                     }
                 ]))
                 for (const seller of sellers) {
-
                     managerPrixod = [...managerPrixod, ...await SellingBreadModel.aggregate([
                         {
                             $lookup: {
@@ -602,7 +603,7 @@ exports.getStatics = async (req, res) => {
                         {
                             $unwind: "$breadDetails",
                         },
-                        { $match: { "breadDetails.sellerId": seller._id } },
+                        { $match: { "breadDetails.sellerId": seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
                         {
                             $lookup: {
                                 from: "typeofbreads",
@@ -688,7 +689,7 @@ exports.getStatics = async (req, res) => {
                         },
                         { $unwind: "$breadDetails" },
                         {
-                            $match: { "breadDetails.sellerId": seller._id, status: true }
+                            $match: { "breadDetails.sellerId": seller._id, status: true, createdAt: { $gte: startOfWeek, $lte: endOfWeek } }
                         },
                         {
                             $lookup: {
@@ -749,10 +750,47 @@ exports.getStatics = async (req, res) => {
                             }
                         },
                     ])]
-
+                    warehouse = [...warehouse,...await ManagerWareModel.aggregate([
+                        { $match: { sellerId: seller._id, status: true, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
+                        {
+                            $lookup: {
+                                from: "sellers",
+                                localField: "sellerId",
+                                foreignField: "_id",
+                                as: "manager"
+                            }
+                        },
+                        {
+                            $unwind: "$manager"
+                        },
+                        {
+                            $lookup: {
+                                from: "typeofbreads",
+                                localField: "bread",
+                                foreignField: "_id",
+                                as: "Bread"
+                            }
+                        },
+                        {
+                            $unwind: "$Bread"
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                seller: {
+                                    username: "$manager.username"
+                                },
+                                bread: "$Bread",
+                                totalQuantity: 1,
+                                totalQuantity2: 1,
+                                totalQopQuantity: 1,
+                                createdAt: 1
+                            }
+                        }
+                    ])]
 
                     sellerPayedsManager = await SellerPayedModel.aggregate([
-                        { $match: { type: { $in: ["Avans", "Oylik"] }, active: true, sellerId: seller._id } }
+                        { $match: { type: { $in: ["Avans", "Oylik"] }, active: true, sellerId: seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } }
                     ])
                 }
                 for (const key of managerPrixod) {
@@ -765,7 +803,7 @@ exports.getStatics = async (req, res) => {
 
                 debt = debt.filter((item) => item.length !== 0).flat(Infinity)
                 sales = await SaleModel.aggregate([
-                    { $match: { managerId: new mongoose.Types.ObjectId(req.use.id), status: true } },
+                    { $match: { managerId: new mongoose.Types.ObjectId(req.use.id), status: true, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
                     {
                         $lookup: {
                             from: "managerwares",
@@ -838,6 +876,10 @@ exports.getStatics = async (req, res) => {
                                 let price = item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'narxi' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0
                                 return { ...item, price }
                             })
+                        },
+                        managerware: {
+                            totalQuantity: warehouse.reduce((a, b) => a + b.totalQuantity2, 0),
+                            history: warehouse
                         }
                     },
                 })
