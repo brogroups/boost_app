@@ -31,6 +31,20 @@ exports.createSellerBread = async (req, res) => {
                 })
             }
 
+            // sellerBread = await SellerBreadModel.create({
+            //     typeOfBreadId: [
+            //         {
+            //             breadId: key.breadId,
+            //             quantity: key.quantity,
+            //             qopQuantity: key.qopQuantity
+            //         }
+            //     ],
+            //     sellerId: req.use.id,
+            //     totalQuantity: key.quantity,
+            //     totalQopQuantity: key.qopQuantity,
+            //     status: true
+            // })
+
             sellerBread = await sellerBread.populate("typeOfBreadId.breadId")
             sellerPayedBread += sellerBread.typeOfBreadId[0].breadId.price4 * key.qopQuantity
             let bread2 = await ManagerWareModel.findOne({ bread: key.breadId, status: true })
@@ -484,6 +498,7 @@ exports.deleteSellerById = async (req, res) => {
                 message: "seller bread not found"
             })
         }
+        console.log(sellerBread)
         sellerBread = sellerBread.typeOfBreadId?.reduce((a, b) => a + (b.totalQopQuantity * b.breadId.price4), 0)
         await SellerPayedModel.create({ sellerId: req.use.id, price: sellerBread, type: "O`chirildi", status: "To`landi", comment: "--------" })
         await deleteCache(`sellerBread${req.use.id}`)
