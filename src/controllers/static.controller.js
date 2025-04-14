@@ -885,7 +885,7 @@ exports.getStatics = async (req, res) => {
                             })
                         },
                         managerware: {
-                            totalQuantity: warehouse.reduce((a, b) => a + b.totalQuantity2, 0),
+                            totalQuantity: warehouse.reduce((a, b) => a + b.totalQuantity2 * b.totalQopQuantity, 0),
                             history: warehouse
                         }
                     },
