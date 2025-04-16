@@ -188,6 +188,8 @@ exports.getMagazines = async (req, res) => {
                         return a
                     }, [])
 
+                    console.log(sellingBreadToMagazines)
+
 
 
 
@@ -339,6 +341,7 @@ exports.getMagazines = async (req, res) => {
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     })
+                    
 
                     sellingBreadToMagazines = sellingBreadToMagazines.reduce((a, b) => {
                         const excite = a.find((i) => String(i._id) === String(b._id))
@@ -347,6 +350,8 @@ exports.getMagazines = async (req, res) => {
                         }
                         return a
                     }, [])
+
+                    console.log(sellingBreadToMagazines)
 
                     let magazinePayed = await MagazinePayedModel.aggregate([
                         {

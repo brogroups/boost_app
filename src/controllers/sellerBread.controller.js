@@ -467,13 +467,43 @@ exports.getSellerById = async (req, res) => {
 
 exports.updateSellerById = async (req, res) => {
     try {
-        const sellerBread = await SellerBreadModel.findByIdAndUpdate(req.params.id, { ...req.body, updateAt: new Date(), totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalQopQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0), }, { new: true }).populate("typeOfBreadId")
+        const updatedBread = req.body.typeOfBreadId;
+        const sellerBread = await SellerBreadModel.findById(req.params.id).populate("typeOfBreadId.breadId")
         if (!sellerBread) {
             return res.status(404).json({
                 success: false,
                 message: "seller bread not found"
             })
         }
+
+        for (const bread of updatedBread) {
+            const ware = await ManagerWareModel.findOne({ bread: bread.breadId, status: true });
+
+            if (ware) {
+                await ManagerWareModel.findByIdAndUpdate(
+                    ware._id,
+                    {
+                        totalQuantity: (ware.totalQuantity - sellerBread.totalQuantity) + bread.quantity,
+                        totalQuantity2: (ware.totalQuantity2 - sellerBread.totalQuantity) + bread.quantity,
+                        totalQopQuantity: (ware.totalQopQuantity - sellerBread.totalQopQuantity) + bread.qopQuantity,
+                        updateAt: new Date(),
+                    },
+                    { new: true }
+                );
+            } else {
+                await ManagerWareModel.create({
+                    sellerId: req.use.id,
+                    bread: bread.breadId,
+                    totalQuantity: bread.quantity,
+                    totalQuantity2: bread.quantity,
+                    totalQopQuantity: bread.qopQuantity,
+                    status: true
+                });
+            }
+        }
+
+        await SellerBreadModel.findByIdAndUpdate(sellerBread._id, { ...req.body, updateAt: new Date(), totalQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.quantity, 0), totalQopQuantity: req.body.typeOfBreadId.reduce((a, b) => a + b.qopQuantity, 0), }, { new: true })
+
         await deleteCache(`sellerBread${req.use.id}`)
         return res.status(200).json({
             success: true,
@@ -499,7 +529,7 @@ exports.deleteSellerById = async (req, res) => {
             })
         }
         console.log(sellerBread)
-        sellerBread = sellerBread.typeOfBreadId?.reduce((a, b) => a + (b.totalQopQuantity * b.breadId.price4), 0)
+        sellerBread = sellerBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
         await SellerPayedModel.create({ sellerId: req.use.id, price: sellerBread, type: "O`chirildi", status: "To`landi", comment: "--------" })
         await deleteCache(`sellerBread${req.use.id}`)
         return res.status(200).json({

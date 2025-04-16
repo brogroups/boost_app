@@ -67,25 +67,7 @@ exports.getStatics = async (req, res) => {
                     return { ...item, role: "delivery" }
                 })
 
-                // let deliveryPrixod = await SellingBreadModel.find({
-                // createdAt: { $gte: startOfWeek, $lte: endOfWeek },
-                // status: true
-                // })
-                //     .populate("deliveryId", "username")
-                //     .populate("magazineId")
-                //     .populate({
-                //         path: "breadId",
-                //         model: "OrderWithDelivery",
-                //         populate: {
-                //             path: "typeOfBreadIds.bread",
-                //             model: "ManagerWare",
-                //             populate: {
-                //                 path: "bread",
-                //                 model: "TypeOfBread"
-                //             }
-                //         }
-                //     })
-                //     .lean()
+
                 let deliveryPrixod = await SellingBreadModel.aggregate([
                     {
                         $match: {
@@ -268,7 +250,7 @@ exports.getStatics = async (req, res) => {
                 for (const key of deliveryPrixod) {
                     let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'dokon' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
                     if (allPrice - key.money > 0) {
-                        pending.push({ ...key, totalPrice: allPrice })
+                        pending.push({ ...key, totalPrice: allPrice, pending: allPrice - key.money })
                     }
                 }
 
@@ -495,10 +477,17 @@ exports.getStatics = async (req, res) => {
                             }
                         }
                     ]))
+                    managerPrixod = managerPrixod.reduce((a, b) => {
+                        const excite = a.find((i) => String(i._id) == String(b._id))
+                        if (!excite) {
+                            a.push({ ...b })
+                        }
+                        return a
+                    }, [])
                     for (const key of managerPrixod) {
-                        let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'narxi' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
+                        let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'dokon' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : 0) * key.quantity
                         if (allPrice - key.money >= 0) {
-                            managerPending.push({ ...key })
+                            managerPending.push({ ...key, pending: allPrice - key.money })
                         }
                     }
                     debt = debt.filter((item) => item.length !== 0).flat(Infinity)
@@ -511,7 +500,7 @@ exports.getStatics = async (req, res) => {
                         createdAt: item.createdAt,
                         debt: { totalPrice: [...debt, ...sellerPayeds].length > 0 ? [...debt, ...sellerPayeds].reduce((a, b) => a + ((b?.price ? b?.price : b?.omborxonaProId?.price ? b.omborxonaProId?.price : 0) * (b.quantity || 1)), 0) : 0, history: [...debt, ...sellerPayeds] },
                         pending: {
-                            totalPrice: managerPending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'narxi' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * b.quantity - b.money, 0),
+                            totalPrice: managerPending.reduce((a, b) => a + b.pending, 0),
                             history: managerPending
                         },
                         prixod: {
@@ -531,7 +520,7 @@ exports.getStatics = async (req, res) => {
                             history: [...deliveryPrixod, ...Allsales]
                         },
                         pending: {
-                            totalPrice: pending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'dokon' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : 0) * b.quantity - b.money, 0),
+                            totalPrice: pending.reduce((a, b) => a + b.pending, 0),
                             history: pending
                         }
                     },
@@ -802,8 +791,10 @@ exports.getStatics = async (req, res) => {
                 }, [])
                 for (const key of managerPrixod) {
                     let allPrice = (key.pricetype === 'tan' ? key.breadId.price : key.pricetype === 'dokon' ? key.breadId.price2 : key.pricetype === 'toyxona' ? key.breadId.price3 : key.breadId.price) * key.quantity
+                    console.log(key)
+                    console.log("admin")
                     if (allPrice - key.money >= 0) {
-                        managerPending.push({ ...key, totalPrice: allPrice })
+                        managerPending.push({ ...key, totalPrice: allPrice, pending: allPrice - key.money })
                     }
                 }
 
@@ -860,6 +851,8 @@ exports.getStatics = async (req, res) => {
                     }
                     return a
                 }, [])
+
+
                 return res.status(200).json({
                     statics: {
                         debt: {
@@ -867,20 +860,20 @@ exports.getStatics = async (req, res) => {
                             history: [...debt, ...sellerPayedsManager]
                         },
                         pending: {
-                            totalPrice: managerPending.reduce((a, b) => a + (b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'dokon' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity - b.money, 0),
+                            totalPrice: managerPending.reduce((a, b) => a + b.pending, 0),
                             history: managerPending
                         },
                         prixod: {
                             totalPrice: [...managerPrixod, ...sales].reduce((a, b) => a + b.money, 0),
                             history: [...managerPrixod, ...sales].map((item) => {
-                                let price = item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'narxi' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0
+                                let price = item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'dokon' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0
                                 return { ...item, price }
                             })
                         },
                         sellingBread: {
                             totalQuantity: managerPrixod.reduce((a, b) => a + (b.quantity || 0), 0),
                             history: managerPrixod.map((item) => {
-                                let price = item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'narxi' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0
+                                let price = item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'dokon' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0
                                 return { ...item, price }
                             })
                         },
@@ -1093,15 +1086,11 @@ exports.getStatics = async (req, res) => {
                 }, [])
 
 
-
-
                 for (const key of allSoldBread) {
                     if ((key?.totalPrice || 1) - key.money > 0) {
                         pendingDelivery.push({ ...key })
                     }
                 }
-
-
 
 
                 return res.status(200).json({
