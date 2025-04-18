@@ -200,7 +200,8 @@ exports.getMagazines = async (req, res) => {
                         }
                     ])
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
-                    data.push({ ...key, history: sellingBreadToMagazines, pending: (sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
+                    const pending = (sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed
+                    data.push({ ...key, history: sellingBreadToMagazines, pending })
                 }
                 break;
             case "delivery":
@@ -341,7 +342,7 @@ exports.getMagazines = async (req, res) => {
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }
                     })
-                    
+
 
                     sellingBreadToMagazines = sellingBreadToMagazines.reduce((a, b) => {
                         const excite = a.find((i) => String(i._id) === String(b._id))

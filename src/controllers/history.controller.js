@@ -211,7 +211,13 @@ exports.getDeliveryHistory = async (req, res) => {
             success: true,
             data: [...debt.map((item) => {
                 return { ...item ? item : item, type: "Chiqim" }
-            }), ...sellingbread]
+            }), ...sellingbread].reduce((a, b) => {
+                const excite = a.find((i) => String(i._id) === String(b._id))
+                if (!excite) {
+                    a.push({ ...b })
+                }
+                return a
+            }, [])
         })
     }
     catch (error) {
