@@ -914,24 +914,21 @@ exports.getStatics = async (req, res) => {
                 ])
                 let pendingDelivery = []
                 let soldBread = await SellingBreadModel.aggregate([
-                    {
-                        $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true }
-                    },
+                    { $match: { deliveryId: new mongoose.Types.ObjectId(req.use.id), status: true } },
                     {
                         $lookup: {
                             from: "orderwithdeliveries",
                             localField: "breadId",
                             foreignField: "_id",
-                            as: "bread"
+                            as: "breadIdd"
                         }
                     },
-                    {
-                        $unwind: "$bread"
-                    },
+                    { $unwind: "$breadIdd" },
+                    { $unwind: "$breadIdd.typeOfBreadIds" }, // Har bir bread uchun alohida document
                     {
                         $lookup: {
                             from: "managerwares",
-                            localField: "bread.typeOfBreadIds.bread",
+                            localField: "breadIdd.typeOfBreadIds.bread",
                             foreignField: "_id",
                             as: "breadDetails"
                         }
@@ -954,9 +951,7 @@ exports.getStatics = async (req, res) => {
                             as: "delivery"
                         }
                     },
-                    {
-                        $unwind: "$delivery"
-                    },
+                    { $unwind: "$delivery" },
                     {
                         $lookup: {
                             from: "magazines",
@@ -969,32 +964,32 @@ exports.getStatics = async (req, res) => {
                         $unwind: "$magazine"
                     },
                     {
-                        $project: {
-                            _id: 1,
-                            breadId: {
-                                _id: "$breadIdDetails._id",
-                                title: "$breadIdDetails.title",
-                                price: "$breadIdDetails.price",
-                                price2: "$breadIdDetails.price2",
-                                price3: "$breadIdDetails.price3",
-                                price4: "$breadIdDetails.price4",
-                                createdAt: "$breadIdDetails.createdAt",
-                            },
-                            paymentMethod: 1,
-                            deliveryId: {
-                                _id: "$delivery._id",
-                                username: "$delivery.username"
-                            },
-                            magazineId: {
-                                _id: "$magazine._id",
-                                title: "$magazine.title"
-                            },
-                            quantity: 1,
-                            money: 1,
-                            pricetype: 1,
-                            createdAt: 1
+                        $group: {
+                            _id: "$_id",
+                            bread: { $first: "$bread" },
+                            paymentMethod: { $first: "$paymentMethod" },
+                            deliveryId: { $first: { _id: "$delivery._id", username: "$delivery.username" } },
+                            magazineId: { $first: { _id: "$magazine._id", title: "$magazine.title" } },
+                            quantity: { $first: "$quantity" },
+                            money: { $first: "$money" },
+                            pricetype: { $first: "$pricetype" },
+                            createdAt: { $first: "$createdAt" },
+                            typeOfBreadIds: {
+                                $push: {
+                                    breadId: {
+                                        _id: "$breadIdDetails._id",
+                                        title: "$breadIdDetails.title",
+                                        price: "$breadIdDetails.price",
+                                        price2: "$breadIdDetails.price2",
+                                        price3: "$breadIdDetails.price3",
+                                        price4: "$breadIdDetails.price4",
+                                        createdAt: "$breadIdDetails.createdAt",
+                                    },
+                                    quantity: "$breadIdd.typeOfBreadIds.quantity"
+                                }
+                            }
                         }
-                    },
+                    }
                 ])
 
                 let soldBread1 = await SellingBreadModel.aggregate([
@@ -1073,11 +1068,16 @@ exports.getStatics = async (req, res) => {
                     },
                 ])
 
-                let allSoldBread = [...soldBread, ...soldBread1].map((item) => {
+                let allSoldBread = [...soldBread.map((item) => {
+                    const breadId = item.typeOfBreadIds.find((i) => String(i.breadId._id) === String(item.bread))?.breadId
+                    let totalPrice = (item.pricetype === 'tan' ? breadId?.price : item.pricetype === 'dokon' ? breadId?.price2 : item.pricetype === 'toyxona' ? breadId?.price3 : breadId.price) * item.quantity
+                    let pending = totalPrice - item.money
+                    return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? breadId?.price : item.pricetype === 'dokon' ? breadId?.price2 : item.pricetype === 'toyxona' ? breadId?.price3 : breadId.price), breadId }
+                }), ...soldBread1.map((item) => {
                     let totalPrice = (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) * item.quantity
                     let pending = totalPrice - item.money
                     return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? item?.breadId?.price : item.pricetype === 'dokon' ? item?.breadId?.price2 : item.pricetype === 'toyxona' ? item?.breadId?.price3 : 0) }
-                }).reduce((a, b) => {
+                })].reduce((a, b) => {
                     const excite = a.find((i) => String(i._id) == String(b._id))
                     if (!excite) {
                         a.push({ ...b })
