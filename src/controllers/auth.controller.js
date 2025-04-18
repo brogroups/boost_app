@@ -149,11 +149,12 @@ exports.updateUserAuth = async (req, res) => {
 
 exports.getUserNameAndPasswordById = async (req, res) => {
   try {
-    let user = await ManagerModel.findById(req.params.id);
-    let role = "manager";
+    user = await SuperAdminModel.findById(req.params.id);
+  
+    let role = "superAdmin";
     if (!user) {
-      user = await SuperAdminModel.findById(req.params.id);
-      role = "superAdmin";
+      let user = await ManagerModel.findById(req.params.id);
+      role = "manager";
     }
     if (!user) {
       user = await DeliveryModel.findById(req.params.id);
