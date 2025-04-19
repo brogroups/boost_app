@@ -94,14 +94,7 @@ exports.getOrderWithDeliveries = async (req, res) => {
 
         switch (req.use.role) {
             case "superAdmin": {
-                orderWithDeliveries = await OrderWithDeliveryModel.find({ status: true, totalQuantity: { $gt: 0 } }).populate("deliveryId", "username").populate({
-                    path: "typeOfBreadIds.bread",
-                    model: "SellerBread",
-                    populate: {
-                        path: "typeOfBreadId.breadId",
-                        model: "TypeOfBread"
-                    }
-                }).lean()
+                orderWithDeliveries = await OrderWithDeliveryModel.find({ status: true, totalQuantity: { $gt: 0 } }).populate("deliveryId", "username").lean()
                 orderWithDeliveries = orderWithDeliveries.map((item) => {
                     return { ...item, totalPrice: item.typeOfBreadIds?.reduce((a, b) => a + b?.bread?.typeOfBreadId?.reduce((c, d) => c + (item.pricetype === 'tan' ? d.breadId.price : item.pricetype === 'narxi' ? d.breadId.price2 : item.pricetype === 'toyxona' ? d.breadId.price3 : 0) * (b.quantity || 1), 0), 0) }
                 })

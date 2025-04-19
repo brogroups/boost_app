@@ -194,10 +194,6 @@ exports.getMagazines = async (req, res) => {
                     }, [])
 
 
-
-
-
-
                     let magazinePayed = await MagazinePayedModel.aggregate([
                         {
                             $match: { magazineId: new mongoose.Types.ObjectId(key._id) }
@@ -348,7 +344,6 @@ exports.getMagazines = async (req, res) => {
                         return { ...item, totalPrice, pending }
                     }), ...soldBread1.map((item) => {
                         const breadId = item.typeOfBreadIds.find((i) => String(i.breadId._id) === String(item.bread))?.breadId
-                        console.log(breadId)
                         let totalPrice = (item.pricetype === 'tan' ? breadId?.price : item.pricetype === 'dokon' ? breadId?.price2 : item.pricetype === 'toyxona' ? breadId?.price3 : breadId.price) * item.quantity
                         let pending = totalPrice - item.money
                         return { ...item, totalPrice, pending }

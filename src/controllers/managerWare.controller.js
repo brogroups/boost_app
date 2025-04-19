@@ -65,7 +65,8 @@ exports.getManagerWare = async (req, res) => {
                             $project: {
                                 _id: 1,
                                 seller: {
-                                    username: "$manager.username"
+                                    _id: "$manager._id",
+                                    username: "$manager.username",
                                 },
                                 bread: "$Bread",
                                 totalQuantity: 1,
@@ -108,7 +109,8 @@ exports.getManagerWare = async (req, res) => {
                         $project: {
                             _id: 1,
                             seller: {
-                                username: "$manager.username"
+                                _id: "$manager._id",
+                                username: "$manager.username",
                             },
                             bread: "$Bread",
                             totalQuantity: 1,

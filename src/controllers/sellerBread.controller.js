@@ -14,7 +14,7 @@ exports.createSellerBread = async (req, res) => {
         for (const key of req.body.typeOfBreadId) {
             let bread = await SellerBreadModel.findOne({ "typeOfBreadId.breadId": key.breadId, sellerId: new mongoose.Types.ObjectId(req.use.id), status: true })
             if (bread) {
-                sellerBread = await SellerBreadModel.findByIdAndUpdate(bread._id, { totalQuantity: (bread.totalQuantity || 0) + key.quantity, totalQopQuantity: (bread.totalQopQuantity || 0) + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true }).populate("typeOfBreadId.breadId")
+                sellerBread = await SellerBreadModel.findByIdAndUpdate(bread._id, { sellerId: req.use.id, totalQuantity: (bread.totalQuantity || 0) + key.quantity, totalQopQuantity: (bread.totalQopQuantity || 0) + key.qopQuantity, status: true, updateAt: new Date(), createdAt: new Date() }, { new: true }).populate("typeOfBreadId.breadId")
             } else {
                 sellerBread = await SellerBreadModel.create({
                     typeOfBreadId: [
@@ -528,7 +528,6 @@ exports.deleteSellerById = async (req, res) => {
                 message: "seller bread not found"
             })
         }
-        console.log(sellerBread)
         sellerBread = sellerBread.typeOfBreadId?.reduce((a, b) => a + (b.qopQuantity * b.breadId.price4), 0)
         await SellerPayedModel.create({ sellerId: req.use.id, price: sellerBread, type: "O`chirildi", status: "To`landi", comment: "--------" })
         await deleteCache(`sellerBread${req.use.id}`)
