@@ -141,7 +141,7 @@ const StartServer = async () => {
     await ConnecToDb();
     const superAdmin = await SuperAdminModel.findOne({ login: "admin" });
     if (!superAdmin) {
-      const hashPassword = encrypt("P@ssw0rd")
+      const hashPassword = encrypt("P@ssw0rd")  
       const refreshToken = await jwt.sign(
         { username: "admin", hashPassword, login: "admin" },
         process.env.JWT_TOKEN_REFRESH

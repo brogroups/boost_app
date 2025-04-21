@@ -532,8 +532,8 @@ exports.getStatics = async (req, res) => {
                 break;
             case "manager":
                 let debt = []
-                let managerPrixod = []
-                let managerPrixod2 = []
+                // let managerPrixod = []
+                // let managerPrixod2 = []
                 let managerPending = []
                 let sales = []
                 let sellerPayedsManager = []
@@ -584,168 +584,168 @@ exports.getStatics = async (req, res) => {
                     }
                 ]))
                 for (const seller of sellers) {
-                    managerPrixod = [...managerPrixod, ...await SellingBreadModel.aggregate([
-                        {
-                            $lookup: {
-                                from: "managerwares",
-                                localField: "breadId",
-                                foreignField: "_id",
-                                as: "breadDetails"
-                            }
-                        },
-                        {
-                            $unwind: "$breadDetails",
-                        },
-                        { $match: { "breadDetails.sellerId": seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
-                        {
-                            $lookup: {
-                                from: "typeofbreads",
-                                localField: "breadDetails.bread",
-                                foreignField: "_id",
-                                as: "breadIdDetails"
-                            }
-                        },
-                        {
-                            $unwind: "$breadIdDetails",
-                        },
-                        {
-                            $lookup: {
-                                from: "deliveries",
-                                localField: "deliveryId",
-                                foreignField: "_id",
-                                as: "delivery"
-                            }
-                        },
-                        {
-                            $unwind: "$delivery"
-                        },
-                        {
-                            $lookup: {
-                                from: "magazines",
-                                localField: "magazineId",
-                                foreignField: "_id",
-                                as: "magazine"
-                            }
-                        },
-                        {
-                            $unwind: "$magazine"
-                        },
-                        {
-                            $project: {
-                                _id: 1,
-                                breadId: {
-                                    _id: "$breadIdDetails._id",
-                                    title: "$breadIdDetails.title",
-                                    price: "$breadIdDetails.price",
-                                    price2: "$breadIdDetails.price2",
-                                    price3: "$breadIdDetails.price3",
-                                    price4: "$breadIdDetails.price4",
-                                    createdAt: "$breadIdDetails.createdAt",
-                                },
-                                paymentMethod: 1,
-                                deliveryId: {
-                                    _id: "$delivery._id",
-                                    username: "$delivery.username"
-                                },
-                                magazineId: {
-                                    _id: "$magazine._id",
-                                    title: "$magazine.title"
-                                },
-                                money: 1,
-                                pricetype: 1,
-                                createdAt: 1,
-                                quantity: 1
-                            }
-                        },
-                    ])]
+                    // managerPrixod = [...managerPrixod, ...await SellingBreadModel.aggregate([
+                    //     {
+                    //         $lookup: {
+                    //             from: "managerwares",
+                    //             localField: "breadId",
+                    //             foreignField: "_id",
+                    //             as: "breadDetails"
+                    //         }
+                    //     },
+                    //     {
+                    //         $unwind: "$breadDetails",
+                    //     },
+                    //     { $match: { "breadDetails.sellerId": seller._id, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
+                    //     {
+                    //         $lookup: {
+                    //             from: "typeofbreads",
+                    //             localField: "breadDetails.bread",
+                    //             foreignField: "_id",
+                    //             as: "breadIdDetails"
+                    //         }
+                    //     },
+                    //     {
+                    //         $unwind: "$breadIdDetails",
+                    //     },
+                    //     {
+                    //         $lookup: {
+                    //             from: "deliveries",
+                    //             localField: "deliveryId",
+                    //             foreignField: "_id",
+                    //             as: "delivery"
+                    //         }
+                    //     },
+                    //     {
+                    //         $unwind: "$delivery"
+                    //     },
+                    //     {
+                    //         $lookup: {
+                    //             from: "magazines",
+                    //             localField: "magazineId",
+                    //             foreignField: "_id",
+                    //             as: "magazine"
+                    //         }
+                    //     },
+                    //     {
+                    //         $unwind: "$magazine"
+                    //     },
+                    //     {
+                    //         $project: {
+                    //             _id: 1,
+                    //             breadId: {
+                    //                 _id: "$breadIdDetails._id",
+                    //                 title: "$breadIdDetails.title",
+                    //                 price: "$breadIdDetails.price",
+                    //                 price2: "$breadIdDetails.price2",
+                    //                 price3: "$breadIdDetails.price3",
+                    //                 price4: "$breadIdDetails.price4",
+                    //                 createdAt: "$breadIdDetails.createdAt",
+                    //             },
+                    //             paymentMethod: 1,
+                    //             deliveryId: {
+                    //                 _id: "$delivery._id",
+                    //                 username: "$delivery.username"
+                    //             },
+                    //             magazineId: {
+                    //                 _id: "$magazine._id",
+                    //                 title: "$magazine.title"
+                    //             },
+                    //             money: 1,
+                    //             pricetype: 1,
+                    //             createdAt: 1,
+                    //             quantity: 1
+                    //         }
+                    //     },
+                    // ])]
 
-                    managerPrixod2 = [...managerPrixod2, ...await SellingBreadModel.aggregate([
-                        {
-                            $lookup: {
-                                from: "orderwithdeliveries",
-                                localField: "breadId",
-                                foreignField: "_id",
-                                as: "breadD"
-                            }
-                        },
-                        { $unwind: "$breadD" },
-                        { $unwind: "$breadD.typeOfBreadIds" },
-                        {
-                            $lookup: {
-                                from: "managerwares",
-                                localField: "breadD.typeOfBreadIds.bread",
-                                foreignField: "_id",
-                                as: "breadDetails"
-                            }
-                        },
-                        { $unwind: "$breadDetails" },
-                        {
-                            $match: {
-                                status: true,
-                                createdAt: { $gte: startOfWeek, $lte: endOfWeek }
-                            }
-                        },
-                        {
-                            $lookup: {
-                                from: "typeofbreads",
-                                localField: "breadDetails.bread",
-                                foreignField: "_id",
-                                as: "breadIdDetails"
-                            }
-                        },
-                        { $unwind: "$breadIdDetails" },
-                        {
-                            $lookup: {
-                                from: "deliveries",
-                                localField: "deliveryId",
-                                foreignField: "_id",
-                                as: "delivery"
-                            }
-                        },
-                        { $unwind: "$delivery" },
-                        {
-                            $lookup: {
-                                from: "magazines",
-                                localField: "magazineId",
-                                foreignField: "_id",
-                                as: "magazine"
-                            }
-                        },
-                        { $unwind: "$magazine" },
-                        {
-                            $group: {
-                                _id: "$_id",
-                                paymentMethod: { $first: "$paymentMethod" },
-                                deliveryId: { $first: { _id: "$delivery._id", username: "$delivery.username" } },
-                                magazineId: { $first: { _id: "$magazine._id", title: "$magazine.title" } },
-                                quantity: { $first: "$quantity" },
-                                money: { $first: "$money" },
-                                pricetype: { $first: "$pricetype" },
-                                createdAt: { $first: "$createdAt" },
-                                bread: { $first: "$bread" },
-                                typeOfBreadIds: {
-                                    $push: {
-                                        breadId: {
-                                            _id: "$breadIdDetails._id",
-                                            title: "$breadIdDetails.title",
-                                            price: "$breadIdDetails.price",
-                                            price2: "$breadIdDetails.price2",
-                                            price3: "$breadIdDetails.price3",
-                                            price4: "$breadIdDetails.price4",
-                                            createdAt: "$breadIdDetails.createdAt",
-                                        },
-                                        quantity: "$breadD.typeOfBreadIds.quantity",
-                                        breadDetails: "$breadDetails"
-                                    }
-                                }
-                            }
-                        }
-                    ])].filter((i) => i.typeOfBreadIds.find((it) => String(it.breadDetails.bread) === String(i.bread))).map((item) => {
-                        const breadId = item.typeOfBreadIds.find((i) => String(i.breadId._id) === String(item.bread))?.breadId
-                        let totalPrice = (item.pricetype === 'tan' ? breadId?.price : item.pricetype === 'dokon' ? breadId?.price2 : item.pricetype === 'toyxona' ? breadId?.price3 : breadId.price) * item.quantity
-                        let pending = totalPrice - item.money
-                        return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? breadId?.price : item.pricetype === 'dokon' ? breadId?.price2 : item.pricetype === 'toyxona' ? breadId?.price3 : breadId.price), breadId: (breadId || item.typeOfBreadIds[0]) }
-                    })
+                    // managerPrixod2 = [...managerPrixod2, ...await SellingBreadModel.aggregate([
+                    //     {
+                    //         $lookup: {
+                    //             from: "orderwithdeliveries",
+                    //             localField: "breadId",
+                    //             foreignField: "_id",
+                    //             as: "breadD"
+                    //         }
+                    //     },
+                    //     { $unwind: "$breadD" },
+                    //     { $unwind: "$breadD.typeOfBreadIds" },
+                    //     {
+                    //         $lookup: {
+                    //             from: "managerwares",
+                    //             localField: "breadD.typeOfBreadIds.bread",
+                    //             foreignField: "_id",
+                    //             as: "breadDetails"
+                    //         }
+                    //     },
+                    //     { $unwind: "$breadDetails" },
+                    //     {
+                    //         $match: {
+                    //             status: true,
+                    //             createdAt: { $gte: startOfWeek, $lte: endOfWeek }
+                    //         }
+                    //     },
+                    //     {
+                    //         $lookup: {
+                    //             from: "typeofbreads",
+                    //             localField: "breadDetails.bread",
+                    //             foreignField: "_id",
+                    //             as: "breadIdDetails"
+                    //         }
+                    //     },
+                    //     { $unwind: "$breadIdDetails" },
+                    //     {
+                    //         $lookup: {
+                    //             from: "deliveries",
+                    //             localField: "deliveryId",
+                    //             foreignField: "_id",
+                    //             as: "delivery"
+                    //         }
+                    //     },
+                    //     { $unwind: "$delivery" },
+                    //     {
+                    //         $lookup: {
+                    //             from: "magazines",
+                    //             localField: "magazineId",
+                    //             foreignField: "_id",
+                    //             as: "magazine"
+                    //         }
+                    //     },
+                    //     { $unwind: "$magazine" },
+                    //     {
+                    //         $group: {
+                    //             _id: "$_id",
+                    //             paymentMethod: { $first: "$paymentMethod" },
+                    //             deliveryId: { $first: { _id: "$delivery._id", username: "$delivery.username" } },
+                    //             magazineId: { $first: { _id: "$magazine._id", title: "$magazine.title" } },
+                    //             quantity: { $first: "$quantity" },
+                    //             money: { $first: "$money" },
+                    //             pricetype: { $first: "$pricetype" },
+                    //             createdAt: { $first: "$createdAt" },
+                    //             bread: { $first: "$bread" },
+                    //             typeOfBreadIds: {
+                    //                 $push: {
+                    //                     breadId: {
+                    //                         _id: "$breadIdDetails._id",
+                    //                         title: "$breadIdDetails.title",
+                    //                         price: "$breadIdDetails.price",
+                    //                         price2: "$breadIdDetails.price2",
+                    //                         price3: "$breadIdDetails.price3",
+                    //                         price4: "$breadIdDetails.price4",
+                    //                         createdAt: "$breadIdDetails.createdAt",
+                    //                     },
+                    //                     quantity: "$breadD.typeOfBreadIds.quantity",
+                    //                     breadDetails: "$breadDetails"
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // ])].filter((i) => i.typeOfBreadIds.find((it) => String(it.breadDetails.bread) === String(i.bread))).map((item) => {
+                    //     const breadId = item.typeOfBreadIds.find((i) => String(i.breadId._id) === String(item.bread))?.breadId
+                    //     let totalPrice = (item.pricetype === 'tan' ? breadId?.price : item.pricetype === 'dokon' ? breadId?.price2 : item.pricetype === 'toyxona' ? breadId?.price3 : breadId.price) * item.quantity
+                    //     let pending = totalPrice - item.money
+                    //     return { ...item, totalPrice, pending, price: (item.pricetype === 'tan' ? breadId?.price : item.pricetype === 'dokon' ? breadId?.price2 : item.pricetype === 'toyxona' ? breadId?.price3 : breadId.price), breadId: (breadId || item.typeOfBreadIds[0]) }
+                    // })
                     warehouse = [...warehouse, ...await ManagerWareModel.aggregate([
                         { $match: { sellerId: seller._id, status: true, createdAt: { $gte: startOfWeek, $lte: endOfWeek } } },
                         {
@@ -790,63 +790,63 @@ exports.getStatics = async (req, res) => {
                     ])
                 }
 
-                managerPrixod = [
-                    ...managerPrixod.map((item) => {
-                        let price =
-                            item.pricetype === "tan"
-                                ? item?.breadId?.price
-                                : item.pricetype === "dokon"
-                                    ? item?.breadId?.price2
-                                    : item.pricetype === "toyxona"
-                                        ? item?.breadId?.price3
-                                        : item?.breadId?.price;
+                // managerPrixod = [
+                //     ...managerPrixod.map((item) => {
+                //         let price =
+                //             item.pricetype === "tan"
+                //                 ? item?.breadId?.price
+                //                 : item.pricetype === "dokon"
+                //                     ? item?.breadId?.price2
+                //                     : item.pricetype === "toyxona"
+                //                         ? item?.breadId?.price3
+                //                         : item?.breadId?.price;
 
-                        let totalPrice = price * item.quantity;
-                        let pending = totalPrice - item.money;
+                //         let totalPrice = price * item.quantity;
+                //         let pending = totalPrice - item.money;
 
-                        return { ...item, totalPrice, pending, price };
-                    }),
+                //         return { ...item, totalPrice, pending, price };
+                //     }),
 
-                    ...managerPrixod2.map((item) => {
-                        const breadId = item.typeOfBreadIds.find(
-                            (i) => String(i.breadId._id) === String(item.bread._id)
-                        )?.breadId;
+                //     ...managerPrixod2.map((item) => {
+                //         const breadId = item.typeOfBreadIds.find(
+                //             (i) => String(i.breadId._id) === String(item.bread._id)
+                //         )?.breadId;
 
-                        let price =
-                            item.pricetype === "tan"
-                                ? breadId?.price
-                                : item.pricetype === "dokon"
-                                    ? breadId?.price2
-                                    : item.pricetype === "toyxona"
-                                        ? breadId?.price3
-                                        : breadId?.price;
+                //         let price =
+                //             item.pricetype === "tan"
+                //                 ? breadId?.price
+                //                 : item.pricetype === "dokon"
+                //                     ? breadId?.price2
+                //                     : item.pricetype === "toyxona"
+                //                         ? breadId?.price3
+                //                         : breadId?.price;
 
-                        let totalPrice = price * item.quantity;
-                        let pending = totalPrice - item.money;
+                //         let totalPrice = price * item.quantity;
+                //         let pending = totalPrice - item.money;
 
-                        return {
-                            ...item,
-                            totalPrice,
-                            pending,
-                            price,
-                            breadId,
-                        };
-                    }),
-                ];
+                //         return {
+                //             ...item,
+                //             totalPrice,
+                //             pending,
+                //             price,
+                //             breadId,
+                //         };
+                //     }),
+                // ];
 
-                managerPrixod = managerPrixod.reduce((a, b) => {
-                    const excite = a.find((i) => String(i._id) === String(b._id))
-                    if (!excite) {
-                        a.push({ ...b })
-                    }
-                    return a
-                }, [])
+                // managerPrixod = managerPrixod.reduce((a, b) => {
+                //     const excite = a.find((i) => String(i._id) === String(b._id))
+                //     if (!excite) {
+                //         a.push({ ...b })
+                //     }
+                //     return a
+                // }, [])
 
-                for (const key of managerPrixod) {
-                    if (key.pending >= 0) {
-                        managerPending.push({ ...key })
-                    }
-                }
+                // for (const key of managerPrixod) {
+                //     if (key.pending >= 0) {
+                //         managerPending.push({ ...key })
+                //     }
+                // }
 
 
                 debt = debt.filter((item) => item.length !== 0).flat(Infinity)
@@ -894,13 +894,30 @@ exports.getStatics = async (req, res) => {
                         }
                     }
                 ])
-                managerPrixod = managerPrixod.reduce((a, b) => {
-                    const excite = a.find((i) => String(i._id) === String(b._id))
-                    if (!excite) {
-                        a.push({ ...b })
+                // managerPrixod = managerPrixod.reduce((a, b) => {
+                //     const excite = a.find((i) => String(i._id) === String(b._id))
+                //     if (!excite) {
+                //         a.push({ ...b })
+                //     }
+                //     return a
+                // }, [])
+
+                for (const key of sales) {
+                    let price =
+                        key.pricetype === "tan"
+                            ? key?.breadId?.price
+                            : key.pricetype === "dokon"
+                                ? key?.breadId?.price2
+                                : key.pricetype === "toyxona"
+                                    ? key?.breadId?.price3
+                                    : key?.breadId?.price;
+
+                    let totalPrice = price * key.quantity;
+                    let pending = totalPrice - key.money;
+                    if (pending >= 0) {
+                        managerPending.push({ ...key, pending, totalPrice })
                     }
-                    return a
-                }, [])
+                }
 
 
                 return res.status(200).json({
@@ -914,15 +931,15 @@ exports.getStatics = async (req, res) => {
                             history: managerPending
                         },
                         prixod: {
-                            totalPrice: [...managerPrixod, ...sales].reduce((a, b) => a + b.money, 0),
-                            history: [...managerPrixod, ...sales.map((item) => {
+                            totalPrice: sales.reduce((a, b) => a + ((b.pricetype === 'tan' ? b.breadId.price : b.pricetype === 'dokon' ? b.breadId.price2 : b.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity), 0),
+                            history: sales.map((item) => {
                                 let price = item.pricetype === 'tan' ? item.breadId.price : item.pricetype === 'dokon' ? item.breadId.price2 : item.pricetype === 'toyxona' ? item.breadId.price3 : 0
                                 return { ...item, price }
-                            })]
+                            })
                         },
                         sellingBread: {
-                            totalQuantity: managerPrixod.reduce((a, b) => a + (b.quantity || 0), 0),
-                            history: managerPrixod
+                            totalQuantity: sales.reduce((a, b) => a + (b.quantity || 0), 0),
+                            history: sales
                         },
                         managerware: {
                             totalQuantity: warehouse.reduce((a, b) => a + b.totalQuantity2, 0),
