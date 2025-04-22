@@ -115,7 +115,7 @@ exports.getMagazines = async (req, res) => {
                             }
                         },
                         { $unwind: "$breadIdd" },
-                        { $unwind: "$breadIdd.typeOfBreadIds" }, 
+                        { $unwind: "$breadIdd.typeOfBreadIds" },
                         {
                             $lookup: {
                                 from: "managerwares",
@@ -200,8 +200,8 @@ exports.getMagazines = async (req, res) => {
                         }
                     ])
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
-                    const pending = (sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed
-                    data.push({ ...key, history: sellingBreadToMagazines, pending })
+                    const pending = sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending
+                    data.push({ ...key, history: sellingBreadToMagazines, pending: pending > 0 ? -(pending) + magazinePayed : pending + magazinePayed })
                 }
                 break;
             case "delivery":
@@ -365,8 +365,8 @@ exports.getMagazines = async (req, res) => {
                         }
                     ])
                     magazinePayed = magazinePayed.reduce((a, b) => a + b.pending, 0)
-
-                    data.push({ ...key, history: sellingBreadToMagazines, pending: (sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending) + magazinePayed })
+                    const pending = sellingBreadToMagazines.reduce((a, b) => a + b.pending, 0) + key.pending + magazinePayed
+                    data.push({ ...key, history: sellingBreadToMagazines, pending: pending > 0 ? -(pending) + magazinePayed : pending + magazinePayed })
                 }
                 break;
         }
