@@ -86,8 +86,8 @@ exports.findAll = async (req, res) => {
                     },
                     { $unwind: "$breadIdDetails" },
                     {
-                        $lookup:{
-                            frm:"deliveries"
+                        $lookup: {
+                            frm: "deliveries"
                         }
                     },
                     {
@@ -127,11 +127,12 @@ exports.findAll = async (req, res) => {
                         }
                     }
                 ])]
+             
                 returnedPro = returnedPro.map((item) => {
                     return {
                         ...item,
-                        price: item?.order?.pricetype === "tan" ? item?.order?.typeOfBreadIds[0]?.breadId?.price : item?.order?.pricetype === "dokon" ? item?.order?.typeOfBreadIds[0]?.breadId?.price2 : item?.order?.pricetype === "toyxona" ? item?.order?.typeOfBreadIds[0]?.breadId?.price3 : item?.order?.typeOfBreadIds[0]?.breadId?.price,
-                        totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'narxi' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0)
+                        price: item?.order?.pricetype === "tan" ? item?.order?.typeOfBreadIds[0]?.breadId?.price : item?.order?.pricetype === "dokon" || item?.order?.pricetype === "Do`kon" ? item?.order?.typeOfBreadIds[0]?.breadId?.price2 : item?.order?.pricetype === "toyxona" ? item?.order?.typeOfBreadIds[0]?.breadId?.price3 : item?.order?.typeOfBreadIds[0]?.breadId?.price,
+                        totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.pricetype === 'tan' ? b.breadId.price : item.pricetype === 'dokon' || item.pricetype === 'Do`kon' ? b.breadId.price2 : item.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price) * b.quantity, 0)
                     }
                 })
                 break;
@@ -208,7 +209,7 @@ exports.findAll = async (req, res) => {
                     }
                 ])]
                 returnedPro = returnedPro.map((item) => {
-                    return { ...item, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.order.pricetype === 'tan' ? b.breadId.price : item.order.pricetype === 'dokon' ? b.breadId.price2 : item.order.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price), 0) * item.order.totalQuantity, price: item?.order?.pricetype === "tan" ? item?.order?.typeOfBreadIds[0]?.breadId?.price : item?.order?.pricetype === "dokon" ? item?.order?.typeOfBreadIds[0]?.breadId?.price2 : item?.order?.pricetype === "toyxona" ? item?.order?.typeOfBreadIds[0]?.breadId?.price3 : item?.order?.typeOfBreadIds[0]?.breadId?.price, }
+                    return { ...item, totalPrice: item?.order.typeOfBreadIds?.reduce((a, b) => a + (item.order.pricetype === 'tan' ? b.breadId.price : item.order.pricetype === 'dokon' || item.order.pricetype === 'Do`kon' ? b.breadId.price2 : item.order.pricetype === 'toyxona' ? b.breadId.price3 : b.breadId.price), 0) * item.order.totalQuantity, price: item?.order?.pricetype === "tan" ? item?.order?.typeOfBreadIds[0]?.breadId?.price : item?.order?.pricetype === "dokon" || item?.order?.pricetype === "Do`kon" ? item?.order?.typeOfBreadIds[0]?.breadId?.price2 : item?.order?.pricetype === "toyxona" ? item?.order?.typeOfBreadIds[0]?.breadId?.price3 : item?.order?.typeOfBreadIds[0]?.breadId?.price, }
                 })
                 break;
             }
