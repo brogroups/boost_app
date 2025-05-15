@@ -85,11 +85,11 @@ exports.findAll = async (req, res) => {
                         }
                     },
                     { $unwind: "$breadIdDetails" },
-                    {
-                        $lookup: {
-                            frm: "deliveries"
-                        }
-                    },
+                    // {
+                    //     $lookup: {
+                    //         from: "deliveries"
+                    //     }
+                    // },
                     {
                         $group: {
                             _id: "$_id",
@@ -295,6 +295,7 @@ exports.findAll = async (req, res) => {
         })
     }
     catch (error) {
+        console.error(error)
         return res.status(500).json({
             success: false,
             message: error.message

@@ -63,7 +63,6 @@ exports.createOrderWithDelivery = async (req, res) => {
                     message: "Ruxsat yo'q"
                 });
         }
-        await deleteCache(`orderWithDelivery${req.use.id}`)
         await deleteCache(`sellerBread`)
         return res.status(201).json({
             success: true,
@@ -81,15 +80,6 @@ exports.createOrderWithDelivery = async (req, res) => {
 
 exports.getOrderWithDeliveries = async (req, res) => {
     try {
-        const cache = null
-        await getCache(`orderWithDelivery${req.use.id}`)
-        if (cache) {
-            return res.status(200).json({
-                success: true,
-                message: "list of order with delivereis",
-                orderWithDeliveries: cache?.reverse()
-            })
-        }
         let orderWithDeliveries = []
 
         switch (req.use.role) {
@@ -249,7 +239,6 @@ exports.getOrderWithDeliveries = async (req, res) => {
             }
             return a
         }, [])
-        await setCache(`orderWithDelivery${req.use.id}`, orderWithDeliveries)
         return res.status(200).json({
             success: true,
             message: "list of order with delivereis",
@@ -323,7 +312,6 @@ exports.updateOrderWithDelivery = async (req, res) => {
             );
         }
         await OrderWithDeliveryModel.findByIdAndUpdate(orderWithDelivery._id, { typeOfBreadIds, quantity, description, sellerBreadId, time: time ? time : new Date(), updateAt: new Date(), totalQuantity: req.body.typeOfBreadIds.reduce((a, b) => a + b.quantity, 0) }, { new: true })
-        await deleteCache(`orderWithDelivery${req.use.id}`)
         return res.status(200).json({
             success: true,
             message: "order with delivery updated",
@@ -351,7 +339,6 @@ exports.deleteOrderWithDelivery = async (req, res) => {
             });
         }
 
-        await deleteCache(`orderWithDelivery${req.use.id}`);
 
         return res.status(200).json({
             success: true,

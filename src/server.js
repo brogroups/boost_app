@@ -4,7 +4,7 @@ const SuperAdminModel = require("./models/superAdmin.model");
 const jwt = require("jsonwebtoken");
 const ConnecToDb = require("./configs/connection");
 const { encrypt, decrypt } = require("./helpers/crypto.helper");
-require('colors')
+require("colors");
 require("dotenv").config();
 
 const app = express();
@@ -14,7 +14,17 @@ app.use(express.json());
 app.use(
   cors({
     origin:["https://alphae.uz","*","https://safonon.uz","https://admin.safonon.uz","https://safonon.uz"],
-    // origin: ["http://localhost:8080", "http://localhost:8081", "http://192.168.1.12:8080", "http://localhost:5173", "https://safo-non.netlify.app", "https://alphae.uz", "*", "https://safonon.uz"] || "*",
+    // origin:
+    //   [
+    //     "http://localhost:8080",
+    //     "http://localhost:8081",
+    //     "http://192.168.1.12:8080",
+    //     "http://localhost:5173",
+    //     "https://safo-non.netlify.app",
+    //     "https://alphae.uz",
+    //     "*",
+    //     "https://safonon.uz",
+    //   ] || "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -78,33 +88,32 @@ app.use("/api", SellerPayedRoute);
 const deliveryPayedRoute = require("./routes/deliveryPayed.route");
 app.use("/api", deliveryPayedRoute);
 
-const typeOfWareHouseRoute = require("./routes/typeOfWareHouse.route")
-app.use("/api", typeOfWareHouseRoute)
+const typeOfWareHouseRoute = require("./routes/typeOfWareHouse.route");
+app.use("/api", typeOfWareHouseRoute);
 
-const WareHouseRoute = require("./routes/warehouse.route")
-app.use("/api", WareHouseRoute)
+const WareHouseRoute = require("./routes/warehouse.route");
+app.use("/api", WareHouseRoute);
 
-const TypeOfPayedRoute = require("./routes/typeOfPayed.route")
-app.use("/api", TypeOfPayedRoute)
-
+const TypeOfPayedRoute = require("./routes/typeOfPayed.route");
+app.use("/api", TypeOfPayedRoute);
 
 const PayedStatusRoute = require("./routes/payedStatus.route");
-app.use("/api", PayedStatusRoute)
+app.use("/api", PayedStatusRoute);
 
-const SellerMagazineRoute = require("./routes/sellerMagazine.route")
-app.use("/api", SellerMagazineRoute)
+const SellerMagazineRoute = require("./routes/sellerMagazine.route");
+app.use("/api", SellerMagazineRoute);
 
-const ReturnedProRoute = require("./routes/returnedPro.route")
-app.use("/api", ReturnedProRoute)
+const ReturnedProRoute = require("./routes/returnedPro.route");
+app.use("/api", ReturnedProRoute);
 
-const SaleRoute = require("./routes/sale.route")
-app.use("/api", SaleRoute)
+const SaleRoute = require("./routes/sale.route");
+app.use("/api", SaleRoute);
 
-const InvalidProRoute = require("./routes/Invalid.route")
-app.use("/api", InvalidProRoute)
+const InvalidProRoute = require("./routes/Invalid.route");
+app.use("/api", InvalidProRoute);
 
-const ManagerWareRoute = require("./routes/managerWare.route")
-app.use("/api", ManagerWareRoute)
+const ManagerWareRoute = require("./routes/managerWare.route");
+app.use("/api", ManagerWareRoute);
 
 app.use("/api/refreshToken", async (req, res) => {
   const { refreshToken } = req.body;
@@ -112,8 +121,8 @@ app.use("/api/refreshToken", async (req, res) => {
 
   try {
     jwt.verify(refreshToken, process.env.JWT_TOKEN_REFRESH, (err, user) => {
-
-      if (err) return res.status(403).json({ success: false, message: err.message });
+      if (err)
+        return res.status(403).json({ success: false, message: err.message });
 
       const newAccessToken = jwt.sign(
         { id: user.id, username: user.username },
@@ -130,7 +139,6 @@ app.use("/api/refreshToken", async (req, res) => {
   }
 });
 
-
 const PORT = process.env.PORT || 3500;
 
 const StartServer = async () => {
@@ -141,7 +149,7 @@ const StartServer = async () => {
     await ConnecToDb();
     const superAdmin = await SuperAdminModel.findOne({ login: "admin" });
     if (!superAdmin) {
-      const hashPassword = encrypt("P@ssw0rd")  
+      const hashPassword = encrypt("P@ssw0rd");
       const refreshToken = await jwt.sign(
         { username: "admin", hashPassword, login: "admin" },
         process.env.JWT_TOKEN_REFRESH
