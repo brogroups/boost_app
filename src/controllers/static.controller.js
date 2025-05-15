@@ -1014,6 +1014,7 @@ const managerStatics = async (req, res) => {
     console.error(error);
   }
 };
+
 const deliveryStatics = async (req, res) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -1021,24 +1022,6 @@ const deliveryStatics = async (req, res) => {
   const startDay = new Date(today);
   const endDay = new Date(today);
   endDay.setHours(23, 59, 59, 999);
-
-  const dayOfWeek = today.getDay();
-  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const diffToSunday = 7 - dayOfWeek;
-
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() + diffToMonday);
-  startOfWeek.setHours(0, 0, 0, 0);
-
-  const endOfWeek = new Date(today);
-  endOfWeek.setDate(today.getDate() + diffToSunday);
-  endOfWeek.setHours(23, 59, 59, 999);
-
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  startOfMonth.setHours(0, 0, 0, 0);
-
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-  endOfMonth.setHours(23, 59, 59, 999);
   try {
     let DeliveryDebts = await DeliveryDebtModel.aggregate([
       {
@@ -1078,6 +1061,7 @@ const deliveryStatics = async (req, res) => {
         $match: {
           deliveryId: new mongoose.Types.ObjectId(req.use.id),
           status: true,
+          createdAt: { $gte: startDay, $lte: endDay },
         },
       },
       {
@@ -1169,6 +1153,7 @@ const deliveryStatics = async (req, res) => {
         $match: {
           deliveryId: new mongoose.Types.ObjectId(req.use.id),
           status: true,
+          createdAt: { $gte: startDay, $lte: endDay }
         },
       },
       {
@@ -1324,7 +1309,8 @@ const deliveryStatics = async (req, res) => {
       let magazinePayed = await MagazinePayedModel.aggregate([
         {
           $match: {
-            magazineId: new mongoose.Types.ObjectId(key._id),
+            magazineId: new mongoose.Types.ObjectId(key),
+            createdAt: { $gte: startDay, $lte: endDay }
           },
         },
       ]);
@@ -1335,7 +1321,7 @@ const deliveryStatics = async (req, res) => {
       {
         $match: {
           deliveryId: new mongoose.Types.ObjectId(req.use.id),
-          // status:true,
+          createdAt: { $gte: startDay, $lte: endDay },
           totalQuantity: { $gt: 0 },
         },
       },
