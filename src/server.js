@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin:["https://alphae.uz","*","https://safonon.uz","https://admin.safonon.uz","https://safonon.uz"],
+    origin:["https://alphae.uz","*","https://kodx.uz","https://safonon.uz","https://admin.safonon.uz","https://safonon.uz","http://localhost:8080"],
     // origin:
     //   [
     //     "http://localhost:8080",
