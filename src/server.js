@@ -24,18 +24,20 @@ const allowedOrigins = [
   '*'
 ];
 
+
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
+  origin: (origin, callback) => {
+    console.log("Request from origin:", origin); // Tekshirish uchun
+    callback(null, true); // Har qanday domen ruxsat etiladi
   },
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
 }));
+
+
+
+
 const ManagerRoute = require("./routes/manager.route");
 app.use("/api", ManagerRoute);
 
