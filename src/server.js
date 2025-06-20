@@ -12,15 +12,16 @@ const app = express();
 app.use(express.json());
 
 const allowedOrigins = [
-  "https://alphae.uz",
-  "https://kodx.uz",
-  "https://safonon.uz",
-  "https://admin.safonon.uz",
-  "http://localhost:8080",
-  "http://localhost:8081",
-  "http://192.168.1.12:8080",
-  "http://localhost:5173",
-  "https://safo-non.netlify.app"
+  // "https://alphae.uz",
+  // "https://kodx.uz",
+  // "https://safonon.uz",
+  // "https://admin.safonon.uz",
+  // "http://localhost:8080",
+  // "http://localhost:8081",
+  // "http://192.168.1.12:8080",
+  // "http://localhost:5173",
+  // "https://safo-non.netlify.app"
+  '*'
 ];
 
 app.use(cors({
